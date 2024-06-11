@@ -2,15 +2,17 @@ package com.rankandfile.backend.entity;
 
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
 
 @Table(name = "RAF_PERSON")
 @Entity
+@Data
 public class Person extends RAFAudit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PERSON_ID", nullable = false, updatable = false)
     private String personId;
 
     @Column(name = "FIRST_NM")
@@ -50,7 +52,7 @@ public class Person extends RAFAudit {
     private String email;
 
     @Column(name = "PHOTO_URL")
-    private String photoUrl;
+    private String imageUrl;
 
     @Column(name = "PARTY_MEM")
     private String partyMembership;
