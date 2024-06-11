@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/rankandfile
+    username: ${db_user}
+    password: ${db_pass}
+
+  liquibase:
+    change-log: classpath:/db/changelog/app-changelog.xml
