@@ -5,5 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_PERSON.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_STATE_DOMN.sql"/>
+    <include file="db/changelog/scripts/v1/INSERT-DATA-RAF_STATE-DOMN.sql"/>
 
 </databaseChangeLog>

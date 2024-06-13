@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.rankandfile</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>raf-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rank-and-file-backend</name>
 	<description>Backend service and database for rankandfile.com web application</description>

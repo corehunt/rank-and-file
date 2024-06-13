@@ -33,8 +33,11 @@ public class Person extends RAFAudit {
     @Column(name = "WEBSITE")
     private String website;
 
-    @Column(name = "OFFICE_LOC")
-    private String officeLocation;
+    @Column(name = "OFFICE_LOC_LN1")
+    private String officeLocLine1;
+
+    @Column(name = "OFFICE_LOC_LN2")
+    private String officeLocLine2;
 
     @Column(name = "PHONE")
     private String phoneNo;
@@ -42,8 +45,8 @@ public class Person extends RAFAudit {
     @Column(name = "STATE")
     private String state;
 
-    @Column(name = "DISTRICT")
-    private String district;
+    @Column(name = "CURRENT_DISTRICT")
+    private Integer currentDistrict;
 
     @Column(name = "BIO")
     private String biography;
@@ -51,10 +54,16 @@ public class Person extends RAFAudit {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "PHOTO_URL")
+    @Column(name = "IMG_URL")
     private String imageUrl;
+
+    @Column(name = "IMG_ATTRIBUTION")
+    private String imgAttribution;
 
     @Column(name = "PARTY_MEM")
     private String partyMembership;
+
+    @Column(name = "PARTY_ST_YR")
+    private Integer partyStartYr;
 
 }
