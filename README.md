@@ -22,3 +22,8 @@ We're using xml file system with .sql files to create database tables
 - db_user
 - db_pass
 - api_key
+
+# Please follow the format below when creating branches:
+- Branch name should be: RAF_### - where ### is an incrementing number of the previous branch
+- Be as detailed as possible in commit messages and don't delete branch after merging
+- Request code review/merge request when raising against 'master' branch
