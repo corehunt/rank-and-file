@@ -13,6 +13,8 @@ public class PersonController {
 
     private final PersonService personService;
 
+//    private final Logger LOGGER = new
+
     public PersonController(PersonService personService) {
         this.personService = personService;
     }
@@ -34,5 +36,15 @@ public class PersonController {
         Person person = personService.fetchAndProcessPerson(bioguideId);
         personService.savePerson(person);
         return ResponseEntity.ok("Person fetched and saved successfully.");
+    }
+
+    @PostMapping("fetch/members/{congressId}")
+    public ResponseEntity<String> fetchAndSaveMembersOfCongress(@PathVariable String congressId) {
+        List<Person> congressPersonList = personService.fetchMembersOfCurrentCongress(congressId);
+        for (Person member : congressPersonList){
+            personService.savePerson(member);
+            System.out.println("successfully saved member: {}");
+        }
+        return ResponseEntity.ok("Successfully fetched and saved members of Congress.");
     }
 }

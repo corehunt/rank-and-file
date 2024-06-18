@@ -11,4 +11,6 @@ public class ApiConfig {
 
     private String key;
 
+    private String url;
+
 }

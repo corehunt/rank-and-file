@@ -16,3 +16,4 @@ spring:
     change-log: classpath:/db/changelog/app-changelog.xml
 
 congress.api.key: ${api_key}
+congress.api.url: "https://api.congress.gov/v3/"

@@ -6,48 +6,60 @@ import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.domain.StateDomain;
 import com.rankandfile.backend.repository.StateRepository;
-import com.rankandfile.backend.util.IdGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Formatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
-public class PersonProcessor {
-
-    private final IdGenerator idGenerator;
+public class CongressMemberProcessor {
 
     @Autowired
     private final StateRepository stateRepository;
 
-    public PersonProcessor(IdGenerator idGenerator,
-                           StateRepository stateRepository) {
-        this.idGenerator = idGenerator;
+    public CongressMemberProcessor(StateRepository stateRepository) {
         this.stateRepository = stateRepository;
     }
 
-    public Person validatePerson(String json) {
-        JsonObject memberObject = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("member");
 
+    public List<Person> processMembers(String json) {
+        JsonObject responseObject = JsonParser.parseString(json).getAsJsonObject();
+        JsonArray membersArray = responseObject.getAsJsonArray("members");
+
+        List<Person> persons = new ArrayList<>();
+
+        for (int i = 0; i < membersArray.size(); i++) {
+            JsonObject memberObject = membersArray.get(i).getAsJsonObject();
+            Person person = extractPersonFromJson(memberObject);
+            persons.add(person);
+        }
+
+        return persons;
+    }
+
+    private Person extractPersonFromJson(JsonObject memberObject) {
         Person person = new Person();
-        person.setPersonId(memberObject.get("bioguideId").getAsString());
 
-        person.setFirstName(memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() ? memberObject.get("firstName").getAsString() : null);
-        person.setLastName(memberObject.has("lastName") && !memberObject.get("lastName").isJsonNull() ? memberObject.get("lastName").getAsString() : null);
+        person.setPersonId(memberObject.has("bioguideId") && !memberObject.get("bioguideId").isJsonNull() ? memberObject.get("bioguideId").getAsString() : null);
 
-        if (memberObject.has("addressInformation") && memberObject.get("addressInformation").isJsonObject()) {
-            JsonObject addressInformationObject = memberObject.getAsJsonObject("addressInformation");
-            String city = addressInformationObject.has("city") && !addressInformationObject.get("city").isJsonNull() ? addressInformationObject.get("city").getAsString() : null;
-            String district = addressInformationObject.has("district") && !addressInformationObject.get("district").isJsonNull() ? addressInformationObject.get("district").getAsString() : null;
-            String zipCode = addressInformationObject.has("zipCode") && !addressInformationObject.get("zipCode").isJsonNull() ? addressInformationObject.get("zipCode").getAsString() : null;
-            String officeAddress = addressInformationObject.has("officeAddress") && !addressInformationObject.get("officeAddress").isJsonNull() ? addressInformationObject.get("officeAddress").getAsString() : null;
-            String phoneNumber = addressInformationObject.has("phoneNumber") && !addressInformationObject.get("phoneNumber").isJsonNull() ? addressInformationObject.get("phoneNumber").getAsString() : null;
-
-            person.setOfficeLocLine1(officeAddress);
-            person.setOfficeLocLine2(cleanAddress(city, district, zipCode));
-            person.setPhoneNo(phoneNumber);
-            person.setState(district);
+        // Handle name fields
+        if (memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() && memberObject.has("lastName") && !memberObject.get("lastName").isJsonNull()) {
+            person.setFirstName(memberObject.get("firstName").getAsString());
+            person.setLastName(memberObject.get("lastName").getAsString());
+        } else if (memberObject.has("name") && !memberObject.get("name").isJsonNull()) {
+            String[] nameArray = extractNames(memberObject.get("name").getAsString());
+            person.setFirstName(nameArray[0]);
+            if (nameArray.length == 2) {
+                person.setLastName(nameArray[1]);
+            } else if (nameArray.length == 3) {
+                person.setMidName(nameArray[1]);
+                person.setLastName(nameArray[2]);
+            }
+        } else {
+            person.setFirstName(null);
+            person.setLastName(null);
         }
 
         person.setCurrentDistrict(memberObject.has("district") && !memberObject.get("district").isJsonNull() ? memberObject.get("district").getAsInt() : null);
@@ -76,20 +88,10 @@ public class PersonProcessor {
         person.setState(stateString);
 
         return person;
-
     }
 
-    public String cleanAddress(String addressStr1, String addressStr2, String addressStr3) {
-        Formatter formatter = new Formatter();
-        formatter.format("%s, %s %s", addressStr1, addressStr2, addressStr3);
-        String finalAddress = formatter.toString();
-        formatter.close();
-
-        return finalAddress;
-    }
-
-    public String getStateAbbrByFullName(String stateName) {
-        if(stateName != null) {
+    private String getStateAbbrByFullName(String stateName) {
+        if (stateName != null) {
             Optional<StateDomain> state = stateRepository.findByStateNm(stateName);
             return state.map(StateDomain::getStateAbbr).orElse(null); // Return state abbreviation if found, else null
         } else {
@@ -97,4 +99,25 @@ public class PersonProcessor {
         }
     }
 
+    private String[] extractNames(String fullName) {
+        // Split the full name into last name and first name parts
+        String[] nameParts = fullName.split(",\\s*");
+        String lastName = nameParts[0].trim();
+        String firstName = "";
+        String middleName = "";
+
+        if (nameParts.length > 1) {
+            String[] firstNameParts = nameParts[1].trim().split("\\s+");
+            firstName = firstNameParts[0];
+            if (firstNameParts.length > 1) {
+                middleName = firstNameParts[1];
+            }
+        }
+
+        if (middleName.isEmpty()) {
+            return new String[]{firstName, lastName};
+        } else {
+            return new String[]{firstName, middleName, lastName};
+        }
+    }
 }
