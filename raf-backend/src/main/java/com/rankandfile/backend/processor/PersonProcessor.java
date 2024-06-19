@@ -6,8 +6,7 @@ import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.domain.StateDomain;
 import com.rankandfile.backend.repository.StateRepository;
-import com.rankandfile.backend.util.IdGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.rankandfile.backend.util.Supplier;
 import org.springframework.stereotype.Component;
 
 import java.util.Formatter;
@@ -16,21 +15,20 @@ import java.util.Optional;
 @Component
 public class PersonProcessor {
 
-    private final IdGenerator idGenerator;
-
-    @Autowired
     private final StateRepository stateRepository;
 
-    public PersonProcessor(IdGenerator idGenerator,
-                           StateRepository stateRepository) {
-        this.idGenerator = idGenerator;
+    private Supplier personSupplier;
+
+    public PersonProcessor(StateRepository stateRepository, Supplier personSupplier) {
         this.stateRepository = stateRepository;
+        this.personSupplier = personSupplier;
     }
 
     public Person validatePerson(String json) {
         JsonObject memberObject = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("member");
 
-        Person person = new Person();
+        Person person = personSupplier.findOrCreatePerson(memberObject.get("bioguideId").getAsString());
+
         person.setPersonId(memberObject.get("bioguideId").getAsString());
 
         person.setFirstName(memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() ? memberObject.get("firstName").getAsString() : null);
