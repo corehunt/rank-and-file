@@ -1,10 +1,13 @@
 package com.rankandfile.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table(name = "RAF_PERSON")
 @Entity
@@ -65,5 +68,15 @@ public class Person extends RAFAudit {
 
     @Column(name = "PARTY_ST_YR")
     private Integer partyStartYr;
+
+    @ManyToMany
+    @JoinTable(
+            name = "RAF_PERSON_CONGRESS",
+            joinColumns = @JoinColumn(name = "PERSON_ID"),
+            inverseJoinColumns = @JoinColumn(name = "CONGRESS_ID")
+    )
+
+    @JsonIgnore
+    private Set<Congress> congresses = new HashSet<>();
 
 }

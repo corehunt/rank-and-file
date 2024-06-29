@@ -7,5 +7,8 @@
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_PERSON.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_STATE_DOMN.sql"/>
     <include file="db/changelog/scripts/v1/INSERT-DATA-RAF_STATE-DOMN.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_CONGRESS.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_SESSION.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_PERSON_CONGRESS.sql"/>
 
 </databaseChangeLog>

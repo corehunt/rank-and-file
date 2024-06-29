@@ -15,4 +15,12 @@ public class IdGenerator {
         String randomString = String.valueOf(random.nextInt(99999));
         return bioguideId.concat(randomString);
     }
+
+    public Integer generateCongressId() {
+        return random.nextInt(999999);
+    }
+
+    public Integer generateSessionId() {
+        return random.nextInt(999999);
+    }
 }
