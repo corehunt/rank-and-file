@@ -1,16 +1,21 @@
 package com.rankandfile.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table(name = "RAF_PERSON")
 @Entity
+@Data
 public class Person extends RAFAudit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PERSON_ID", nullable = false, updatable = false)
     private String personId;
 
     @Column(name = "FIRST_NM")
@@ -31,8 +36,11 @@ public class Person extends RAFAudit {
     @Column(name = "WEBSITE")
     private String website;
 
-    @Column(name = "OFFICE_LOC")
-    private String officeLocation;
+    @Column(name = "OFFICE_LOC_LN1")
+    private String officeLocLine1;
+
+    @Column(name = "OFFICE_LOC_LN2")
+    private String officeLocLine2;
 
     @Column(name = "PHONE")
     private String phoneNo;
@@ -40,8 +48,8 @@ public class Person extends RAFAudit {
     @Column(name = "STATE")
     private String state;
 
-    @Column(name = "DISTRICT")
-    private String district;
+    @Column(name = "CURRENT_DISTRICT")
+    private Integer currentDistrict;
 
     @Column(name = "BIO")
     private String biography;
@@ -49,10 +57,26 @@ public class Person extends RAFAudit {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "PHOTO_URL")
-    private String photoUrl;
+    @Column(name = "IMG_URL")
+    private String imageUrl;
+
+    @Column(name = "IMG_ATTRIBUTION")
+    private String imgAttribution;
 
     @Column(name = "PARTY_MEM")
     private String partyMembership;
+
+    @Column(name = "PARTY_ST_YR")
+    private Integer partyStartYr;
+
+    @ManyToMany
+    @JoinTable(
+            name = "RAF_PERSON_CONGRESS",
+            joinColumns = @JoinColumn(name = "PERSON_ID"),
+            inverseJoinColumns = @JoinColumn(name = "CONGRESS_ID")
+    )
+
+    @JsonIgnore
+    private Set<Congress> congresses = new HashSet<>();
 
 }
