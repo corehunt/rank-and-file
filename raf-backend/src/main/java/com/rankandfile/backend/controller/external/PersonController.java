@@ -1,4 +1,4 @@
-package com.rankandfile.backend.controller;
+package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.service.PersonService;
@@ -12,8 +12,6 @@ import java.util.List;
 public class PersonController {
 
     private final PersonService personService;
-
-//    private final Logger LOGGER = new
 
     public PersonController(PersonService personService) {
         this.personService = personService;
