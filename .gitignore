@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### raf-frontend ###
+raf-frontend/node_modules

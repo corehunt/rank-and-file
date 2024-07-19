@@ -83,5 +83,13 @@ public class PersonService {
         return personRepository.findAll();
     }
 
+    public List<Person> getPersonListByFullName(String searchTerm) {
+        return personRepository.findPersonByFullNameSearchTerm(searchTerm);
+    }
+
+    public Person getPersonById(String personId) {
+        return personRepository.findPersonByPersonId(personId);
+    }
+
 
 }

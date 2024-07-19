@@ -31,8 +31,31 @@ public class PersonProcessor {
 
         person.setPersonId(memberObject.get("bioguideId").getAsString());
 
-        person.setFirstName(memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() ? memberObject.get("firstName").getAsString() : null);
-        person.setLastName(memberObject.has("lastName") && !memberObject.get("lastName").isJsonNull() ? memberObject.get("lastName").getAsString() : null);
+        if (memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() && memberObject.has("lastName") && !memberObject.get("lastName").isJsonNull()) {
+            String firstName = memberObject.get("firstName").getAsString();
+            String lastName = memberObject.get("lastName").getAsString();
+            person.setFirstName(firstName);
+            person.setLastName(lastName);
+            person.setFullName(firstName + " " + lastName);
+        } else if (memberObject.has("name") && !memberObject.get("name").isJsonNull()) {
+            String[] nameArray = extractNames(memberObject.get("name").getAsString());
+            String firstName = nameArray[0];
+            person.setFirstName(firstName);
+            if (nameArray.length == 2) {
+                String lastName = nameArray[1];
+                person.setLastName(lastName);
+                person.setFullName(firstName + " " + lastName);
+            } else if (nameArray.length == 3) {
+                String midName = nameArray[1];
+                String lastName = nameArray[2];
+                person.setMidName(midName);
+                person.setLastName(lastName);
+                person.setFullName(firstName + " " + midName + " " + lastName);
+            }
+        } else {
+            person.setFirstName(null);
+            person.setLastName(null);
+        }
 
         if (memberObject.has("addressInformation") && memberObject.get("addressInformation").isJsonObject()) {
             JsonObject addressInformationObject = memberObject.getAsJsonObject("addressInformation");
@@ -70,8 +93,7 @@ public class PersonProcessor {
             person.setImageUrl(imgUrl);
         }
 
-        String stateString = getStateAbbrByFullName(memberObject.has("state") && !memberObject.get("state").isJsonNull() ? memberObject.get("state").getAsString() : null);
-        person.setState(stateString);
+        person.setState(memberObject.has("state") && !memberObject.get("state").isJsonNull() ? memberObject.get("state").getAsString() : null);
 
         return person;
 
@@ -92,6 +114,28 @@ public class PersonProcessor {
             return state.map(StateDomain::getStateAbbr).orElse(null); // Return state abbreviation if found, else null
         } else {
             return null;
+        }
+    }
+
+    private String[] extractNames(String fullName) {
+        // Split the full name into last name and first name parts
+        String[] nameParts = fullName.split(",\\s*");
+        String lastName = nameParts[0].trim();
+        String firstName = "";
+        String middleName = "";
+
+        if (nameParts.length > 1) {
+            String[] firstNameParts = nameParts[1].trim().split("\\s+");
+            firstName = firstNameParts[0];
+            if (firstNameParts.length > 1) {
+                middleName = firstNameParts[1];
+            }
+        }
+
+        if (middleName.isEmpty()) {
+            return new String[]{firstName, lastName};
+        } else {
+            return new String[]{firstName, middleName, lastName};
         }
     }
 
