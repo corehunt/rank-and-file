@@ -27,6 +27,9 @@ public class Person extends RAFAudit {
     @Column(name = "LAST_NM")
     private String lastName;
 
+    @Column(name = "FULL_NM")
+    private String fullName;
+
     @Column(name = "BIRTH_DT")
     private LocalDate birthDate;
 

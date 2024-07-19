@@ -1,4 +1,4 @@
-package com.rankandfile.backend.controller;
+package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Congress;
 import com.rankandfile.backend.service.CongressService;

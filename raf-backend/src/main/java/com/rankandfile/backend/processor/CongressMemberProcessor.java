@@ -46,16 +46,25 @@ public class CongressMemberProcessor {
 
         // Handle name fields
         if (memberObject.has("firstName") && !memberObject.get("firstName").isJsonNull() && memberObject.has("lastName") && !memberObject.get("lastName").isJsonNull()) {
-            person.setFirstName(memberObject.get("firstName").getAsString());
-            person.setLastName(memberObject.get("lastName").getAsString());
+            String firstName = memberObject.get("firstName").getAsString();
+            String lastName = memberObject.get("lastName").getAsString();
+            person.setFirstName(firstName);
+            person.setLastName(lastName);
+            person.setFullName(firstName + " " + lastName);
         } else if (memberObject.has("name") && !memberObject.get("name").isJsonNull()) {
             String[] nameArray = extractNames(memberObject.get("name").getAsString());
-            person.setFirstName(nameArray[0]);
+            String firstName = nameArray[0];
+            person.setFirstName(firstName);
             if (nameArray.length == 2) {
-                person.setLastName(nameArray[1]);
+                String lastName = nameArray[1];
+                person.setLastName(lastName);
+                person.setFullName(firstName + " " + lastName);
             } else if (nameArray.length == 3) {
-                person.setMidName(nameArray[1]);
-                person.setLastName(nameArray[2]);
+                String midName = nameArray[1];
+                String lastName = nameArray[2];
+                person.setMidName(midName);
+                person.setLastName(lastName);
+                person.setFullName(firstName + " " + midName + " " + lastName);
             }
         } else {
             person.setFirstName(null);
@@ -84,8 +93,7 @@ public class CongressMemberProcessor {
             person.setImageUrl(imgUrl);
         }
 
-        String stateString = getStateAbbrByFullName(memberObject.has("state") && !memberObject.get("state").isJsonNull() ? memberObject.get("state").getAsString() : null);
-        person.setState(stateString);
+        person.setState(memberObject.has("state") && !memberObject.get("state").isJsonNull() ? memberObject.get("state").getAsString() : null);
 
         return person;
     }

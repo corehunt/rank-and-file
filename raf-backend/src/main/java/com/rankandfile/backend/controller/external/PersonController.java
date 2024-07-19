@@ -2,14 +2,20 @@ package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.service.PersonService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/persons")
+@Controller("externalPersonController")
 public class PersonController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(com.rankandfile.backend.controller.external.PersonController.class);
 
     private final PersonService personService;
 
@@ -41,7 +47,7 @@ public class PersonController {
         List<Person> congressPersonList = personService.fetchMembersOfCurrentCongress(congressId);
         for (Person member : congressPersonList){
             personService.savePerson(member);
-            System.out.println("successfully saved member: {}");
+            LOGGER.info("successfully saved member: {}");
         }
         return ResponseEntity.ok("Successfully fetched and saved members of Congress.");
     }
