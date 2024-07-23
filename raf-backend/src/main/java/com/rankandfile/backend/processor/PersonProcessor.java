@@ -80,10 +80,12 @@ public class PersonProcessor {
         person.setCurrentDistrict(memberObject.has("district") && !memberObject.get("district").isJsonNull() ? memberObject.get("district").getAsInt() : null);
 
         String currentMember = (memberObject.has("currentMember") && !memberObject.get("currentMember").isJsonNull() ? memberObject.get("currentMember").getAsString() : null);
-        if(currentMember.equals("true")) {
-            person.setCurrentMember("Yes");
-        } else if (currentMember.equals("false")) {
-            person.setCurrentMember("No");
+        if(currentMember != null){
+            if(currentMember.equals("true")) {
+                person.setCurrentMember("Yes");
+            } else if (currentMember.equals("false")) {
+                person.setCurrentMember("No");
+            }
         } else {
             person.setCurrentMember(null);
         }
