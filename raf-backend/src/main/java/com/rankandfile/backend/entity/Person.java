@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "RAF_PERSON")
@@ -54,6 +55,9 @@ public class Person extends RAFAudit {
     @Column(name = "CURRENT_DISTRICT")
     private Integer currentDistrict;
 
+    @Column(name = "CURRENT_MEM")
+    private String currentMember;
+
     @Column(name = "BIO")
     private String biography;
 
@@ -78,8 +82,34 @@ public class Person extends RAFAudit {
             joinColumns = @JoinColumn(name = "PERSON_ID"),
             inverseJoinColumns = @JoinColumn(name = "CONGRESS_ID")
     )
-
     @JsonIgnore
     private Set<Congress> congresses = new HashSet<>();
 
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Term> termList;
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "personId='" + personId + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", midName='" + midName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", birthDate=" + birthDate +
+                ", deathDate=" + deathDate +
+                ", website='" + website + '\'' +
+                ", officeLocLine1='" + officeLocLine1 + '\'' +
+                ", officeLocLine2='" + officeLocLine2 + '\'' +
+                ", phoneNo='" + phoneNo + '\'' +
+                ", state='" + state + '\'' +
+                ", currentDistrict=" + currentDistrict +
+                ", biography='" + biography + '\'' +
+                ", email='" + email + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", imgAttribution='" + imgAttribution + '\'' +
+                ", partyMembership='" + partyMembership + '\'' +
+                ", partyStartYr=" + partyStartYr +
+                '}';
+    }
 }

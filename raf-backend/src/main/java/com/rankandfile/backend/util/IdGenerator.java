@@ -23,4 +23,6 @@ public class IdGenerator {
     public Integer generateSessionId() {
         return random.nextInt(999999);
     }
+
+    public Integer generateTermId(){return random.nextInt(999999);}
 }
