@@ -4,24 +4,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
+import com.rankandfile.backend.entity.Term;
 import com.rankandfile.backend.entity.domain.StateDomain;
 import com.rankandfile.backend.repository.StateRepository;
+import com.rankandfile.backend.util.IdGenerator;
 import com.rankandfile.backend.util.Supplier;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class PersonProcessor {
 
     private final StateRepository stateRepository;
+    private final IdGenerator idGenerator;
 
     private Supplier personSupplier;
 
-    public PersonProcessor(StateRepository stateRepository, Supplier personSupplier) {
+    public PersonProcessor(StateRepository stateRepository, Supplier personSupplier, IdGenerator idGenerator) {
         this.stateRepository = stateRepository;
         this.personSupplier = personSupplier;
+        this.idGenerator = idGenerator;
     }
 
     public Person validatePerson(String json) {
@@ -73,6 +79,17 @@ public class PersonProcessor {
 
         person.setCurrentDistrict(memberObject.has("district") && !memberObject.get("district").isJsonNull() ? memberObject.get("district").getAsInt() : null);
 
+        String currentMember = (memberObject.has("currentMember") && !memberObject.get("currentMember").isJsonNull() ? memberObject.get("currentMember").getAsString() : null);
+        if(currentMember != null){
+            if(currentMember.equals("true")) {
+                person.setCurrentMember("Yes");
+            } else if (currentMember.equals("false")) {
+                person.setCurrentMember("No");
+            }
+        } else {
+            person.setCurrentMember(null);
+        }
+
         person.setWebsite(memberObject.has("officialWebsiteUrl") && !memberObject.get("officialWebsiteUrl").isJsonNull() ? memberObject.get("officialWebsiteUrl").getAsString() : null);
 
         JsonArray partyHistoryArray = memberObject.getAsJsonArray("partyHistory");
@@ -94,6 +111,27 @@ public class PersonProcessor {
         }
 
         person.setState(memberObject.has("state") && !memberObject.get("state").isJsonNull() ? memberObject.get("state").getAsString() : null);
+
+        JsonArray termsArray = memberObject.getAsJsonArray("terms");
+        if (termsArray != null && !termsArray.isEmpty()) {
+            List<Term> terms = new ArrayList<>();
+            for (int i = 0; i < termsArray.size(); i++) {
+                JsonObject termObject = termsArray.get(i).getAsJsonObject();
+                Term term = new Term();
+                term.setTermId(idGenerator.generateTermId());
+                term.setPerson(person);
+                term.setChamber(termObject.has("chamber") && !termObject.get("chamber").isJsonNull() ? termObject.get("chamber").getAsString() : null);
+                term.setCongress(termObject.has("congress") && !termObject.get("congress").isJsonNull() ? termObject.get("congress").getAsInt() : null);
+                term.setDistrict(termObject.has("district") && !termObject.get("district").isJsonNull() ? termObject.get("district").getAsInt() : null);
+                term.setEndYr(termObject.has("endYear") && !termObject.get("endYear").isJsonNull() ? termObject.get("endYear").getAsInt() : null);
+                term.setMemberType(termObject.has("memberType") && !termObject.get("memberType").isJsonNull() ? termObject.get("memberType").getAsString() : null);
+                term.setStartYr(termObject.has("startYear") && !termObject.get("startYear").isJsonNull() ? termObject.get("startYear").getAsInt() : null);
+                term.setStateCd(termObject.has("stateCode") && !termObject.get("stateCode").isJsonNull() ? termObject.get("stateCode").getAsString() : null);
+                term.setStateNm(termObject.has("stateName") && !termObject.get("stateName").isJsonNull() ? termObject.get("stateName").getAsString() : null);
+                terms.add(term);
+            }
+            person.setTermList(terms);
+        }
 
         return person;
 

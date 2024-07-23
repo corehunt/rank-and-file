@@ -7,6 +7,18 @@ import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
+interface Term {
+    termId: number;
+    chamber: string;
+    congress: number;
+    district: number;
+    endYr: number;
+    memberType: string;
+    startYr: number;
+    stateCd: string;
+    stateNm: string;
+}
+
 interface Politician {
     personId: string;
     firstName: string;
@@ -21,12 +33,14 @@ interface Politician {
     phoneNo?: string;
     state?: string;
     currentDistrict?: number;
+    currentMember?: string;
     biography?: string;
     email?: string;
     imageUrl?: string;
     imgAttribution?: string;
     partyMembership?: string;
     partyStartYr?: number;
+    termList?: Term[];
 }
 
 interface PoliticianPageProps {
@@ -47,7 +61,7 @@ function TabPanel(props: { children?: React.ReactNode; index: any; value: any })
         >
             {value === index && (
                 <Box p={3}>
-                    <Typography>{children}</Typography>
+                    {children}
                 </Box>
             )}
         </div>
@@ -78,6 +92,9 @@ const PoliticianPage: React.FC<PoliticianPageProps> = ({ politician, error }) =>
         return <div>Error: {error}</div>;
     }
 
+    // Find the term with the highest congress number
+    const latestTerm = politician?.termList?.slice().sort((a, b) => b.congress - a.congress)[0];
+
     return (
         <div className="container mx-auto p-4">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -106,14 +123,14 @@ const PoliticianPage: React.FC<PoliticianPageProps> = ({ politician, error }) =>
                     <Typography variant="body1"><strong>Phone:</strong> {politician?.phoneNo}</Typography>
                 </div>
                 <div>
-                    <Typography variant="body1"><strong>Chamber:</strong> House of Representatives</Typography>
+                    <Typography variant="body1"><strong>Chamber:</strong> {latestTerm?.chamber || 'N/A'}</Typography>
                     <Typography variant="body1"><strong>Years active:</strong> Member Since {politician?.partyStartYr}</Typography>
-                    <Typography variant="body1"><strong>Current Member:</strong> Yes</Typography>
+                    <Typography variant="body1"><strong>Current Member:</strong> {politician?.currentMember}</Typography>
                 </div>
             </div>
             <Box sx={{ borderBottom: 1, borderColor: 'divider', textAlign: 'center' }}>
                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" centered>
-                    <Tab label="Biography" {...a11yProps(0)} />
+                    <Tab label="Congressional Record" {...a11yProps(0)} />
                     <Tab label="Sponsored Legislation" {...a11yProps(1)} />
                     <Tab label="Co-Sponsored Legislation" {...a11yProps(2)} />
                     <Tab label="Campaign Contributions" {...a11yProps(3)} />
@@ -121,19 +138,39 @@ const PoliticianPage: React.FC<PoliticianPageProps> = ({ politician, error }) =>
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                {politician?.biography}
+                <Box mb={3}>
+                    <Typography variant="h5" gutterBottom>Biography</Typography>
+                    <Typography variant="body1" paragraph>{politician?.biography}</Typography>
+                </Box>
+
+                <Box mb={3}>
+                    <Typography variant="h5" gutterBottom>Terms</Typography>
+                    {politician?.termList
+                        ?.slice()
+                        .sort((a, b) => b.congress - a.congress)
+                        .map(term => (
+                            <Box key={term.termId} mb={2} p={2} border={1} borderRadius={4} borderColor="grey.300" bgcolor="grey.100">
+                                <Typography variant="body1"><strong>Chamber:</strong> {term.chamber}</Typography>
+                                <Typography variant="body1"><strong>Congress:</strong> {term.congress}</Typography>
+                                <Typography variant="body1"><strong>District:</strong> {term.district}</Typography>
+                                <Typography variant="body1"><strong>Start Year:</strong> {term.startYr}</Typography>
+                                <Typography variant="body1"><strong>End Year:</strong> {term.endYr}</Typography>
+                                <Typography variant="body1"><strong>State:</strong> {term.stateNm} ({term.stateCd})</Typography>
+                            </Box>
+                        ))}
+                </Box>
             </TabPanel>
             <TabPanel value={value} index={1}>
-                Sponsored Legislation Content
+                <Typography>Sponsored Legislation Content</Typography>
             </TabPanel>
             <TabPanel value={value} index={2}>
-                Co-Sponsored Legislation Content
+                <Typography>Co-Sponsored Legislation Content</Typography>
             </TabPanel>
             <TabPanel value={value} index={3}>
-                Campaign Contributions Content
+                <Typography>Campaign Contributions Content</Typography>
             </TabPanel>
             <TabPanel value={value} index={4}>
-                Voting Record Content
+                <Typography>Voting Record Content</Typography>
             </TabPanel>
         </div>
     );
