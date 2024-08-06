@@ -1,12 +1,10 @@
-package com.rankandfile.backend;
+package com.rankandfile.backend.processor;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
 import com.rankandfile.backend.entity.domain.StateDomain;
-import com.rankandfile.backend.processor.CongressMemberProcessor;
-import com.rankandfile.backend.processor.PersonProcessor;
 import com.rankandfile.backend.repository.StateRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import com.rankandfile.backend.util.Supplier;
