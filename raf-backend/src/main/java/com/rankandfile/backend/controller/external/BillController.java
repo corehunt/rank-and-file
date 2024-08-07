@@ -27,6 +27,7 @@ public class BillController {
     }
 
     //This controller is used to load all bills by congress number
+    // api.congress.gov endpoint: /bill/{congress}
     @GetMapping("/{congressNo}")
     public ResponseEntity<List<Bill>> getBillsByCongress(@PathVariable Integer congressNo){
         LOGGER.info("In Bill Controller, retrieving bill list for congress: {}", congressNo);
@@ -36,6 +37,7 @@ public class BillController {
 
     //This controller is used to hydrate all bill data for a given bill
     //Payload needed from DB: CONGRESS - BILL_TYPE - BILL_NO
+    // api.congress.gov endpoint: /bill/{congress}/{billType}/{billNumber}
     @GetMapping("/{congressNo}/{billType}/{billNumber}")
     public ResponseEntity<Bill> getBillDataByTypeAndNumber(@PathVariable Integer congressNo, @PathVariable String billType, @PathVariable Integer billNumber){
         LOGGER.info("In Bill Controller, retrieving bill data for bill number: {}, during congress: {}", billNumber, congressNo);
