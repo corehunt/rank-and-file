@@ -24,7 +24,7 @@ public class BillByCongressProcessor {
 
     private final IdGenerator idGenerator;
 
-    private Supplier billSupplier;
+    private final Supplier billSupplier;
 
     public BillByCongressProcessor(IdGenerator idGenerator, Supplier billSupplier) {
         this.idGenerator = idGenerator;
