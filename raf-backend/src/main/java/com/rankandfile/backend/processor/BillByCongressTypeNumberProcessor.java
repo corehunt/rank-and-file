@@ -34,13 +34,15 @@ public class BillByCongressTypeNumberProcessor {
 
         Bill billToProcess = billRepository.findByCongressAndBillNo(congressNo, billNo);
 
-        if(billToProcess.getBillTitle() == null){
-            billToProcess.setBillTitle(billObject.get("title").getAsString());
+        String titleString = billObject.get("title").getAsString();
+        if(billToProcess.getBillTitle() == null || !billToProcess.getBillTitle().equals(titleString)){
+            billToProcess.setBillTitle(titleString);
         }
 
-        if(billToProcess.getIntroducedDt() == null){
-            String introDtString = billObject.get("introducedDate").getAsString();
-            LocalDate introducedDt = LocalDate.parse(introDtString);
+        String introDtString = billObject.get("introducedDate").getAsString();
+        LocalDate introducedDt = LocalDate.parse(introDtString);
+
+        if(billToProcess.getIntroducedDt() == null || !billToProcess.getIntroducedDt().equals(introducedDt)){
             billToProcess.setIntroducedDt(introducedDt);
         }
 
@@ -50,23 +52,20 @@ public class BillByCongressTypeNumberProcessor {
             LocalDate actionDate = latestActionDate != null ? LocalDate.parse(latestActionDate) : null;
             String latestActionText = latestActionObject.has("text") && !latestActionObject.get("text").isJsonNull() ? latestActionObject.get("text").getAsString() : null;
 
-            if(billToProcess.getLatestActionDt() == null){
+            if(billToProcess.getLatestActionDt() == null || !billToProcess.getLatestActionDt().equals(actionDate)){
                 billToProcess.setLatestActionDt(actionDate);
             }
-            if(billToProcess.getLatestActionTxt() == null){
+            if(billToProcess.getLatestActionTxt() == null || !billToProcess.getLatestActionTxt().equals(latestActionText)){
                 billToProcess.setLatestActionTxt(latestActionText);
             }
         }
 
         JsonObject policyAreaObject = billObject.getAsJsonObject("policyArea");
         if(policyAreaObject != null){
-            if(billToProcess.getPolicyArea() == null){
-                billToProcess.setPolicyArea(policyAreaObject.get("name").getAsString());
+            String policyArea = policyAreaObject.get("name").getAsString();
+            if(billToProcess.getPolicyArea() == null || !billToProcess.getPolicyArea().equals(policyArea)){
+                billToProcess.setPolicyArea(policyArea);
             }
-        }
-
-        if(billToProcess.getPolicyArea() == null){
-            billToProcess.setPolicyArea(billObject.get("policyArea").getAsString());
         }
 
         if(billToProcess.getOriginChamber() == null) {
