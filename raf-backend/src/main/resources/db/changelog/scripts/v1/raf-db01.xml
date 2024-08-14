@@ -12,5 +12,6 @@
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_PERSON_CONGRESS.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_TERM.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_BILL.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_BILL_ACTION.sql"/>
 
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 package com.rankandfile.backend.controller.external;
 
+import com.rankandfile.backend.entity.Action;
 import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.service.BillService;
 import org.slf4j.Logger;
@@ -43,5 +44,15 @@ public class BillController {
         LOGGER.info("In Bill Controller, retrieving bill data for bill number: {}, during congress: {}", billNumber, congressNo);
         Bill bill = billService.getBillByTypeAndNumber(congressNo, billType, billNumber);
         return ResponseEntity.ok(bill);
+    }
+
+    //This controller is used to hydrate the actions for a specific bill, given the congress #, bill type
+    //Payload needed from DB: CONGRESS - BILL_TYPE - BILL_NO
+    //api.congress.gov endpoint: /bill/{congress}/{billType}/{billNumber}/actions
+    @GetMapping("/{congressNo}/{billType}/{billNumber}/actions")
+    public ResponseEntity<List<Action>> getActionsForBillNumber(@PathVariable Integer congressNo, @PathVariable String billType, @PathVariable Integer billNumber){
+        LOGGER.info("In Bill Controller, retrieving action data for bill number: {}, during congress: {}", billNumber, congressNo);
+        List<Action> actionsListByBill = billService.getActionsByBillNumber(congressNo, billType, billNumber);
+        return ResponseEntity.ok(actionsListByBill);
     }
 }
