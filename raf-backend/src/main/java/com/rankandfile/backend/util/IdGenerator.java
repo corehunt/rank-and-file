@@ -9,6 +9,8 @@ import java.security.SecureRandom;
 @Component
 public class IdGenerator {
 
+    private static final String actionBillPrefix = "AB";
+
     private static final SecureRandom random = new SecureRandom();
 
     public String generatePersonId(String bioguideId){
@@ -28,5 +30,9 @@ public class IdGenerator {
 
     public String generateBillId(Integer congressId, Integer billNo){
         return congressId.toString().concat("-").concat(billNo.toString());
+    }
+
+    public String generateActionId() {
+        return actionBillPrefix.concat(String.valueOf(random.nextInt(999999)));
     }
 }
