@@ -15,11 +15,6 @@ public class IdGenerator {
 
     private static final SecureRandom random = new SecureRandom();
 
-    public String generatePersonId(String bioguideId){
-        String randomString = String.valueOf(random.nextInt(99999));
-        return bioguideId.concat(randomString);
-    }
-
     public Integer generateCongressId() {
         return random.nextInt(999999);
     }

@@ -75,9 +75,7 @@ public class PersonService {
             }
         }
 
-        for (Person person : allMembers) {
-            personRepository.save(person);
-        }
+        personRepository.saveAll(allMembers);
 
         return allMembers;
     }
@@ -89,12 +87,11 @@ public class PersonService {
         boolean hasMoreRecords = true;
 
         while (hasMoreRecords) {
-            int finalOffset = offset;
             String response = this.webClient.get()
                     .uri(uriBuilder -> uriBuilder.path("member/{personId}/sponsored-legislation")
                             .queryParam("api_key", apiConfig.getKey())
                             .queryParam("limit", limit)
-                            .queryParam("offset", finalOffset)
+                            .queryParam("offset", offset)
                             .build(personId))
                     .retrieve()
                     .bodyToMono(String.class)
