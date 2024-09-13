@@ -11,12 +11,9 @@ public class IdGenerator {
 
     private static final String actionBillPrefix = "AB";
 
-    private static final SecureRandom random = new SecureRandom();
+    private static final String sponsLegPrefix = "SL";
 
-    public String generatePersonId(String bioguideId){
-        String randomString = String.valueOf(random.nextInt(99999));
-        return bioguideId.concat(randomString);
-    }
+    private static final SecureRandom random = new SecureRandom();
 
     public Integer generateCongressId() {
         return random.nextInt(999999);
@@ -34,5 +31,9 @@ public class IdGenerator {
 
     public String generateActionId() {
         return actionBillPrefix.concat(String.valueOf(random.nextInt(999999)));
+    }
+
+    public String generateSponsLegId() {
+        return sponsLegPrefix.concat(String.valueOf(random.nextInt(999999)));
     }
 }
