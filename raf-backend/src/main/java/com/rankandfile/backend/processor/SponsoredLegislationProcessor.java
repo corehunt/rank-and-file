@@ -93,6 +93,13 @@ public class SponsoredLegislationProcessor {
         for (JsonElement element : sponsoredLegislationArray) {
             JsonObject legislationObject = element.getAsJsonObject();
 
+            //Filtering out amendments
+            String urlSrc = getAsString(legislationObject, FIELD_URL);
+            if (urlSrc != null && urlSrc.contains("/amendment/")) {
+                LOGGER.info("Skipping amendment with URL: {}", urlSrc);
+                continue;
+            }
+
             Integer congressNo = getAsInteger(legislationObject, FIELD_CONGRESS);
             Integer billNo = getAsInteger(legislationObject, FIELD_NUMBER);
             String billType = getAsString(legislationObject, FIELD_TYPE);
@@ -196,6 +203,8 @@ public class SponsoredLegislationProcessor {
     }
 
     private String generateKey(Integer congressNo, Integer billNo, String billType) {
-        return congressNo + "-" + billNo + "-" + billType;
+        String billNoStr = (billNo != null) ? billNo.toString() : "unknownBillNo";
+        String billTypeStr = (billType != null) ? billType : "unknownBillType";
+        return congressNo + "-" + billNoStr + "-" + billTypeStr;
     }
 }

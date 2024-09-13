@@ -1,5 +1,6 @@
 package com.rankandfile.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -46,6 +47,7 @@ public class SponsoredLegislation extends RAFAudit {
     private String urlSrc;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "PERSON_ID", nullable = false)
     private Person person;
     
