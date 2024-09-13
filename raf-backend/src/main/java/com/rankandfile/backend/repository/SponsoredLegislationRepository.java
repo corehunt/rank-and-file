@@ -9,8 +9,6 @@ import java.util.List;
 @Repository
 public interface SponsoredLegislationRepository extends JpaRepository<SponsoredLegislation, String> {
 
-    SponsoredLegislation findByCongressAndBillNo(Integer congress, Integer billNo);
-
     List<SponsoredLegislation> findByPersonPersonId(String personId);
 
 }

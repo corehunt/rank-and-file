@@ -46,7 +46,7 @@ public class PersonController {
         List<Person> congressPersonList = personService.fetchMembersOfCurrentCongress(congressId);
         for (Person member : congressPersonList){
             personService.savePerson(member);
-            log.info("successfully saved member: {}");
+            log.info("successfully saved member: {}", member.getPersonId());
         }
         return ResponseEntity.ok("Successfully fetched and saved members of Congress.");
     }
