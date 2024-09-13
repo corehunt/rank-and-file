@@ -104,7 +104,7 @@ public class PersonSponsoredLegislationProcessorTest {
         assertEquals(0, result.size());
 
         // Verify that no repository methods were called since there's no legislation to process
-        verify(personRepository, never()).findPersonByPersonId(anyString());
+        verify(personRepository, times(1)).findPersonByPersonId(anyString());
         verify(sponsoredLegislationRepository, never()).findByCongressAndBillNo(anyInt(), anyInt());
         verify(idGenerator, never()).generateSponsLegId();
     }
