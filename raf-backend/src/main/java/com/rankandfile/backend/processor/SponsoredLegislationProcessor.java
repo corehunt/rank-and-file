@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class SponsoredLegislationProcessor {
@@ -42,6 +44,15 @@ public class SponsoredLegislationProcessor {
 
         Person existingMember = personRepository.findPersonByPersonId(personId);
 
+        // Collect all existing SponsoredLegislation for the person
+        List<SponsoredLegislation> existingLegislations = sponsoredLegislationRepository.findByPersonPersonId(personId);
+
+        // Create a map for quick lookup
+        Map<String, SponsoredLegislation> existingLegislationMap = existingLegislations.stream()
+                .collect(Collectors.toMap(
+                        leg -> generateKey(leg.getCongress(), leg.getBillNo(), leg.getBillType()),
+                        leg -> leg));
+
         // Loop through each piece of sponsored legislation
         for (int i = 0; i < sponsoredLegislationArray.size(); i++) {
             JsonObject legislationObject = sponsoredLegislationArray.get(i).getAsJsonObject();
@@ -50,21 +61,25 @@ public class SponsoredLegislationProcessor {
                     ? legislationObject.get("congress").getAsInt() : null;
             Integer billNo = legislationObject.has("number") && !legislationObject.get("number").isJsonNull()
                     ? Integer.parseInt(legislationObject.get("number").getAsString()) : null; // number is a string in JSON
+            String billType = legislationObject.has("type") && !legislationObject.get("type").isJsonNull()
+                    ? legislationObject.get("type").getAsString() : null;
 
-            // Check if the legislation already exists in the database
-            SponsoredLegislation legislationToProcess = sponsoredLegislationRepository.findByCongressAndBillNo(congressNo, billNo);
+            String key = generateKey(congressNo, billNo, billType);
+
+            SponsoredLegislation legislationToProcess = existingLegislationMap.get(key);
 
             if (legislationToProcess == null) {
-                LOGGER.info("Creating new SponsoredLegislation for Congress No: {}, Bill No: {}", congressNo, billNo);
+                LOGGER.info("Creating new SponsoredLegislation for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
                 legislationToProcess = new SponsoredLegislation();
                 legislationToProcess.setCongress(congressNo);
                 legislationToProcess.setBillNo(billNo);
+                legislationToProcess.setBillType(billType);
                 legislationToProcess.setSponLegId(idGenerator.generateSponsLegId());
             } else {
                 LOGGER.info("Updating existing SponsoredLegislation with ID: {}", legislationToProcess.getSponLegId());
             }
 
-            //Setting Person
+            // Set Person
             legislationToProcess.setPerson(existingMember);
 
             // Process the legislation data
@@ -72,6 +87,7 @@ public class SponsoredLegislationProcessor {
 
             sponsoredLegislations.add(legislationToProcess);
         }
+
         LOGGER.info("Completed processing of sponsored legislation for personId: {}", personId);
 
         return sponsoredLegislations;
@@ -130,5 +146,9 @@ public class SponsoredLegislationProcessor {
         String url = legislationObject.has("url") && !legislationObject.get("url").isJsonNull()
                 ? legislationObject.get("url").getAsString() : null;
         legislationToProcess.setUrlSrc(url);
+    }
+
+    private String generateKey(Integer congressNo, Integer billNo, String billType) {
+        return congressNo + "-" + billNo + "-" + billType;
     }
 }

@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -66,8 +64,8 @@ public class PersonSponsoredLegislationProcessorTest {
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SL657958");
 
-        // Mock sponsoredLegislationRepository findByCongressAndBillNo
-        when(sponsoredLegislationRepository.findByCongressAndBillNo(117, 4417)).thenReturn(null);
+        // Mock sponsoredLegislationRepository.findByPersonPersonId to return an empty list (no existing legislation)
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
@@ -87,7 +85,7 @@ public class PersonSponsoredLegislationProcessorTest {
         // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(idGenerator, times(1)).generateSponsLegId();
-        verify(sponsoredLegislationRepository, times(1)).findByCongressAndBillNo(117, 4417);
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
     }
 
     @Test
@@ -97,15 +95,23 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "\"sponsoredLegislation\": []"
                 + "}";
 
+        // Mock the Person object
+        Person mockPerson = new Person();
+        mockPerson.setPersonId("L000174");
+
+        // Mock repositories
+        when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
+
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
 
         // Assert that the result is an empty list
         assertEquals(0, result.size());
 
-        // Verify that no repository methods were called since there's no legislation to process
-        verify(personRepository, times(1)).findPersonByPersonId(anyString());
-        verify(sponsoredLegislationRepository, never()).findByCongressAndBillNo(anyInt(), anyInt());
+        // Verify that the mocks were called appropriately
+        verify(personRepository, times(1)).findPersonByPersonId("L000174");
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
         verify(idGenerator, never()).generateSponsLegId();
     }
 
@@ -130,10 +136,10 @@ public class PersonSponsoredLegislationProcessorTest {
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock the behavior of repositories and idGenerator
+        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
-        when(sponsoredLegislationRepository.findByCongressAndBillNo(117, 4417)).thenReturn(null);
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
@@ -147,7 +153,7 @@ public class PersonSponsoredLegislationProcessorTest {
         // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(idGenerator, times(1)).generateSponsLegId();
-        verify(sponsoredLegislationRepository, times(1)).findByCongressAndBillNo(117, 4417);
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
     }
 
     @Test
@@ -172,10 +178,10 @@ public class PersonSponsoredLegislationProcessorTest {
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock the behavior of repositories and idGenerator
+        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
-        when(sponsoredLegislationRepository.findByCongressAndBillNo(117, 4417)).thenReturn(null);
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
@@ -190,7 +196,7 @@ public class PersonSponsoredLegislationProcessorTest {
         // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(idGenerator, times(1)).generateSponsLegId();
-        verify(sponsoredLegislationRepository, times(1)).findByCongressAndBillNo(117, 4417);
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
     }
 
     @Test
@@ -214,9 +220,10 @@ public class PersonSponsoredLegislationProcessorTest {
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock the behavior of repositories and idGenerator
+        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
         // Expect an exception to be thrown due to the invalid date format
         assertThrows(DateTimeParseException.class, () -> {
@@ -226,7 +233,7 @@ public class PersonSponsoredLegislationProcessorTest {
         // Verify that the mocks were called before the exception was thrown
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(idGenerator, times(1)).generateSponsLegId();
-        verify(sponsoredLegislationRepository, times(1)).findByCongressAndBillNo(anyInt(), anyInt());
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
     }
 
     @Test
@@ -238,7 +245,7 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "\"congress\": 117,"
                 + "\"introducedDate\": \"2022-06-16\","
                 + "\"number\": \"4417\","
-                + "\"title\": \"Patent Trial and Appeal Board Reform Act of 2022\","
+                + "\"title\": \"Updated Legislation Title\","
                 + "\"type\": \"S\","
                 + "\"latestAction\": {"
                 + "\"actionDate\": \"2022-06-16\","
@@ -259,10 +266,14 @@ public class PersonSponsoredLegislationProcessorTest {
         existingLegislation.setSponLegId("SLEG12345");
         existingLegislation.setCongress(117);
         existingLegislation.setBillNo(4417);
+        existingLegislation.setBillType("S"); // Include billType since it's part of the key
+        existingLegislation.setLegTitle("Old Legislation Title");
 
-        // Mock the behavior of repositories and idGenerator
+        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
-        when(sponsoredLegislationRepository.findByCongressAndBillNo(117, 4417)).thenReturn(existingLegislation);
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.singletonList(existingLegislation));
+        // Since the legislation already exists, idGenerator should not be called
+        when(idGenerator.generateSponsLegId()).thenReturn("NEW_ID"); // Should not be used
 
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
@@ -271,12 +282,93 @@ public class PersonSponsoredLegislationProcessorTest {
         assertEquals(1, result.size());
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SLEG12345", legislation.getSponLegId());  // Ensure the ID hasn't changed
-        assertEquals("Patent Trial and Appeal Board Reform Act of 2022", legislation.getLegTitle());
+        assertEquals("Updated Legislation Title", legislation.getLegTitle()); // Title should be updated
 
         // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
-        verify(sponsoredLegislationRepository, times(1)).findByCongressAndBillNo(117, 4417);
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
         verify(idGenerator, never()).generateSponsLegId();  // ID generator should not be called
     }
 
+    @Test
+    void process_ShouldHandleBatchProcessingWithExistingAndNewLegislation() {
+        // JSON input with multiple pieces of legislation
+        String json = "{"
+                + "\"sponsoredLegislation\": ["
+                + "{"
+                + "\"congress\": 117,"
+                + "\"introducedDate\": \"2022-06-16\","
+                + "\"number\": \"4417\","
+                + "\"title\": \"Existing Legislation Title\","
+                + "\"type\": \"S\","
+                + "\"latestAction\": {"
+                + "\"actionDate\": \"2022-06-16\","
+                + "\"text\": \"Some action.\""
+                + "},"
+                + "\"policyArea\": { \"name\": \"Commerce\" },"
+                + "\"url\": \"https://example.com/legislation1\""
+                + "},"
+                + "{"
+                + "\"congress\": 117,"
+                + "\"introducedDate\": \"2022-07-01\","
+                + "\"number\": \"1234\","
+                + "\"title\": \"New Legislation Title\","
+                + "\"type\": \"HR\","
+                + "\"latestAction\": {"
+                + "\"actionDate\": \"2022-07-02\","
+                + "\"text\": \"Another action.\""
+                + "},"
+                + "\"policyArea\": { \"name\": \"Finance\" },"
+                + "\"url\": \"https://example.com/legislation2\""
+                + "}"
+                + "]"
+                + "}";
+
+        // Mock the Person object
+        Person mockPerson = new Person();
+        mockPerson.setPersonId("L000174");
+
+        // Mock existing legislation
+        SponsoredLegislation existingLegislation = new SponsoredLegislation();
+        existingLegislation.setSponLegId("SLEG_EXISTING");
+        existingLegislation.setCongress(117);
+        existingLegislation.setBillNo(4417);
+        existingLegislation.setBillType("S"); // Ensure billType matches
+        existingLegislation.setLegTitle("Old Title");
+
+        // Mock repositories and idGenerator
+        when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
+        when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.singletonList(existingLegislation));
+        when(idGenerator.generateSponsLegId()).thenReturn("SLEG_NEW");
+
+        // Call the process method
+        List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
+
+        // Verify the interactions and assert the expected results
+        assertEquals(2, result.size());
+
+        // Check the existing legislation was updated
+        SponsoredLegislation updatedLegislation = result.stream()
+                .filter(leg -> leg.getSponLegId().equals("SLEG_EXISTING"))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(updatedLegislation);
+        assertEquals("Existing Legislation Title", updatedLegislation.getLegTitle()); // Title should be updated
+
+        // Check the new legislation was added
+        SponsoredLegislation newLegislation = result.stream()
+                .filter(leg -> leg.getSponLegId().equals("SLEG_NEW"))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(newLegislation);
+        assertEquals(117, newLegislation.getCongress());
+        assertEquals(1234, newLegislation.getBillNo());
+        assertEquals("New Legislation Title", newLegislation.getLegTitle());
+        assertEquals("HR", newLegislation.getBillType());
+
+        // Verify that the mocks were called
+        verify(personRepository, times(1)).findPersonByPersonId("L000174");
+        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
+        verify(idGenerator, times(1)).generateSponsLegId();  // Called once for the new legislation
+    }
 }
