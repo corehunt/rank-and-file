@@ -2,9 +2,12 @@ package com.rankandfile.backend.service;
 
 import com.rankandfile.backend.config.ApiConfig;
 import com.rankandfile.backend.entity.Person;
+import com.rankandfile.backend.entity.SponsoredLegislation;
 import com.rankandfile.backend.processor.CongressMemberProcessor;
 import com.rankandfile.backend.processor.PersonProcessor;
+import com.rankandfile.backend.processor.SponsoredLegislationProcessor;
 import com.rankandfile.backend.repository.PersonRepository;
+import com.rankandfile.backend.repository.SponsoredLegislationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -19,9 +22,13 @@ public class PersonService {
     private final ApiConfig apiConfig;
     private final PersonProcessor personProcessor;
     private final CongressMemberProcessor congressMemberProcessor;
+    private final SponsoredLegislationProcessor sponsoredLegislationProcessor;
+    private final SponsoredLegislationRepository sponsoredLegislationRepository;
 
-    public PersonService(WebClient.Builder webClientBuilder, PersonRepository personRepository, ApiConfig apiConfig, PersonProcessor personProcessor, CongressMemberProcessor congressMemberProcessor) {
+    public PersonService(WebClient.Builder webClientBuilder, PersonRepository personRepository, ApiConfig apiConfig, PersonProcessor personProcessor, CongressMemberProcessor congressMemberProcessor, SponsoredLegislationProcessor sponsoredLegislationProcessor, SponsoredLegislationRepository sponsoredLegislationRepository) {
         this.congressMemberProcessor = congressMemberProcessor;
+        this.sponsoredLegislationProcessor = sponsoredLegislationProcessor;
+        this.sponsoredLegislationRepository = sponsoredLegislationRepository;
         this.webClient = webClientBuilder.baseUrl(apiConfig.getUrl()).build();
         this.apiConfig = apiConfig;
         this.personRepository = personRepository;
@@ -73,6 +80,37 @@ public class PersonService {
         }
 
         return allMembers;
+    }
+
+    public List<SponsoredLegislation> getSponsoredLegislationByPersonId(String personId) {
+        List<SponsoredLegislation> allSponsLegList = new ArrayList<>();
+        int limit = 250;
+        int offset = 0;
+        boolean hasMoreRecords = true;
+
+        while (hasMoreRecords) {
+            int finalOffset = offset;
+            String response = this.webClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("member/{personId}/sponsored-legislation")
+                            .queryParam("api_key", apiConfig.getKey())
+                            .queryParam("limit", limit)
+                            .queryParam("offset", finalOffset)
+                            .build(personId))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            List<SponsoredLegislation> legislationList = sponsoredLegislationProcessor.process(response, personId);
+            allSponsLegList.addAll(legislationList);
+
+            if (legislationList.size() < limit) {
+                hasMoreRecords = false;
+            }
+        }
+
+        sponsoredLegislationRepository.saveAll(allSponsLegList);
+
+        return allSponsLegList;
     }
 
     public void savePerson(Person person) {

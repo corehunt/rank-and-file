@@ -88,6 +88,9 @@ public class Person extends RAFAudit {
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Term> termList;
 
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SponsoredLegislation> sponsoredLegislationList;
+
     @Override
     public String toString() {
         return "Person{" +

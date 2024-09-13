@@ -1,6 +1,7 @@
 package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Person;
+import com.rankandfile.backend.entity.SponsoredLegislation;
 import com.rankandfile.backend.service.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,5 +51,11 @@ public class PersonController {
             LOGGER.info("successfully saved member: {}");
         }
         return ResponseEntity.ok("Successfully fetched and saved members of Congress.");
+    }
+
+    @PostMapping("fetch/members/{bioguideId}/sponsored-legislation")
+    public ResponseEntity<List<SponsoredLegislation>> getSponsoredLegislationByPerson(@PathVariable String bioguideId) {
+        List<SponsoredLegislation> legislationList = personService.getSponsoredLegislationByPersonId(bioguideId);
+        return ResponseEntity.ok(legislationList);
     }
 }
