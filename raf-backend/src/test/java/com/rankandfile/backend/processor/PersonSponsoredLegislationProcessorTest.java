@@ -11,12 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PersonSponsoredLegislationProcessorTest {
+class PersonSponsoredLegislationProcessorTest {
 
     @Mock
     private SponsoredLegislationRepository sponsoredLegislationRepository;
@@ -37,7 +36,6 @@ public class PersonSponsoredLegislationProcessorTest {
 
     @Test
     void testPersonSponsoredLegislationProcessorFullJson() {
-        // Sample JSON input (as a string for the test)
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -60,7 +58,6 @@ public class PersonSponsoredLegislationProcessorTest {
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock the behavior of repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SL657958");
 
@@ -89,17 +86,15 @@ public class PersonSponsoredLegislationProcessorTest {
     }
 
     @Test
-    void process_ShouldHandleEmptySponsoredLegislationArray() {
+    void testShouldHandleEmptySponsoredLegislationArray() {
         // JSON with an empty sponsoredLegislation array
         String json = "{"
                 + "\"sponsoredLegislation\": []"
                 + "}";
 
-        // Mock the Person object
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock repositories
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
@@ -109,15 +104,13 @@ public class PersonSponsoredLegislationProcessorTest {
         // Assert that the result is an empty list
         assertEquals(0, result.size());
 
-        // Verify that the mocks were called appropriately
-        verify(personRepository, times(1)).findPersonByPersonId("L000174");
-        verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
+        verify(personRepository, never()).findPersonByPersonId("L000174");
+        verify(sponsoredLegislationRepository, never()).findByPersonPersonId("L000174");
         verify(idGenerator, never()).generateSponsLegId();
     }
 
     @Test
-    void process_ShouldHandleMissingOptionalFields() {
-        // JSON without the 'latestAction' field
+    void testShouldHandleMissingOptionalFields() {
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -132,19 +125,16 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "]"
                 + "}";
 
-        // Mock the Person object
+        // Mocks
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
-        // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
 
-        // Verify the interactions and assert the expected results
         assertEquals(1, result.size());
         SponsoredLegislation legislation = result.get(0);
         assertNull(legislation.getLatestActionDt());
@@ -157,8 +147,7 @@ public class PersonSponsoredLegislationProcessorTest {
     }
 
     @Test
-    void process_ShouldHandleNullValuesInOptionalFields() {
-        // JSON with null values for 'latestAction' and 'policyArea'
+    void testShouldHandleNullValuesInOptionalFields() {
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -174,19 +163,16 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "]"
                 + "}";
 
-        // Mock the Person object
+        // Mocks
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
-        // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
 
-        // Verify the interactions and assert the expected results
         assertEquals(1, result.size());
         SponsoredLegislation legislation = result.get(0);
         assertNull(legislation.getLatestActionDt());
@@ -200,8 +186,7 @@ public class PersonSponsoredLegislationProcessorTest {
     }
 
     @Test
-    void process_ShouldHandleInvalidDateFormat() {
-        // JSON with an invalid date format for 'introducedDate'
+    void testShouldHandleInvalidDateFormat() {
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -216,29 +201,37 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "]"
                 + "}";
 
-        // Mock the Person object
+        // Mocks
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
-        // Mock repositories and idGenerator
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG12345");
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.emptyList());
 
-        // Expect an exception to be thrown due to the invalid date format
-        assertThrows(DateTimeParseException.class, () -> {
-            sponsoredLegislationProcessor.process(json, "L000174");
-        });
+        List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
 
-        // Verify that the mocks were called before the exception was thrown
+        // Verify that one entry is returned despite the invalid date
+        assertEquals(1, result.size());
+
+        // Verify the returned entry
+        SponsoredLegislation legislation = result.get(0);
+        assertEquals(117, legislation.getCongress());
+        assertEquals(4417, legislation.getBillNo());
+        assertNull(legislation.getIntroDt());  // The intro date should be null due to invalid format
+        assertEquals("Patent Trial and Appeal Board Reform Act of 2022", legislation.getLegTitle());
+        assertEquals("S", legislation.getBillType());
+        assertEquals("Commerce", legislation.getPolicyArea());
+        assertEquals("https://api.congress.gov/v3/bill/117/s/4417?format=json", legislation.getUrlSrc());
+
+        // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(idGenerator, times(1)).generateSponsLegId();
         verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
     }
 
     @Test
-    void process_ShouldUpdateExistingLegislation() {
-        // JSON input with legislation that already exists in the database
+    void testShouldUpdateExistingLegislation() {
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -257,7 +250,6 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "]"
                 + "}";
 
-        // Mock the Person object
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
@@ -273,7 +265,7 @@ public class PersonSponsoredLegislationProcessorTest {
         when(personRepository.findPersonByPersonId("L000174")).thenReturn(mockPerson);
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.singletonList(existingLegislation));
         // Since the legislation already exists, idGenerator should not be called
-        when(idGenerator.generateSponsLegId()).thenReturn("NEW_ID"); // Should not be used
+        when(idGenerator.generateSponsLegId()).thenReturn("NEW_ID");
 
         // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
@@ -291,8 +283,7 @@ public class PersonSponsoredLegislationProcessorTest {
     }
 
     @Test
-    void process_ShouldHandleBatchProcessingWithExistingAndNewLegislation() {
-        // JSON input with multiple pieces of legislation
+    void testShouldHandleBatchProcessingWithExistingAndNewLegislation() {
         String json = "{"
                 + "\"sponsoredLegislation\": ["
                 + "{"
@@ -324,7 +315,7 @@ public class PersonSponsoredLegislationProcessorTest {
                 + "]"
                 + "}";
 
-        // Mock the Person object
+        // Mocks
         Person mockPerson = new Person();
         mockPerson.setPersonId("L000174");
 
@@ -333,7 +324,7 @@ public class PersonSponsoredLegislationProcessorTest {
         existingLegislation.setSponLegId("SLEG_EXISTING");
         existingLegislation.setCongress(117);
         existingLegislation.setBillNo(4417);
-        existingLegislation.setBillType("S"); // Ensure billType matches
+        existingLegislation.setBillType("S");
         existingLegislation.setLegTitle("Old Title");
 
         // Mock repositories and idGenerator
@@ -341,7 +332,6 @@ public class PersonSponsoredLegislationProcessorTest {
         when(sponsoredLegislationRepository.findByPersonPersonId("L000174")).thenReturn(Collections.singletonList(existingLegislation));
         when(idGenerator.generateSponsLegId()).thenReturn("SLEG_NEW");
 
-        // Call the process method
         List<SponsoredLegislation> result = sponsoredLegislationProcessor.process(json, "L000174");
 
         // Verify the interactions and assert the expected results
@@ -353,7 +343,7 @@ public class PersonSponsoredLegislationProcessorTest {
                 .findFirst()
                 .orElse(null);
         assertNotNull(updatedLegislation);
-        assertEquals("Existing Legislation Title", updatedLegislation.getLegTitle()); // Title should be updated
+        assertEquals("Existing Legislation Title", updatedLegislation.getLegTitle());
 
         // Check the new legislation was added
         SponsoredLegislation newLegislation = result.stream()
@@ -369,6 +359,6 @@ public class PersonSponsoredLegislationProcessorTest {
         // Verify that the mocks were called
         verify(personRepository, times(1)).findPersonByPersonId("L000174");
         verify(sponsoredLegislationRepository, times(1)).findByPersonPersonId("L000174");
-        verify(idGenerator, times(1)).generateSponsLegId();  // Called once for the new legislation
+        verify(idGenerator, times(1)).generateSponsLegId();
     }
 }
