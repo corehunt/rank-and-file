@@ -58,7 +58,7 @@ public class BillActionProcessor {
         }
 
         // Retrieve existing actions from the database
-        List<Action> existingActions = actionRepository.findByBillId(bill.getBillId());
+        List<Action> existingActions = actionRepository.findByBillBillId(bill.getBillId());
 
         // Create a map of existing actions for quick lookup
         Map<String, Action> existingActionMap = existingActions.stream()

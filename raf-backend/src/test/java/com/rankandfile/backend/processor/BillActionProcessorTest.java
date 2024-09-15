@@ -94,7 +94,7 @@ class BillActionProcessorTest {
         mockBill.setOriginChamber("Senate");
 
         // Mock ActionRepository to return no existing actions
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
 
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(3, actionList.size());
@@ -148,7 +148,7 @@ class BillActionProcessorTest {
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
         when(idGenerator.generateActionId()).thenAnswer(invocation -> "AB" + new Random().nextInt(9000) + 1000);
 
         List<Action> actionList = processor.processActionList(json, mockBill);
@@ -171,7 +171,7 @@ class BillActionProcessorTest {
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
         when(idGenerator.generateActionId()).thenAnswer(invocation -> "AB" + new Random().nextInt(9000) + 1000);
 
         List<Action> actionList = processor.processActionList(json, mockBill);
@@ -194,7 +194,7 @@ class BillActionProcessorTest {
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
         when(idGenerator.generateActionId()).thenAnswer(invocation -> "AB" + new Random().nextInt(9000) + 1000);
 
         List<Action> actionList = processor.processActionList(json, mockBill);
@@ -217,7 +217,7 @@ class BillActionProcessorTest {
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
 
         when(idGenerator.generateActionId()).thenAnswer(invocation -> "AB" + new Random().nextInt(9000) + 1000);
 
@@ -255,7 +255,7 @@ class BillActionProcessorTest {
         existingAction.setActionText("Became Public Law No: 117-354.");
         existingAction.setActionType("President");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
 
         when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
 
@@ -290,7 +290,7 @@ class BillActionProcessorTest {
         existingAction.setActionText("Became Public Law No: 117-354.");
         existingAction.setActionType("President");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
 
         List<Action> actionList = processor.processActionList(json, mockBill);
 
@@ -309,7 +309,7 @@ class BillActionProcessorTest {
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
-        when(actionRepository.findByBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
 
         when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
 

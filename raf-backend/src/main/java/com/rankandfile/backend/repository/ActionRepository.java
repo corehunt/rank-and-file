@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ActionRepository extends JpaRepository<Action, String> {
 
-    List<Action> findByBillId(String billId);
+    List<Action> findByBillBillId(String billId);
 }
