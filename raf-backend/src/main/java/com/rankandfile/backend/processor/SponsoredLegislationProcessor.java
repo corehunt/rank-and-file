@@ -10,8 +10,7 @@ import com.rankandfile.backend.repository.PersonRepository;
 import com.rankandfile.backend.repository.SponsoredLegislationRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class SponsoredLegislationProcessor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SponsoredLegislationProcessor.class);
-
+    
     private static final String FIELD_SPONSORED_LEGISLATION = "sponsoredLegislation";
     private static final String FIELD_CONGRESS = "congress";
     private static final String FIELD_NUMBER = "number";
@@ -58,17 +56,17 @@ public class SponsoredLegislationProcessor {
      * @return         A list of SponsoredLegislation entities.
      */
     public List<SponsoredLegislation> process(String json, String personId) {
-        LOGGER.info("Starting processing of sponsored legislation for personId: {}", personId);
+        log.info("Starting processing of sponsored legislation for personId: {}", personId);
 
         JsonObject rootObject = JsonParser.parseString(json).getAsJsonObject();
         if (rootObject == null || !rootObject.has(FIELD_SPONSORED_LEGISLATION)) {
-            LOGGER.warn("No sponsored legislation found in the input JSON.");
+            log.warn("No sponsored legislation found in the input JSON.");
             return Collections.emptyList();
         }
 
         JsonArray sponsoredLegislationArray = rootObject.getAsJsonArray(FIELD_SPONSORED_LEGISLATION);
         if (sponsoredLegislationArray == null || sponsoredLegislationArray.isEmpty()) {
-            LOGGER.warn("Sponsored legislation array is empty.");
+            log.warn("Sponsored legislation array is empty.");
             return Collections.emptyList();
         }
 
@@ -76,7 +74,7 @@ public class SponsoredLegislationProcessor {
 
         Person existingMember = personRepository.findPersonByPersonId(personId);
         if (existingMember == null) {
-            LOGGER.error("Person with ID {} not found.", personId);
+            log.error("Person with ID {} not found.", personId);
             throw new EntityNotFoundException("Person with ID " + personId + " not found.");
         }
 
@@ -96,7 +94,7 @@ public class SponsoredLegislationProcessor {
             //Filtering out amendments
             String urlSrc = getAsString(legislationObject, FIELD_URL);
             if (urlSrc != null && urlSrc.contains("/amendment/")) {
-                LOGGER.info("Skipping amendment with URL: {}", urlSrc);
+                log.info("Skipping amendment with URL: {}", urlSrc);
                 continue;
             }
 
@@ -109,14 +107,14 @@ public class SponsoredLegislationProcessor {
             SponsoredLegislation legislationToProcess = existingLegislationMap.get(key);
 
             if (legislationToProcess == null) {
-                LOGGER.info("Creating new SponsoredLegislation for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
+                log.info("Creating new SponsoredLegislation for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
                 legislationToProcess = new SponsoredLegislation();
                 legislationToProcess.setCongress(congressNo);
                 legislationToProcess.setBillNo(billNo);
                 legislationToProcess.setBillType(billType);
                 legislationToProcess.setSponLegId(idGenerator.generateSponsLegId());
             } else {
-                LOGGER.info("Updating existing SponsoredLegislation with ID: {}", legislationToProcess.getSponLegId());
+                log.info("Updating existing SponsoredLegislation with ID: {}", legislationToProcess.getSponLegId());
             }
 
             // Set Person
@@ -128,7 +126,7 @@ public class SponsoredLegislationProcessor {
             sponsoredLegislations.add(legislationToProcess);
         }
 
-        LOGGER.info("Completed processing of sponsored legislation for personId: {}", personId);
+        log.info("Completed processing of sponsored legislation for personId: {}", personId);
 
         return sponsoredLegislations;
     }
@@ -148,7 +146,7 @@ public class SponsoredLegislationProcessor {
                 LocalDate introducedDt = LocalDate.parse(introDtString);
                 legislationToProcess.setIntroDt(introducedDt);
             } catch (DateTimeParseException e) {
-                LOGGER.error("Invalid date format for introducedDate: {}", introDtString, e);
+                log.error("Invalid date format for introducedDate: {}", introDtString, e);
                 legislationToProcess.setIntroDt(null);
             }
         }
@@ -162,7 +160,7 @@ public class SponsoredLegislationProcessor {
                     LocalDate actionDate = LocalDate.parse(latestActionDate);
                     legislationToProcess.setLatestActionDt(actionDate);
                 } catch (DateTimeParseException e) {
-                    LOGGER.error("Invalid date format for latestActionDate: {}", latestActionDate, e);
+                    log.error("Invalid date format for latestActionDate: {}", latestActionDate, e);
                     legislationToProcess.setLatestActionDt(null);
                 }
             }
@@ -197,7 +195,7 @@ public class SponsoredLegislationProcessor {
         try {
             return value != null ? Integer.parseInt(value) : null;
         } catch (NumberFormatException e) {
-            LOGGER.error("Invalid number format for field {}: {}", field, value, e);
+            log.error("Invalid number format for field {}: {}", field, value, e);
             return null;
         }
     }
