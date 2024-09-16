@@ -24,12 +24,4 @@ public class Supplier {
         return personRepository.findById(personId).orElse(new Person());
     }
 
-    public Bill findOrCreateBill(Integer congressNo, Integer billNo) {
-        Bill existingBill = billRepository.findByCongressAndBillNo(congressNo, billNo);
-        if(existingBill != null) {
-            return existingBill;
-        } else {
-            return new Bill();
-        }
-    }
 }

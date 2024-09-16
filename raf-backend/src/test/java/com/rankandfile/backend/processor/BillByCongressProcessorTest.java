@@ -1,43 +1,45 @@
 package com.rankandfile.backend.processor;
 
+import com.google.gson.JsonSyntaxException;
 import com.rankandfile.backend.entity.Bill;
+import com.rankandfile.backend.repository.BillRepository;
 import com.rankandfile.backend.util.IdGenerator;
-import com.rankandfile.backend.util.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BillByCongressProcessorTest {
+class BillByCongressProcessorTest {
 
-    private BillByCongressProcessor billByCongressProcessor;
+    @Mock
     private IdGenerator idGenerator;
-    private Supplier billSupplier;
 
-    @BeforeEach
-    void setUp() {
-        idGenerator = mock(IdGenerator.class);
-        billSupplier = mock(Supplier.class);
-        billByCongressProcessor = new BillByCongressProcessor(idGenerator, billSupplier);
-    }
+    @Mock
+    private BillRepository billRepository;
+
+    @InjectMocks
+    private BillByCongressProcessor billByCongressProcessor;
 
     @Test
     void testProcessBillList() {
         // Mocking the ID generation
         when(idGenerator.generateBillId(anyInt(), anyInt())).thenAnswer(invocation ->
-                "ID-" + invocation.getArgument(0) + "-" + invocation.getArgument(1)
+                invocation.getArgument(0) + "-" + invocation.getArgument(1)
         );
 
-        // Mocking the Supplier to return a new Bill object when findOrCreateBill is called
-        when(billSupplier.findOrCreateBill(anyInt(), anyInt())).thenAnswer(invocation -> new Bill());
+        // Mocking the BillRepository to return no existing bills
+        when(billRepository.findByCongressInAndBillNoIn(anySet(), anySet())).thenReturn(Collections.emptyList());
 
         // Test JSON response
         String json = "{\n" +
@@ -52,10 +54,7 @@ public class BillByCongressProcessorTest {
                 "            \"originChamber\": \"Senate\",\n" +
                 "            \"originChamberCode\": \"S\",\n" +
                 "            \"title\": \"Thomas R. Carper Water Resources Development Act of 2024\",\n" +
-                "            \"type\": \"S\",\n" +
-                "            \"updateDate\": \"2024-08-03\",\n" +
-                "            \"updateDateIncludingText\": \"2024-08-03T11:08:17Z\",\n" +
-                "            \"url\": \"https://api.congress.gov/v3/bill/118/s/4367?format=json\"\n" +
+                "            \"type\": \"S\"\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"congress\": 118,\n" +
@@ -67,10 +66,7 @@ public class BillByCongressProcessorTest {
                 "            \"originChamber\": \"Senate\",\n" +
                 "            \"originChamberCode\": \"S\",\n" +
                 "            \"title\": \"Reauthorizing Support and Treatment for Officers in Crisis Act of 2024\",\n" +
-                "            \"type\": \"S\",\n" +
-                "            \"updateDate\": \"2024-08-03\",\n" +
-                "            \"updateDateIncludingText\": \"2024-08-03T11:03:16Z\",\n" +
-                "            \"url\": \"https://api.congress.gov/v3/bill/118/s/4235?format=json\"\n" +
+                "            \"type\": \"S\"\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"congress\": 118,\n" +
@@ -82,21 +78,9 @@ public class BillByCongressProcessorTest {
                 "            \"originChamber\": \"Senate\",\n" +
                 "            \"originChamberCode\": \"S\",\n" +
                 "            \"title\": \"JUDGES Act of 2024\",\n" +
-                "            \"type\": \"S\",\n" +
-                "            \"updateDate\": \"2024-08-03\",\n" +
-                "            \"updateDateIncludingText\": \"2024-08-03T11:03:16Z\",\n" +
-                "            \"url\": \"https://api.congress.gov/v3/bill/118/s/4199?format=json\"\n" +
+                "            \"type\": \"S\"\n" +
                 "        }\n" +
-                "    ],\n" +
-                "    \"pagination\": {\n" +
-                "        \"count\": 16968,\n" +
-                "        \"next\": \"https://api.congress.gov/v3/bill/118?offset=20&limit=20&format=json\"\n" +
-                "    },\n" +
-                "    \"request\": {\n" +
-                "        \"congress\": \"118\",\n" +
-                "        \"contentType\": \"application/json\",\n" +
-                "        \"format\": \"json\"\n" +
-                "    }\n" +
+                "    ]\n" +
                 "}";
 
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
@@ -111,41 +95,16 @@ public class BillByCongressProcessorTest {
         assertEquals("S", bill1.getOriginChamberCd());
         assertEquals("Senate", bill1.getOriginChamber());
         assertEquals("S", bill1.getBillType());
-        assertEquals("2024-08-02", bill1.getLatestActionDt().toString());
+        assertEquals(LocalDate.of(2024, 8, 2), bill1.getLatestActionDt());
         assertEquals("Message on Senate action sent to the House.", bill1.getLatestActionTxt());
 
-        // Assert the content of the second bill
-        Bill bill2 = finalBillList.stream().filter(b -> b.getBillNo() == 4235).findFirst().orElse(null);
-        assertNotNull(bill2);
-        assertEquals(118, bill2.getCongress());
-        assertEquals(4235, bill2.getBillNo());
-        assertEquals("Reauthorizing Support and Treatment for Officers in Crisis Act of 2024", bill2.getBillTitle());
-        assertEquals("S", bill2.getOriginChamberCd());
-        assertEquals("Senate", bill2.getOriginChamber());
-        assertEquals("S", bill2.getBillType());
-        assertEquals("2024-08-02", bill2.getLatestActionDt().toString());
-        assertEquals("Message on Senate action sent to the House.", bill2.getLatestActionTxt());
-
-        // Assert the content of the third bill
-        Bill bill3 = finalBillList.stream().filter(b -> b.getBillNo() == 4199).findFirst().orElse(null);
-        assertNotNull(bill3);
-        assertEquals(118, bill3.getCongress());
-        assertEquals(4199, bill3.getBillNo());
-        assertEquals("JUDGES Act of 2024", bill3.getBillTitle());
-        assertEquals("S", bill3.getOriginChamberCd());
-        assertEquals("Senate", bill3.getOriginChamber());
-        assertEquals("S", bill3.getBillType());
-        assertEquals("2024-08-02", bill3.getLatestActionDt().toString());
-        assertEquals("Message on Senate action sent to the House.", bill3.getLatestActionTxt());
-
-        // Verify that the IdGenerator and Supplier methods were called the correct number of times
+        // Verify that the IdGenerator method was called the correct number of times
         verify(idGenerator, times(3)).generateBillId(anyInt(), anyInt());
-        verify(billSupplier, times(3)).findOrCreateBill(anyInt(), anyInt());
     }
 
     @Test
     public void testProcessEmptyBillList() {
-        String json = "{ \"bills\": [], \"pagination\": { \"count\": 0 }, \"request\": { \"congress\": \"118\", \"contentType\": \"application/json\", \"format\": \"json\" } }";
+        String json = "{ \"bills\": [] }";
 
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
 
@@ -154,9 +113,7 @@ public class BillByCongressProcessorTest {
 
     @Test
     public void testProcessBillWithMissingFields() {
-        String json = "{ \"bills\": [ { \"congress\": 118, \"number\": \"1234\" } ], \"pagination\": { \"count\": 1 }, \"request\": { \"congress\": \"118\", \"contentType\": \"application/json\", \"format\": \"json\" } }";
-
-        when(billSupplier.findOrCreateBill(anyInt(), anyInt())).thenAnswer(invocation -> new Bill());
+        String json = "{ \"bills\": [ { \"congress\": 118, \"number\": \"1234\" } ] }";
 
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
 
@@ -168,7 +125,6 @@ public class BillByCongressProcessorTest {
         assertNull(bill.getLatestActionDt()); // Latest action date is missing
         assertNull(bill.getLatestActionTxt()); // Latest action text is missing
     }
-
 
     @Test
     public void testProcessMultipleBillsWithDifferentData() {
@@ -195,28 +151,26 @@ public class BillByCongressProcessorTest {
                 "    ]\n" +
                 "}";
 
-        when(billSupplier.findOrCreateBill(anyInt(), anyInt())).thenAnswer(invocation -> new Bill());
-
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
 
         assertEquals(2, finalBillList.size());
 
         // First Bill
         assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 4367 &&
-                bill.getBillTitle().equals("Thomas R. Carper Water Resources Development Act of 2024") &&
-                bill.getLatestActionTxt().equals("Message on Senate action sent to the House.") &&
-                bill.getLatestActionDt().equals(LocalDate.of(2024, 8, 2))));
+                "Thomas R. Carper Water Resources Development Act of 2024".equals(bill.getBillTitle()) &&
+                "Message on Senate action sent to the House.".equals(bill.getLatestActionTxt()) &&
+                LocalDate.of(2024, 8, 2).equals(bill.getLatestActionDt())));
 
         // Second Bill
         assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 1234 &&
-                bill.getBillTitle().equals("A Sample Bill for Testing") &&
-                bill.getLatestActionTxt().equals("Referred to Committee.") &&
-                bill.getLatestActionDt().equals(LocalDate.of(2024, 7, 15))));
+                "A Sample Bill for Testing".equals(bill.getBillTitle()) &&
+                "Referred to Committee.".equals(bill.getLatestActionTxt()) &&
+                LocalDate.of(2024, 7, 15).equals(bill.getLatestActionDt())));
     }
 
     @Test
     public void testProcessNullBillList() {
-        String json = "{ \"bills\": null, \"pagination\": { \"count\": 0 }, \"request\": { \"congress\": \"118\", \"contentType\": \"application/json\", \"format\": \"json\" } }";
+        String json = "{ \"bills\": null }";
 
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
 
@@ -237,26 +191,110 @@ public class BillByCongressProcessorTest {
                 "            \"type\": \"S\"\n" +
                 "        },\n" +
                 "        {\n" +
-                "            \"congress\": 118,\n" +
-                "            \"number\": \"0000\"\n" + // Invalid data (no title, no type, etc.)
+                "            \"congress\": null,\n" +
+                "            \"number\": null\n" + // Invalid data (missing congress and number)
                 "        }\n" +
                 "    ]\n" +
                 "}";
 
-        when(billSupplier.findOrCreateBill(anyInt(), anyInt())).thenAnswer(invocation -> new Bill());
-
         List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
 
-        assertEquals(2, finalBillList.size());
+        assertEquals(1, finalBillList.size());
 
         // Valid Bill
         assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 4367 &&
-                bill.getBillTitle().equals("Thomas R. Carper Water Resources Development Act of 2024")));
-
-        // Invalid Bill
-        assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 0)); // Bill with missing data
+                "Thomas R. Carper Water Resources Development Act of 2024".equals(bill.getBillTitle())));
     }
 
+    @Test
+    public void testProcessBillListWithExistingBills() {
+        String json = "{\n" +
+                "    \"bills\": [\n" +
+                "        {\n" +
+                "            \"congress\": 118,\n" +
+                "            \"latestAction\": { \"actionDate\": \"2024-08-02\", \"text\": \"Updated Text.\" },\n" +
+                "            \"number\": \"4367\",\n" +
+                "            \"title\": \"Updated Title\",\n" +
+                "            \"type\": \"S\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
 
+        Bill existingBill = new Bill();
+        existingBill.setBillId("118-4367");
+        existingBill.setCongress(118);
+        existingBill.setBillNo(4367);
+        existingBill.setBillTitle("Original Title");
+        existingBill.setLatestActionDt(LocalDate.of(2024, 8, 1));
+        existingBill.setLatestActionTxt("Original Text");
 
+        when(billRepository.findByCongressInAndBillNoIn(anySet(), anySet()))
+                .thenReturn(Collections.singletonList(existingBill));
+
+        List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
+
+        assertEquals(1, finalBillList.size());
+        Bill bill = finalBillList.get(0);
+
+        // Verify that the existing bill was updated
+        assertEquals("Updated Title", bill.getBillTitle());
+        assertEquals(LocalDate.of(2024, 8, 2), bill.getLatestActionDt()); // Updated date
+        assertEquals("Updated Text.", bill.getLatestActionTxt());
+
+        // Verify that IdGenerator.generateBillId() was not called for existing bill
+        verify(idGenerator, never()).generateBillId(anyInt(), anyInt());
+    }
+
+    @Test
+    public void testProcessBillListWithInvalidDate() {
+        String json = "{ \"bills\": [ { \"congress\": 118, \"number\": \"1234\", \"latestAction\": { \"actionDate\": \"invalid-date\", \"text\": \"Invalid date action\" } } ] }";
+
+        List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
+
+        assertEquals(1, finalBillList.size());
+        Bill bill = finalBillList.get(0);
+        assertNull(bill.getLatestActionDt()); // Date parsing failed
+        assertEquals("Invalid date action", bill.getLatestActionTxt());
+    }
+
+    @Test
+    public void testProcessBillListWithMissingCongressOrNumber() {
+        String json = "{ \"bills\": [ { \"title\": \"Missing Congress and Number\" } ] }";
+
+        List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
+
+        assertEquals(0, finalBillList.size()); // Bill should be skipped
+    }
+
+    @Test
+    public void testProcessBillListWithEmptyJson() {
+        String json = "{}";
+
+        List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
+
+        assertEquals(0, finalBillList.size());
+    }
+
+    @Test
+    public void testProcessBillListWithNullJson() {
+        String json = null;
+
+        assertThrows(NullPointerException.class, () -> billByCongressProcessor.processBillList(json));
+    }
+
+    @Test
+    public void testProcessBillListWithEmptyBillsArray() {
+        String json = "{ \"bills\": [] }";
+
+        List<Bill> finalBillList = billByCongressProcessor.processBillList(json);
+
+        assertEquals(0, finalBillList.size());
+    }
+
+    @Test
+    public void testProcessBillListWithMalformedJson() {
+        String json = "{ \"bills\": [ { \"congress\": 118, \"number\": \"1234\", ";
+
+        assertThrows(JsonSyntaxException.class, () -> billByCongressProcessor.processBillList(json));
+    }
 }

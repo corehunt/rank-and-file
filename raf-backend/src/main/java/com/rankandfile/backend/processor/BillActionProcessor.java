@@ -9,8 +9,8 @@ import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.repository.ActionRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -29,11 +29,13 @@ public class BillActionProcessor {
     private static final String FIELD_TEXT = "text";
     private static final String FIELD_TYPE = "type";
 
-    @Autowired
-    private IdGenerator idGenerator;
+    private final IdGenerator idGenerator;
+    private final ActionRepository actionRepository;
 
-    @Autowired
-    private ActionRepository actionRepository;
+    public BillActionProcessor(IdGenerator idGenerator, ActionRepository actionRepository) {
+        this.idGenerator = idGenerator;
+        this.actionRepository = actionRepository;
+    }
 
     /**
      * Processes the JSON string containing actions and associates them with a bill.
@@ -63,7 +65,7 @@ public class BillActionProcessor {
         // Create a map of existing actions for quick lookup
         Map<String, Action> existingActionMap = existingActions.stream()
                 .collect(Collectors.toMap(
-                        action -> generateKey(action),
+                        this::generateKey,
                         action -> action
                 ));
 
