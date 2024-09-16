@@ -1,6 +1,5 @@
 package com.rankandfile.backend.util;
 
-import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.repository.BillRepository;
 import com.rankandfile.backend.repository.PersonRepository;
