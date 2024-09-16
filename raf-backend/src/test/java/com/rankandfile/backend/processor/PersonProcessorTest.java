@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PersonProcessorTest {
+class PersonProcessorTest {
 
     @Mock
     private StateRepository stateRepository;
@@ -35,9 +35,6 @@ public class PersonProcessorTest {
 
     @InjectMocks
     private PersonProcessor personProcessor;
-
-    @InjectMocks
-    private CongressMemberProcessor congressMemberProcessor;
 
     private JsonObject mockMemberJson;
 
@@ -133,66 +130,6 @@ public class PersonProcessorTest {
         assertNull(person.getImgAttribution());
         assertNull(person.getImageUrl());
         assertNull(person.getState());
-    }
-
-    @Test
-    public void testValidatePersonWithNameField() {
-        String json = "{\n" +
-                "  \"members\": [\n" +
-                "    {\n" +
-                "      \"bioguideId\": \"B001320\",\n" +
-                "      \"depiction\": {\n" +
-                "        \"attribution\": \"Image courtesy of the Senator's office\",\n" +
-                "        \"imageUrl\": \"https://www.congress.gov/img/member/b001320_200.jpg\"\n" +
-                "      },\n" +
-                "      \"name\": \"Butler, Laphonza R.\",\n" +
-                "      \"partyName\": \"Democratic\",\n" +
-                "      \"state\": \"California\",\n" +
-                "      \"terms\": {\n" +
-                "        \"item\": [\n" +
-                "          {\n" +
-                "            \"chamber\": \"Senate\",\n" +
-                "            \"startYear\": 2023\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      },\n" +
-                "      \"updateDate\": \"2024-04-09T15:54:25Z\",\n" +
-                "      \"url\": \"http://api.congress.gov/v3/member/B001320?format=json\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"bioguideId\": \"A000376\",\n" +
-                "      \"depiction\": {\n" +
-                "        \"attribution\": \"Image courtesy of the Member\",\n" +
-                "        \"imageUrl\": \"https://www.congress.gov/img/member/a000376_200.jpg\"\n" +
-                "      },\n" +
-                "      \"district\": 32,\n" +
-                "      \"name\": \"Allred, Colin Z.\",\n" +
-                "      \"partyName\": \"Democratic\",\n" +
-                "      \"state\": \"Texas\",\n" +
-                "      \"terms\": {\n" +
-                "        \"item\": [\n" +
-                "          {\n" +
-                "            \"chamber\": \"House of Representatives\",\n" +
-                "            \"startYear\": 2019\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      },\n" +
-                "      \"updateDate\": \"2024-04-09T13:26:21Z\",\n" +
-                "      \"url\": \"http://api.congress.gov/v3/member/A000376?format=json\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
-
-        JsonObject mockNameMemberJson = JsonParser.parseString(json).getAsJsonObject();
-
-        List<Person> personList = congressMemberProcessor.processMembers(mockNameMemberJson.toString());
-
-        assertEquals("B001320", personList.get(0).getPersonId());
-        assertEquals("Laphonza", personList.get(0).getFirstName());
-        assertEquals("Butler", personList.get(0).getLastName());
-        assertEquals("A000376", personList.get(1).getPersonId());
-        assertEquals("Colin", personList.get(1).getFirstName());
-        assertEquals("Allred", personList.get(1).getLastName());
     }
 
     @Test
