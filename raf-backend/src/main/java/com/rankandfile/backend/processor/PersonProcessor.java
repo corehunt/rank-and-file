@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
 import com.rankandfile.backend.repository.PersonRepository;
-import com.rankandfile.backend.repository.StateRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
