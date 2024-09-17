@@ -4,8 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.SponsoredLegislation;
+import com.rankandfile.backend.repository.BillRepository;
 import com.rankandfile.backend.repository.PersonRepository;
 import com.rankandfile.backend.repository.SponsoredLegislationRepository;
 import com.rankandfile.backend.util.IdGenerator;
@@ -14,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +25,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class SponsoredLegislationProcessor {
-    
+
     private static final String FIELD_SPONSORED_LEGISLATION = "sponsoredLegislation";
+    private static final String FIELD_COSPONSORED_LEGISLATION = "cosponsoredLegislation";
     private static final String FIELD_CONGRESS = "congress";
     private static final String FIELD_NUMBER = "number";
     private static final String FIELD_TYPE = "type";
@@ -46,6 +47,12 @@ public class SponsoredLegislationProcessor {
     private PersonRepository personRepository;
 
     @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor;
+
+    @Autowired
     private IdGenerator idGenerator;
 
     /**
@@ -59,15 +66,28 @@ public class SponsoredLegislationProcessor {
         log.info("Starting processing of sponsored legislation for personId: {}", personId);
 
         JsonObject rootObject = JsonParser.parseString(json).getAsJsonObject();
-        if (rootObject == null || !rootObject.has(FIELD_SPONSORED_LEGISLATION)) {
-            log.warn("No sponsored legislation found in the input JSON.");
+        if (rootObject == null || (!rootObject.has(FIELD_SPONSORED_LEGISLATION) && !rootObject.has(FIELD_COSPONSORED_LEGISLATION))) {
+            log.warn("No sponsored or cosponsored legislation found in the input JSON.");
             return Collections.emptyList();
         }
 
+
+        JsonArray arrayToProcess = new JsonArray();
+
+        //Sponsored legislation null check and assignment
         JsonArray sponsoredLegislationArray = rootObject.getAsJsonArray(FIELD_SPONSORED_LEGISLATION);
         if (sponsoredLegislationArray == null || sponsoredLegislationArray.isEmpty()) {
             log.warn("Sponsored legislation array is empty.");
-            return Collections.emptyList();
+        } else {
+            arrayToProcess = sponsoredLegislationArray;
+        }
+
+        //CoSponsored legislation null check and assignment
+        JsonArray coSponsoredLegislation = rootObject.getAsJsonArray(FIELD_COSPONSORED_LEGISLATION);
+        if(coSponsoredLegislation == null || coSponsoredLegislation.isEmpty()) {
+            log.warn("Cosponsored legislation array is empty.");
+        } else {
+            arrayToProcess = coSponsoredLegislation;
         }
 
         List <SponsoredLegislation> sponsoredLegislations = new ArrayList<>();
@@ -81,14 +101,14 @@ public class SponsoredLegislationProcessor {
         // Collect all existing SponsoredLegislation for the person
         List<SponsoredLegislation> existingLegislations = sponsoredLegislationRepository.findByPersonPersonId(personId);
 
-        // Create a map for quick lookup
+        // Create a map for quick lookup of existing SponsoredLegislation
         Map<String, SponsoredLegislation> existingLegislationMap = existingLegislations.stream()
                 .collect(Collectors.toMap(
-                        leg -> generateKey(leg.getCongress(), leg.getBillNo(), leg.getBillType()),
+                        leg -> generateKey(leg.getBill().getCongress(), leg.getBill().getBillNo(), leg.getBill().getBillType()),
                         leg -> leg));
 
         // Loop through each piece of sponsored legislation
-        for (JsonElement element : sponsoredLegislationArray) {
+        for (JsonElement element : arrayToProcess) {
             JsonObject legislationObject = element.getAsJsonObject();
 
             //Filtering out amendments
@@ -101,17 +121,25 @@ public class SponsoredLegislationProcessor {
             Integer congressNo = getAsInteger(legislationObject, FIELD_CONGRESS);
             Integer billNo = getAsInteger(legislationObject, FIELD_NUMBER);
             String billType = getAsString(legislationObject, FIELD_TYPE);
+            String sponsor = getAsString(legislationObject, FIELD_SPONSORED_LEGISLATION);
+            String coSponsor = getAsString(legislationObject, FIELD_COSPONSORED_LEGISLATION);
 
             String key = generateKey(congressNo, billNo, billType);
+
+            // Fetch or create the Bill entity
+            Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
+            if (bill == null) {
+                log.info("Creating new Bill for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
+                bill = billByCongressTypeNumberProcessor.process(json);
+            } else {
+                log.info("Updating existing Bill with ID: {}", bill.getBillId());
+            }
 
             SponsoredLegislation legislationToProcess = existingLegislationMap.get(key);
 
             if (legislationToProcess == null) {
                 log.info("Creating new SponsoredLegislation for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
                 legislationToProcess = new SponsoredLegislation();
-                legislationToProcess.setCongress(congressNo);
-                legislationToProcess.setBillNo(billNo);
-                legislationToProcess.setBillType(billType);
                 legislationToProcess.setSponLegId(idGenerator.generateSponsLegId());
             } else {
                 log.info("Updating existing SponsoredLegislation with ID: {}", legislationToProcess.getSponLegId());
@@ -120,8 +148,15 @@ public class SponsoredLegislationProcessor {
             // Set Person
             legislationToProcess.setPerson(existingMember);
 
-            // Process the legislation data
-            processLegislation(legislationObject, legislationToProcess);
+            // Set Bill
+            legislationToProcess.setBill(bill);
+
+            // Set sponsor type
+            if(sponsor.equalsIgnoreCase(FIELD_SPONSORED_LEGISLATION)) {
+                legislationToProcess.setSponsorType("Sponsor");
+            } else if(coSponsor.equalsIgnoreCase(FIELD_COSPONSORED_LEGISLATION)) {
+                legislationToProcess.setSponsorType("Co-Sponsor");
+            }
 
             sponsoredLegislations.add(legislationToProcess);
         }
@@ -130,61 +165,6 @@ public class SponsoredLegislationProcessor {
 
         return sponsoredLegislations;
     }
-
-    private void processLegislation(JsonObject legislationObject, SponsoredLegislation legislationToProcess) {
-        // Set title
-        String titleString = getAsString(legislationObject, FIELD_TITLE);
-        legislationToProcess.setLegTitle(titleString);
-
-        // Set Type
-        String billType = getAsString(legislationObject, FIELD_TYPE);
-        legislationToProcess.setBillType(billType);
-
-        String introDtString = getAsString(legislationObject, FIELD_INTRODUCED_DATE);
-        if (introDtString != null) {
-            try {
-                LocalDate introducedDt = LocalDate.parse(introDtString);
-                legislationToProcess.setIntroDt(introducedDt);
-            } catch (DateTimeParseException e) {
-                log.error("Invalid date format for introducedDate: {}", introDtString, e);
-                legislationToProcess.setIntroDt(null);
-            }
-        }
-
-        // Process latest action if it is not null
-        if (legislationObject.has(FIELD_LATEST_ACTION) && !legislationObject.get(FIELD_LATEST_ACTION).isJsonNull()) {
-            JsonObject latestActionObject = legislationObject.getAsJsonObject(FIELD_LATEST_ACTION);
-            String latestActionDate = getAsString(latestActionObject, FIELD_ACTION_DATE);
-            if (latestActionDate != null) {
-                try {
-                    LocalDate actionDate = LocalDate.parse(latestActionDate);
-                    legislationToProcess.setLatestActionDt(actionDate);
-                } catch (DateTimeParseException e) {
-                    log.error("Invalid date format for latestActionDate: {}", latestActionDate, e);
-                    legislationToProcess.setLatestActionDt(null);
-                }
-            }
-            String latestActionText = getAsString(latestActionObject, FIELD_TEXT);
-            legislationToProcess.setLatestActionTxt(latestActionText);
-        } else {
-            legislationToProcess.setLatestActionDt(null);
-            legislationToProcess.setLatestActionTxt(null);
-        }
-
-        // Process policy area if it is not null
-        if (legislationObject.has(FIELD_POLICY_AREA) && !legislationObject.get(FIELD_POLICY_AREA).isJsonNull()) {
-            JsonObject policyAreaObject = legislationObject.getAsJsonObject(FIELD_POLICY_AREA);
-            String policyArea = getAsString(policyAreaObject, FIELD_NAME);
-            legislationToProcess.setPolicyArea(policyArea);
-        } else {
-            legislationToProcess.setPolicyArea(null);
-        }
-
-        // Add URL source
-        String url = getAsString(legislationObject, FIELD_URL);
-        legislationToProcess.setUrlSrc(url);
-    }
-
 
     private String getAsString(JsonObject obj, String field) {
         return obj.has(field) && !obj.get(field).isJsonNull() ? obj.get(field).getAsString() : null;

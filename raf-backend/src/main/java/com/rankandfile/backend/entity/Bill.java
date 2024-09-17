@@ -2,13 +2,12 @@ package com.rankandfile.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rankandfile.backend.entity.audit.RAFAudit;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "RAF_BILL")
 @Entity
@@ -22,7 +21,6 @@ public class Bill extends RAFAudit {
     @Column(name = "BILL_NO")
     private Integer billNo;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "BILL_TITLE")
     private String billTitle;
 
@@ -30,6 +28,7 @@ public class Bill extends RAFAudit {
     @Column(name = "INTRODUCED_DT")
     private LocalDate introducedDt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(name = "LATEST_ACTION_DT")
     private LocalDate latestActionDt;
 
@@ -50,4 +49,7 @@ public class Bill extends RAFAudit {
 
     @Column(name = "ORIGIN_CHAMBER_CD")
     private String originChamberCd;
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SponsoredLegislation> sponsorships = new ArrayList<>();
 }

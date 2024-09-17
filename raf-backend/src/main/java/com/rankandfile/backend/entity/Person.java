@@ -87,7 +87,7 @@ public class Person extends RAFAudit {
     private List<Term> termList = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SponsoredLegislation> sponsoredLegislationList;
+    private List<SponsoredLegislation> sponsoredLegislationList = new ArrayList<>();
 
     @Override
     public String toString() {

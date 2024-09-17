@@ -5,7 +5,6 @@ import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "RAF_MEM_SPONS_LEGISLATION")
@@ -16,39 +15,35 @@ public class SponsoredLegislation extends RAFAudit {
     @Column(name = "SPON_LEG_ID")
     private String sponLegId;
 
-    @Column(name = "CONGRESS")
-    private Integer congress;
-
-    @Column(name = "INTRO_DT")
-    private LocalDate introDt;
-
-    @Column(name = "LATEST_ACTION_DT")
-    private LocalDate latestActionDt;
-
-    @Column(name = "LATEST_ACTION_TXT")
-    private String latestActionTxt;
-
-    @Column(name = "BILL_NO")
-    private Integer billNo;
-
-    @Column(name = "BILL_TYPE")
-    private String billType;
-
-    @Column(name = "POLICY_AREA")
-    private String policyArea;
-
-    @Column(name = "LEG_TITLE")
-    private String legTitle;
-
-    @Column(name = "LEG_TEXT")
-    private String legTxt;
-
-    @Column(name = "URL_SRC")
-    private String urlSrc;
-
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "PERSON_ID", nullable = false)
     private Person person;
+
+    @ManyToOne
+    @JoinColumn(name = "BILL_ID", nullable = false)
+    private Bill bill;
+
+    @Column(name = "SPONSOR_TYPE")
+    private String sponsorType; // Values: "Sponsor" or "Co-Sponsor"
+
+    // Override equals and hashCode based on person and bill
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SponsoredLegislation that = (SponsoredLegislation) o;
+
+        if (!person.equals(that.person)) return false;
+        return bill.equals(that.bill);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = person.hashCode();
+        result = 31 * result + bill.hashCode();
+        return result;
+    }
     
 }
