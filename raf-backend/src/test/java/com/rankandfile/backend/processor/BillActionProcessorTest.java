@@ -2,40 +2,37 @@ package com.rankandfile.backend.processor;
 
 import com.rankandfile.backend.entity.Action;
 import com.rankandfile.backend.entity.Bill;
+import com.rankandfile.backend.repository.ActionRepository;
 import com.rankandfile.backend.util.IdGenerator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BillActionProcessorTest {
+class BillActionProcessorTest {
 
-    private BillActionProcessor processor;
+    @Mock
     private IdGenerator idGenerator;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        idGenerator = mock(IdGenerator.class);
-        processor = new BillActionProcessor(idGenerator);
-    }
+    @Mock
+    private ActionRepository actionRepository;
+
+    @InjectMocks
+    private BillActionProcessor processor;
+
 
     @Test
     void testBillActionProcessor() {
-        when(idGenerator.generateActionId()).thenAnswer(invocation -> {
-            Random random = new Random();
-            int randomNumber = random.nextInt(9000) + 1000; // Generates a random number between 1000 and 9999
-            return "AB" + randomNumber;
-        });
+        // Mock IdGenerator
+        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1", "ACTION_ID_2", "ACTION_ID_3");
 
         String json = "{\n" +
                 "    \"actions\": [\n" +
@@ -78,19 +75,7 @@ public class BillActionProcessorTest {
                 "            \"text\": \"Passed Senate with an amendment by Unanimous Consent. (text of amendment in the nature of a substitute: CR S7146-7147)\",\n" +
                 "            \"type\": \"Floor\"\n" +
                 "        }\n" +
-                "    ],\n" +
-                "    \"pagination\": {\n" +
-                "        \"count\": 3,\n" +
-                "        \"next\": \"https://api.congress.gov/v3/bill/117/s/4926/actions?offset=20&limit=20&format=json\"\n" +
-                "    },\n" +
-                "    \"request\": {\n" +
-                "        \"billNumber\": \"4926\",\n" +
-                "        \"billType\": \"s\",\n" +
-                "        \"billUrl\": \"https://api.congress.gov/v3/bill/117/s/4926?format=json\",\n" +
-                "        \"congress\": \"117\",\n" +
-                "        \"contentType\": \"application/json\",\n" +
-                "        \"format\": \"json\"\n" +
-                "    }\n" +
+                "    ]\n" +
                 "}";
 
         Bill mockBill = new Bill();
@@ -102,41 +87,46 @@ public class BillActionProcessorTest {
         mockBill.setOriginChamberCd("S");
         mockBill.setOriginChamber("Senate");
 
+        // Mock ActionRepository to return no existing actions
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(3, actionList.size());
 
-        assertEquals("E40000", actionList.get(0).getActionCode());
-        assertEquals(LocalDate.of(2023, 1, 5), actionList.get(0).getActionDate());
-        assertEquals(9, actionList.get(0).getSourceSystemCode());
-        assertEquals("Library of Congress", actionList.get(0).getSourceSystemName());
-        assertEquals("Became Public Law No: 117-354.", actionList.get(0).getActionText());
-        assertEquals("President", actionList.get(0).getActionType());
+        // Assertions for first action
+        Action action1 = actionList.get(0);
+        assertEquals("ACTION_ID_1", action1.getActionId());
+        assertEquals("E40000", action1.getActionCode());
+        assertEquals(LocalDate.of(2023, 1, 5), action1.getActionDate());
+        assertEquals(9, action1.getSourceSystemCode());
+        assertEquals("Library of Congress", action1.getSourceSystemName());
+        assertEquals("Became Public Law No: 117-354.", action1.getActionText());
+        assertEquals("President", action1.getActionType());
 
-        assertEquals("H37300", actionList.get(1).getActionCode());
-        assertEquals(LocalDate.of(2022, 12, 21), actionList.get(1).getActionDate());
-        assertEquals(2, actionList.get(1).getSourceSystemCode());
-        assertEquals("House floor actions", actionList.get(1).getSourceSystemName());
-        assertEquals("On motion to suspend the rules and pass the bill Agreed to by the Yeas and Nays: (2/3 required): 385 - 28 (Roll no. 534). (text: CR H9927-9929)", actionList.get(1).getActionText());
-        assertEquals("Floor", actionList.get(1).getActionType());
+        // Assertions for second action
+        Action action2 = actionList.get(1);
+        assertEquals("ACTION_ID_2", action2.getActionId());
+        assertEquals("H37300", action2.getActionCode());
+        assertEquals(LocalDate.of(2022, 12, 21), action2.getActionDate());
+        assertEquals(2, action2.getSourceSystemCode());
+        assertEquals("House floor actions", action2.getSourceSystemName());
+        assertEquals("On motion to suspend the rules and pass the bill Agreed to by the Yeas and Nays: (2/3 required): 385 - 28 (Roll no. 534). (text: CR H9927-9929)", action2.getActionText());
+        assertEquals("Floor", action2.getActionType());
 
-        assertNull(actionList.get(2).getActionCode());
-        assertEquals(LocalDate.of(2022, 12, 13), actionList.get(2).getActionDate());
-        assertNull(actionList.get(2).getSourceSystemCode());
-        assertEquals("Senate", actionList.get(2).getSourceSystemName());
-        assertEquals("Passed Senate with an amendment by Unanimous Consent. (text of amendment in the nature of a substitute: CR S7146-7147)", actionList.get(2).getActionText());
-        assertEquals("Floor", actionList.get(2).getActionType());
-
+        // Assertions for third action
+        Action action3 = actionList.get(2);
+        assertEquals("ACTION_ID_3", action3.getActionId());
+        assertNull(action3.getActionCode());
+        assertEquals(LocalDate.of(2022, 12, 13), action3.getActionDate());
+        assertNull(action3.getSourceSystemCode());
+        assertEquals("Senate", action3.getSourceSystemName());
+        assertEquals("Passed Senate with an amendment by Unanimous Consent. (text of amendment in the nature of a substitute: CR S7146-7147)", action3.getActionText());
+        assertEquals("Floor", action3.getActionType());
     }
 
     @Test
     void testBillActionProcessorWithEmptyActions() {
-        String json = "{\n" +
-                "    \"actions\": [],\n" +
-                "    \"pagination\": {\n" +
-                "        \"count\": 0,\n" +
-                "        \"next\": \"\"\n" +
-                "    }\n" +
-                "}";
+        String json = "{ \"actions\": [] }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
@@ -147,125 +137,181 @@ public class BillActionProcessorTest {
 
     @Test
     void testBillActionProcessorWithMissingFields() {
-        String json = "{\n" +
-                "    \"actions\": [\n" +
-                "        {\n" +
-                "            \"text\": \"Passed Senate without a vote.\",\n" +
-                "            \"type\": \"Floor\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        String json = "{ \"actions\": [ { \"text\": \"Passed Senate without a vote.\", \"type\": \"Floor\" } ] }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
+
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
-        assertNull(actionList.get(0).getActionCode());
-        assertNull(actionList.get(0).getActionDate());
-        assertNull(actionList.get(0).getSourceSystemCode());
-        assertNull(actionList.get(0).getSourceSystemName());
-        assertEquals("Passed Senate without a vote.", actionList.get(0).getActionText());
-        assertEquals("Floor", actionList.get(0).getActionType());
+
+        Action action = actionList.get(0);
+        assertEquals("ACTION_ID_1", action.getActionId());
+        assertNull(action.getActionCode());
+        assertNull(action.getActionDate());
+        assertNull(action.getSourceSystemCode());
+        assertNull(action.getSourceSystemName());
+        assertEquals("Passed Senate without a vote.", action.getActionText());
+        assertEquals("Floor", action.getActionType());
     }
 
     @Test
     void testBillActionProcessorWithNullFields() {
-        String json = "{\n" +
-                "    \"actions\": [\n" +
-                "        {\n" +
-                "            \"actionCode\": null,\n" +
-                "            \"actionDate\": \"2023-01-05\",\n" +
-                "            \"sourceSystem\": {\n" +
-                "                \"code\": null,\n" +
-                "                \"name\": null\n" +
-                "            },\n" +
-                "            \"text\": \"Became Public Law No: 117-354.\",\n" +
-                "            \"type\": null\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        String json = "{ \"actions\": [ { \"actionCode\": null, \"actionDate\": \"2023-01-05\", \"sourceSystem\": { \"code\": null, \"name\": null }, \"text\": \"Became Public Law No: 117-354.\", \"type\": null } ] }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
+
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
-        assertNull(actionList.get(0).getActionCode());
-        assertEquals(LocalDate.of(2023, 1, 5), actionList.get(0).getActionDate());
-        assertNull(actionList.get(0).getSourceSystemCode());
-        assertNull(actionList.get(0).getSourceSystemName());
-        assertEquals("Became Public Law No: 117-354.", actionList.get(0).getActionText());
-        assertNull(actionList.get(0).getActionType());
+
+        Action action = actionList.get(0);
+        assertEquals("ACTION_ID_1", action.getActionId());
+        assertNull(action.getActionCode());
+        assertEquals(LocalDate.of(2023, 1, 5), action.getActionDate());
+        assertNull(action.getSourceSystemCode());
+        assertNull(action.getSourceSystemName());
+        assertEquals("Became Public Law No: 117-354.", action.getActionText());
+        assertNull(action.getActionType());
     }
 
     @Test
     void testBillActionProcessorWithUnexpectedJsonStructure() {
-        String json = "{\n" +
-                "    \"actions\": [\n" +
-                "        {\n" +
-                "            \"unexpectedField\": \"unexpectedValue\",\n" +
-                "            \"anotherField\": {}\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        String json = "{ \"actions\": [ { \"unexpectedField\": \"unexpectedValue\", \"anotherField\": {} } ] }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
+
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
-        assertNull(actionList.get(0).getActionCode());
-        assertNull(actionList.get(0).getActionDate());
-        assertNull(actionList.get(0).getSourceSystemCode());
-        assertNull(actionList.get(0).getSourceSystemName());
-        assertNull(actionList.get(0).getActionText());
-        assertNull(actionList.get(0).getActionType());
+
+        Action action = actionList.get(0);
+        assertEquals("ACTION_ID_1", action.getActionId());
+        assertNull(action.getActionCode());
+        assertNull(action.getActionDate());
+        assertNull(action.getSourceSystemCode());
+        assertNull(action.getSourceSystemName());
+        assertNull(action.getActionText());
+        assertNull(action.getActionType());
     }
 
     @Test
     void testBillActionProcessorWithSameDateActions() {
-        String json = "{\n" +
-                "    \"actions\": [\n" +
-                "        {\n" +
-                "            \"actionCode\": \"A10000\",\n" +
-                "            \"actionDate\": \"2023-01-05\",\n" +
-                "            \"sourceSystem\": {\n" +
-                "                \"code\": 9,\n" +
-                "                \"name\": \"Library of Congress\"\n" +
-                "            },\n" +
-                "            \"text\": \"Text for Action 1.\",\n" +
-                "            \"type\": \"President\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"actionCode\": \"B20000\",\n" +
-                "            \"actionDate\": \"2023-01-05\",\n" +
-                "            \"sourceSystem\": {\n" +
-                "                \"code\": 9,\n" +
-                "                \"name\": \"Library of Congress\"\n" +
-                "            },\n" +
-                "            \"text\": \"Text for Action 2.\",\n" +
-                "            \"type\": \"Floor\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}";
+        String json = "{ \"actions\": [ { \"actionCode\": \"A10000\", \"actionDate\": \"2023-01-05\", \"sourceSystem\": { \"code\": 9, \"name\": \"Library of Congress\" }, \"text\": \"Text for Action 1.\", \"type\": \"President\" }, { \"actionCode\": \"B20000\", \"actionDate\": \"2023-01-05\", \"sourceSystem\": { \"code\": 9, \"name\": \"Library of Congress\" }, \"text\": \"Text for Action 2.\", \"type\": \"Floor\" } ] }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
 
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1", "ACTION_ID_2");
+
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(2, actionList.size());
 
-        assertEquals("A10000", actionList.get(0).getActionCode());
-        assertEquals(LocalDate.of(2023, 1, 5), actionList.get(0).getActionDate());
-        assertEquals("Text for Action 1.", actionList.get(0).getActionText());
-        assertEquals("President", actionList.get(0).getActionType());
+        Action action1 = actionList.stream().filter(a -> a.getActionCode().equals("A10000")).findFirst().orElse(null);
+        assertNotNull(action1);
+        assertEquals("ACTION_ID_1", action1.getActionId());
+        assertEquals(LocalDate.of(2023, 1, 5), action1.getActionDate());
+        assertEquals("Text for Action 1.", action1.getActionText());
+        assertEquals("President", action1.getActionType());
 
-        assertEquals("B20000", actionList.get(1).getActionCode());
-        assertEquals(LocalDate.of(2023, 1, 5), actionList.get(1).getActionDate());
-        assertEquals("Text for Action 2.", actionList.get(1).getActionText());
-        assertEquals("Floor", actionList.get(1).getActionType());
+        Action action2 = actionList.stream().filter(a -> a.getActionCode().equals("B20000")).findFirst().orElse(null);
+        assertNotNull(action2);
+        assertEquals("ACTION_ID_2", action2.getActionId());
+        assertEquals(LocalDate.of(2023, 1, 5), action2.getActionDate());
+        assertEquals("Text for Action 2.", action2.getActionText());
+        assertEquals("Floor", action2.getActionType());
     }
 
+    @Test
+    void testProcessActionListWithExistingActions() {
+        String json = "{ \"actions\": [ { \"actionCode\": \"E40000\", \"actionDate\": \"2023-01-05\", \"text\": \"Became Public Law No: 117-354.\", \"type\": \"President\" }, { \"actionCode\": \"H37300\", \"actionDate\": \"2022-12-21\", \"text\": \"On motion to suspend the rules and pass the bill.\", \"type\": \"Floor\" } ] }";
 
+        Bill mockBill = new Bill();
+        mockBill.setBillId("117-4926");
+
+        // Existing action
+        Action existingAction = new Action();
+        existingAction.setActionId("EXISTING_ACTION_ID");
+        existingAction.setBill(mockBill);
+        existingAction.setActionCode("E40000");
+        existingAction.setActionDate(LocalDate.of(2023, 1, 5));
+        existingAction.setActionText("Became Public Law No: 117-354.");
+        existingAction.setActionType("President");
+
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
+        when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
+
+        List<Action> actionList = processor.processActionList(json, mockBill);
+
+        assertEquals(2, actionList.size());
+
+        // Existing action should be reused
+        Action action1 = actionList.stream().filter(a -> a.getActionCode().equals("E40000")).findFirst().orElse(null);
+        assertNotNull(action1);
+        assertEquals("EXISTING_ACTION_ID", action1.getActionId());
+
+        // New action should be created
+        Action action2 = actionList.stream().filter(a -> a.getActionCode().equals("H37300")).findFirst().orElse(null);
+        assertNotNull(action2);
+        assertEquals("NEW_ACTION_ID", action2.getActionId());
+    }
+
+    @Test
+    void testProcessActionListWithAllExistingActions() {
+        String json = "{ \"actions\": [ { \"actionCode\": \"E40000\", \"actionDate\": \"2023-01-05\", \"text\": \"Became Public Law No: 117-354.\", \"type\": \"President\" } ] }";
+
+        Bill mockBill = new Bill();
+        mockBill.setBillId("117-4926");
+
+        // Existing action
+        Action existingAction = new Action();
+        existingAction.setActionId("EXISTING_ACTION_ID");
+        existingAction.setBill(mockBill);
+        existingAction.setActionCode("E40000");
+        existingAction.setActionDate(LocalDate.of(2023, 1, 5));
+        existingAction.setActionText("Became Public Law No: 117-354.");
+        existingAction.setActionType("President");
+
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
+
+        List<Action> actionList = processor.processActionList(json, mockBill);
+
+        assertEquals(1, actionList.size());
+        Action action = actionList.get(0);
+        assertEquals("EXISTING_ACTION_ID", action.getActionId());
+
+        // Verify that idGenerator.generateActionId() was not called
+        verify(idGenerator, never()).generateActionId();
+    }
+
+    @Test
+    void testProcessActionListWithInvalidDate() {
+        String json = "{ \"actions\": [ { \"actionCode\": \"E40000\", \"actionDate\": \"invalid-date\", \"text\": \"Became Public Law No: 117-354.\", \"type\": \"President\" } ] }";
+
+        Bill mockBill = new Bill();
+        mockBill.setBillId("117-4926");
+
+        when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
+        when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
+
+        List<Action> actionList = processor.processActionList(json, mockBill);
+
+        assertEquals(1, actionList.size());
+        Action action = actionList.get(0);
+        assertEquals("NEW_ACTION_ID", action.getActionId());
+        assertEquals("E40000", action.getActionCode());
+        assertNull(action.getActionDate());
+        assertEquals("Became Public Law No: 117-354.", action.getActionText());
+        assertEquals("President", action.getActionType());
+    }
 }

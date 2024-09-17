@@ -1,6 +1,5 @@
 package com.rankandfile.backend.util;
 
-import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.repository.BillRepository;
 import com.rankandfile.backend.repository.PersonRepository;
@@ -24,12 +23,4 @@ public class Supplier {
         return personRepository.findById(personId).orElse(new Person());
     }
 
-    public Bill findOrCreateBill(Integer congressNo, Integer billNo) {
-        Bill existingBill = billRepository.findByCongressAndBillNo(congressNo, billNo);
-        if(existingBill != null) {
-            return existingBill;
-        } else {
-            return new Bill();
-        }
-    }
 }
