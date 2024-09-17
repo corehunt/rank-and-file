@@ -6,10 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Table(name = "RAF_PERSON")
 @Entity
@@ -115,5 +112,18 @@ public class Person extends RAFAudit {
                 ", partyMembership='" + partyMembership + '\'' +
                 ", partyStartYr=" + partyStartYr +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person)) return false;
+        Person person = (Person) o;
+        return Objects.equals(personId, person.personId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(personId);
     }
 }

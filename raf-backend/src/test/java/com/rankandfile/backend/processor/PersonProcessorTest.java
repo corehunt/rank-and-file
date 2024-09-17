@@ -4,10 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
-import com.rankandfile.backend.entity.domain.StateDomain;
-import com.rankandfile.backend.repository.StateRepository;
+import com.rankandfile.backend.repository.PersonRepository;
 import com.rankandfile.backend.util.IdGenerator;
-import com.rankandfile.backend.util.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,10 +24,7 @@ import static org.mockito.Mockito.*;
 class PersonProcessorTest {
 
     @Mock
-    private StateRepository stateRepository;
-
-    @Mock
-    private Supplier personSupplier;
+    private PersonRepository personRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -68,22 +64,23 @@ class PersonProcessorTest {
                 "    \"state\": \"California\"\n" +
                 "  }\n" +
                 "}";
-
         mockMemberJson = JsonParser.parseString(json).getAsJsonObject();
     }
 
     @Test
-    public void testValidatePerson() {
-        Person mockPerson = new Person();
-        when(personSupplier.findOrCreatePerson(anyString())).thenReturn(mockPerson);
+    public void testValidatePersonNewPerson() {
+        String bioguideId = "A123";
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
 
         Person person = personProcessor.validatePerson(mockMemberJson.toString());
 
+        assertNotNull(person);
         assertEquals("A123", person.getPersonId());
         assertEquals("John", person.getFirstName());
         assertEquals("Doe", person.getLastName());
+        assertEquals("John Doe", person.getFullName());
         assertEquals("1234 Longworth House Office Building", person.getOfficeLocLine1());
-        assertEquals("Washington, DC 20515", person.getOfficeLocLine2());
+        assertEquals("Washington DC, 20515", person.getOfficeLocLine2());
         assertEquals("202-225-1234", person.getPhoneNo());
         assertEquals(1, person.getCurrentDistrict());
         assertEquals("http://johndoe.house.gov", person.getWebsite());
@@ -92,13 +89,49 @@ class PersonProcessorTest {
         assertEquals("Photo by Photographer", person.getImgAttribution());
         assertEquals("http://example.com/image.jpg", person.getImageUrl());
         assertEquals("California", person.getState());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
+    }
+
+    @Test
+    public void testValidatePersonExistingPerson() {
+        String bioguideId = "A123";
+        Person existingPerson = new Person();
+        existingPerson.setPersonId(bioguideId);
+        existingPerson.setFirstName("OldFirstName");
+        existingPerson.setLastName("OldLastName");
+        existingPerson.setFullName("OldFirstName OldLastName");
+        existingPerson.setState("NY");
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.of(existingPerson));
+
+        Person person = personProcessor.validatePerson(mockMemberJson.toString());
+
+        assertNotNull(person);
+        assertSame(existingPerson, person);
+        assertEquals("A123", person.getPersonId());
+        assertEquals("John", person.getFirstName());
+        assertEquals("Doe", person.getLastName());
+        assertEquals("John Doe", person.getFullName());
+        assertEquals("1234 Longworth House Office Building", person.getOfficeLocLine1());
+        assertEquals("Washington DC, 20515", person.getOfficeLocLine2());
+        assertEquals("202-225-1234", person.getPhoneNo());
+        assertEquals(1, person.getCurrentDistrict());
+        assertEquals("http://johndoe.house.gov", person.getWebsite());
+        assertEquals("D", person.getPartyMembership());
+        assertEquals(2020, person.getPartyStartYr());
+        assertEquals("Photo by Photographer", person.getImgAttribution());
+        assertEquals("http://example.com/image.jpg", person.getImageUrl());
+        assertEquals("California", person.getState());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
     }
 
     @Test
     public void testValidatePersonWithNullValues() {
-        Person mockPerson = new Person();
-        when(personSupplier.findOrCreatePerson(anyString())).thenReturn(mockPerson);
-
+        String bioguideId = "A123";
         String json = "{\n" +
                 "  \"member\": {\n" +
                 "    \"bioguideId\": \"A123\",\n" +
@@ -112,14 +145,18 @@ class PersonProcessorTest {
                 "    \"state\": null\n" +
                 "  }\n" +
                 "}";
-
         JsonObject mockNullMemberJson = JsonParser.parseString(json).getAsJsonObject();
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
 
         Person person = personProcessor.validatePerson(mockNullMemberJson.toString());
 
+        assertNotNull(person);
         assertEquals("A123", person.getPersonId());
         assertNull(person.getFirstName());
         assertNull(person.getLastName());
+        assertNull(person.getMidName());
+        assertNull(person.getFullName());
         assertNull(person.getOfficeLocLine1());
         assertNull(person.getOfficeLocLine2());
         assertNull(person.getPhoneNo());
@@ -130,158 +167,245 @@ class PersonProcessorTest {
         assertNull(person.getImgAttribution());
         assertNull(person.getImageUrl());
         assertNull(person.getState());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
     }
 
     @Test
-    public void testValidatePersonWithCongressTerms() {
-        Person mockPerson = new Person();
-        when(personSupplier.findOrCreatePerson(anyString())).thenReturn(mockPerson);
-        when(idGenerator.generateTermId()).thenReturn(anyInt());
+    public void testValidatePersonWithNameField() {
+        String bioguideId = "H234";
+        String json = "{\n" +
+                "  \"member\": {\n" +
+                "    \"bioguideId\": \"H234\",\n" +
+                "    \"name\": \"Smith, Anna Marie\",\n" +
+                "    \"state\": \"New York\"\n" +
+                "  }\n" +
+                "}";
+        JsonObject mockNameFieldJson = JsonParser.parseString(json).getAsJsonObject();
 
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
+
+        Person person = personProcessor.validatePerson(mockNameFieldJson.toString());
+
+        assertNotNull(person);
+        assertEquals("H234", person.getPersonId());
+        assertEquals("Anna", person.getFirstName());
+        assertEquals("Marie", person.getMidName());
+        assertEquals("Smith", person.getLastName());
+        assertEquals("Anna Marie Smith", person.getFullName());
+        assertEquals("New York", person.getState());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
+    }
+
+    @Test
+    public void testValidatePersonInvalidJson() {
+        String invalidJson = "{ invalid json ";
+
+        Person person = personProcessor.validatePerson(invalidJson);
+
+        assertNull(person);
+
+        // Verify interactions
+        verify(personRepository, never()).findById(anyString());
+    }
+
+    @Test
+    public void testValidatePersonWithEmptyJson() {
+        String emptyJson = "";
+
+        Person person = personProcessor.validatePerson(emptyJson);
+
+        assertNull(person);
+
+        // Verify interactions
+        verify(personRepository, never()).findById(anyString());
+    }
+
+    @Test
+    public void testValidatePersonWithSeparateNameFields() {
+        String bioguideId = "C789";
+        String json = "{\n" +
+                "  \"member\": {\n" +
+                "    \"bioguideId\": \"C789\",\n" +
+                "    \"firstName\": \"Emily\",\n" +
+                "    \"middleName\": \"A.\",\n" +
+                "    \"lastName\": \"Clark\",\n" +
+                "    \"state\": \"Florida\"\n" +
+                "  }\n" +
+                "}";
+        JsonObject mockSeparateNameJson = JsonParser.parseString(json).getAsJsonObject();
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
+
+        Person person = personProcessor.validatePerson(mockSeparateNameJson.toString());
+
+        assertNotNull(person);
+        assertEquals("C789", person.getPersonId());
+        assertEquals("Emily", person.getFirstName());
+        assertEquals("A.", person.getMidName());
+        assertEquals("Clark", person.getLastName());
+        assertEquals("Emily A. Clark", person.getFullName());
+        assertEquals("Florida", person.getState());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
+    }
+
+    @Test
+    public void testValidatePersonWithEmptyPartyHistory() {
+        String bioguideId = "D012";
+        String json = "{\n" +
+                "  \"member\": {\n" +
+                "    \"bioguideId\": \"D012\",\n" +
+                "    \"firstName\": \"Alice\",\n" +
+                "    \"lastName\": \"Smith\",\n" +
+                "    \"partyHistory\": [],\n" +
+                "    \"state\": \"Illinois\"\n" +
+                "  }\n" +
+                "}";
+        JsonObject mockEmptyPartyHistoryJson = JsonParser.parseString(json).getAsJsonObject();
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
+
+        Person person = personProcessor.validatePerson(mockEmptyPartyHistoryJson.toString());
+
+        assertNotNull(person);
+        assertEquals("D012", person.getPersonId());
+        assertEquals("Alice", person.getFirstName());
+        assertEquals("Smith", person.getLastName());
+        assertEquals("Alice Smith", person.getFullName());
+        assertEquals("Illinois", person.getState());
+
+        // Party fields should remain null
+        assertNull(person.getPartyMembership());
+        assertNull(person.getPartyStartYr());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
+    }
+
+    @Test
+    public void testValidatePersonWithMultiplePartyHistoryEntries() {
+        String bioguideId = "E345";
+        String json = "{\n" +
+                "  \"member\": {\n" +
+                "    \"bioguideId\": \"E345\",\n" +
+                "    \"firstName\": \"Bob\",\n" +
+                "    \"lastName\": \"Jones\",\n" +
+                "    \"partyHistory\": [\n" +
+                "      { \"partyAbbreviation\": \"I\", \"startYear\": 2010 },\n" +
+                "      { \"partyAbbreviation\": \"D\", \"startYear\": 2015 }\n" +
+                "    ],\n" +
+                "    \"state\": \"Ohio\"\n" +
+                "  }\n" +
+                "}";
+        JsonObject mockMultiplePartyHistoryJson = JsonParser.parseString(json).getAsJsonObject();
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
+
+        Person person = personProcessor.validatePerson(mockMultiplePartyHistoryJson.toString());
+
+        assertNotNull(person);
+        assertEquals("E345", person.getPersonId());
+        assertEquals("Bob", person.getFirstName());
+        assertEquals("Jones", person.getLastName());
+        assertEquals("Bob Jones", person.getFullName());
+        assertEquals("Ohio", person.getState());
+
+        // Party fields should be set to the first entry
+        assertEquals("I", person.getPartyMembership());
+        assertEquals(2010, person.getPartyStartYr());
+
+        // Terms should remain empty as processor handles only the first partyHistory entry
+        assertTrue(person.getTermList().isEmpty());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
+    }
+
+    @Test
+    public void testValidatePersonWithTerms() {
+        String bioguideId = "F678";
+        Person existingPerson = new Person();
+        existingPerson.setPersonId(bioguideId);
+        existingPerson.setFirstName("George");
+        existingPerson.setLastName("Harris");
+        existingPerson.setFullName("George Harris");
+        existingPerson.setState("WA");
+        existingPerson.setTermList(new ArrayList<>());
+
+        when(personRepository.findById(bioguideId)).thenReturn(Optional.of(existingPerson));
+
+        when(idGenerator.generateTermId()).thenReturn(2001, 2002);
 
         String json = "{\n" +
                 "  \"member\": {\n" +
-                "    \"addressInformation\": {\n" +
-                "      \"city\": \"Washington\",\n" +
-                "      \"district\": \"DC\",\n" +
-                "      \"officeAddress\": \"2354 Rayburn House Office Building\",\n" +
-                "      \"phoneNumber\": \"(202) 225-6116\",\n" +
-                "      \"zipCode\": 20515\n" +
-                "    },\n" +
-                "    \"bioguideId\": \"P000597\",\n" +
-                "    \"birthYear\": \"1955\",\n" +
-                "    \"cosponsoredLegislation\": {\n" +
-                "      \"count\": 4212,\n" +
-                "      \"url\": \"https://api.congress.gov/v3/member/P000597/cosponsored-legislation\"\n" +
-                "    },\n" +
-                "    \"currentMember\": true,\n" +
-                "    \"depiction\": {\n" +
-                "      \"attribution\": \"Image courtesy of the Member\",\n" +
-                "      \"imageUrl\": \"https://www.congress.gov/img/member/p000597_200.jpg\"\n" +
-                "    },\n" +
-                "    \"directOrderName\": \"Chellie Pingree\",\n" +
-                "    \"district\": 1,\n" +
-                "    \"firstName\": \"Chellie\",\n" +
-                "    \"honorificName\": \"Ms.\",\n" +
-                "    \"invertedOrderName\": \"Pingree, Chellie\",\n" +
-                "    \"lastName\": \"Pingree\",\n" +
-                "    \"officialWebsiteUrl\": \"https://pingree.house.gov/\",\n" +
+                "    \"bioguideId\": \"F678\",\n" +
+                "    \"firstName\": \"George\",\n" +
+                "    \"lastName\": \"Harris\",\n" +
                 "    \"partyHistory\": [\n" +
-                "      {\n" +
-                "        \"partyAbbreviation\": \"D\",\n" +
-                "        \"partyName\": \"Democratic\",\n" +
-                "        \"startYear\": 2009\n" +
-                "      }\n" +
+                "      { \"partyAbbreviation\": \"R\", \"startYear\": 2010 }\n" +
                 "    ],\n" +
-                "    \"sponsoredLegislation\": {\n" +
-                "      \"count\": 155,\n" +
-                "      \"url\": \"https://api.congress.gov/v3/member/P000597/sponsored-legislation\"\n" +
-                "    },\n" +
-                "    \"state\": \"Maine\",\n" +
+                "    \"state\": \"Washington\",\n" +
                 "    \"terms\": [\n" +
-                "      {\n" +
-                "        \"chamber\": \"House of Representatives\",\n" +
-                "        \"congress\": 111,\n" +
-                "        \"district\": 1,\n" +
-                "        \"endYear\": 2011,\n" +
-                "        \"memberType\": \"Representative\",\n" +
-                "        \"startYear\": 2009,\n" +
-                "        \"stateCode\": \"ME\",\n" +
-                "        \"stateName\": \"Maine\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"chamber\": \"House of Representatives\",\n" +
-                "        \"congress\": 112,\n" +
-                "        \"district\": 1,\n" +
-                "        \"endYear\": 2013,\n" +
-                "        \"memberType\": \"Representative\",\n" +
-                "        \"startYear\": 2011,\n" +
-                "        \"stateCode\": \"ME\",\n" +
-                "        \"stateName\": \"Maine\"\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"updateDate\": \"2024-06-08T18:40:18Z\"\n" +
-                "  },\n" +
-                "  \"request\": {\n" +
-                "    \"bioguideId\": \"p000597\",\n" +
-                "    \"contentType\": \"application/json\",\n" +
-                "    \"format\": \"json\"\n" +
+                "      { \"chamber\": \"Senate\", \"congress\": 111, \"district\": null, \"endYear\": 2018, \"memberType\": \"Senator\", \"startYear\": 2014, \"stateCode\": \"WA\", \"stateName\": \"Washington\" },\n" +
+                "      { \"chamber\": \"Senate\", \"congress\": 112, \"district\": null, \"endYear\": 2024, \"memberType\": \"Senator\", \"startYear\": 2018, \"stateCode\": \"WA\", \"stateName\": \"Washington\" }\n" +
+                "    ]\n" +
                 "  }\n" +
                 "}";
+        JsonObject mockTermsJson = JsonParser.parseString(json).getAsJsonObject();
 
-        JsonObject mockNullMemberJson = JsonParser.parseString(json).getAsJsonObject();
+        Person person = personProcessor.validatePerson(mockTermsJson.toString());
 
-        Person person = personProcessor.validatePerson(mockNullMemberJson.toString());
-        assertEquals("P000597", person.getPersonId());
+        assertNotNull(person);
+        assertSame(existingPerson, person);
+        assertEquals("F678", person.getPersonId());
+        assertEquals("George", person.getFirstName());
+        assertEquals("Harris", person.getLastName());
+        assertEquals("George Harris", person.getFullName());
+        assertEquals("Washington", person.getState());
 
+        // Party fields should be updated
+        assertEquals("R", person.getPartyMembership());
+        assertEquals(2010, person.getPartyStartYr());
+
+        // Terms should be updated
         List<Term> termList = person.getTermList();
-
+        assertNotNull(termList);
         assertEquals(2, termList.size());
-        assertEquals("House of Representatives", termList.get(0).getChamber());
-        assertEquals(111, termList.get(0).getCongress());
-        assertEquals(1, termList.get(0).getDistrict());
-        assertEquals(2011, termList.get(0).getEndYr());
-        assertEquals("Representative", termList.get(0).getMemberType());
-        assertEquals(2009, termList.get(0).getStartYr());
-        assertEquals("ME", termList.get(0).getStateCd());
-        assertEquals("Maine", termList.get(0).getStateNm());
 
-        assertEquals("House of Representatives", termList.get(1).getChamber());
-        assertEquals(112, termList.get(1).getCongress());
-        assertEquals(1, termList.get(1).getDistrict());
-        assertEquals(2013, termList.get(1).getEndYr());
-        assertEquals("Representative", termList.get(1).getMemberType());
-        assertEquals(2011, termList.get(1).getStartYr());
-        assertEquals("ME", termList.get(1).getStateCd());
-        assertEquals("Maine", termList.get(1).getStateNm());
+        Term term1 = termList.get(0);
+        assertEquals(2001, term1.getTermId());
+        assertEquals("Senate", term1.getChamber());
+        assertEquals(111, term1.getCongress());
+        assertNull(term1.getDistrict());
+        assertEquals(2018, term1.getEndYr());
+        assertEquals("Senator", term1.getMemberType());
+        assertEquals(2014, term1.getStartYr());
+        assertEquals("WA", term1.getStateCd());
+        assertEquals("Washington", term1.getStateNm());
+
+        Term term2 = termList.get(1);
+        assertEquals(2002, term2.getTermId());
+        assertEquals("Senate", term2.getChamber());
+        assertEquals(112, term2.getCongress());
+        assertNull(term2.getDistrict());
+        assertEquals(2024, term2.getEndYr());
+        assertEquals("Senator", term2.getMemberType());
+        assertEquals(2018, term2.getStartYr());
+        assertEquals("WA", term2.getStateCd());
+        assertEquals("Washington", term2.getStateNm());
+
+        // Verify interactions
+        verify(personRepository, times(1)).findById(bioguideId);
     }
 
     @Test
     public void testCleanAddress() {
-        String cleanedAddress = personProcessor.cleanAddress("1234 Longworth House Office Building", "Washington", "20515");
-        assertEquals("1234 Longworth House Office Building, Washington 20515", cleanedAddress);
-    }
-
-    @Test
-    public void testGetStateAbbrByFullName() {
-        // Create and set up a StateDomain object
-        StateDomain stateDomain = new StateDomain();
-        stateDomain.setStateAbbr("CA");
-        stateDomain.setStateNm("California");
-
-        when(stateRepository.findByStateNm("California")).thenReturn(Optional.of(stateDomain));
-
-        String stateAbbr = personProcessor.getStateAbbrByFullName("California");
-        assertEquals("CA", stateAbbr);
-    }
-
-    public JsonObject prepareNullJson() {
-        // Set up a mock JSON object representing a member
-        String json = "{\n" +
-                "  \"member\": {\n" +
-                "    \"bioguideId\": \"A123\",\n" +
-                "    \"firstName\": \"John\",\n" +
-                "    \"lastName\": \"Doe\",\n" +
-                "    \"addressInformation\": {\n" +
-                "      \"city\": \"Washington\",\n" +
-                "      \"district\": \"DC\",\n" +
-                "      \"zipCode\": \"20515\",\n" +
-                "      \"officeAddress\": \"1234 Longworth House Office Building\",\n" +
-                "      \"phoneNumber\": \"202-225-1234\"\n" +
-                "    },\n" +
-                "    \"district\": 1,\n" +
-                "    \"officialWebsiteUrl\": \"http://johndoe.house.gov\",\n" +
-                "    \"partyHistory\": [\n" +
-                "      {\n" +
-                "        \"partyAbbreviation\": \"D\",\n" +
-                "        \"startYear\": 2020\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"state\": \"California\"\n" +
-                "  }\n" +
-                "}";
-
-        mockMemberJson = JsonParser.parseString(json).getAsJsonObject();
-        return mockMemberJson;
+        String cleanedAddress = personProcessor.cleanAddress("Washington", "DC", "20515");
+        assertEquals("Washington DC, 20515", cleanedAddress);
     }
 }
