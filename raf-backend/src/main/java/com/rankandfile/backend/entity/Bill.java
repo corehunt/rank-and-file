@@ -1,9 +1,13 @@
 package com.rankandfile.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -51,5 +55,8 @@ public class Bill extends RAFAudit {
     private String originChamberCd;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("bill-sponsorship")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<SponsoredLegislation> sponsorships = new ArrayList<>();
 }

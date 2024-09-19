@@ -11,4 +11,6 @@ public interface SponsoredLegislationRepository extends JpaRepository<SponsoredL
 
     List<SponsoredLegislation> findByPersonPersonId(String personId);
 
+    List<SponsoredLegislation> findByPersonPersonIdAndSponsorType(String personId, String sponsorType);
+
 }

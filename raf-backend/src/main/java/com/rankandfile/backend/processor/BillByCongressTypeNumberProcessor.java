@@ -94,7 +94,7 @@ public class BillByCongressTypeNumberProcessor {
         return bill;
     }
 
-    private void updateBillFromJson(JsonObject billObject, Bill bill) {
+    protected void updateBillFromJson(JsonObject billObject, Bill bill) {
         // Bill Title
         String billTitle = getAsString(billObject, FIELD_TITLE);
         if (!Objects.equals(billTitle, bill.getBillTitle())) {
