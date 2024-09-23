@@ -43,35 +43,32 @@ public class BillService {
 
     public List<Bill> getBillsByCongress(Integer congressNo) {
         List<Bill> allBillsByCongress = new ArrayList<>();
-//        int limit = 250;
-//        int offset = 0;
-//        boolean hasMoreRecords = true;
-//
-//        while (hasMoreRecords) {
-//            int finalOffset = offset;
-//
-//
-//
-//            // If the number of bills fetched is less than the limit, we've reached the end
-//            if (billList.size() < limit) {
-//                hasMoreRecords = false;
-//            }
-//
-//            offset += limit;
-//        }
+        int limit = 250;
+        int offset = 0;
+        boolean hasMoreRecords = true;
 
-        String response = this.webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}")
-                        .queryParam("api_key", apiConfig.getKey())
-//                        .queryParam("limit", limit)
-//                        .queryParam("offset", finalOffset)
-                        .build(congressNo))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        while (hasMoreRecords) {
+            int finalOffset = offset;
+            String response = this.webClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}")
+                            .queryParam("api_key", apiConfig.getKey())
+                            .queryParam("limit", limit)
+                            .queryParam("offset", finalOffset)
+                            .build(congressNo))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
-        List<Bill> billList = billByCongressProcessor.processBillList(response);
-        allBillsByCongress.addAll(billList);
+            List<Bill> billList = billByCongressProcessor.processBillList(response);
+            allBillsByCongress.addAll(billList);
+
+            // If the number of bills fetched is less than the limit, we've reached the end
+            if (billList.size() < limit) {
+                hasMoreRecords = false;
+            }
+
+            offset += limit;
+        }
 
         for (Bill bill : allBillsByCongress) {
             LOGGER.info("Bill processed: {}", bill);
