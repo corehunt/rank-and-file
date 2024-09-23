@@ -4,7 +4,6 @@ import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.processor.PersonProcessor;
 import com.rankandfile.backend.repository.PersonRepository;
 import com.rankandfile.backend.config.ApiConfig;
-import com.rankandfile.backend.util.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
