@@ -1,9 +1,12 @@
 package com.rankandfile.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -17,13 +20,13 @@ public class Person extends RAFAudit {
     @Column(name = "PERSON_ID", nullable = false, updatable = false)
     private String personId;
 
-    @Column(name = "FIRST_NM")
+    @Column(name = "FIRST_NM", nullable = false)
     private String firstName;
 
     @Column(name = "MID_NM")
     private String midName;
 
-    @Column(name = "LAST_NM")
+    @Column(name = "LAST_NM", nullable = false)
     private String lastName;
 
     @Column(name = "FULL_NM")
@@ -87,7 +90,10 @@ public class Person extends RAFAudit {
     private List<Term> termList = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SponsoredLegislation> sponsoredLegislationList;
+    @JsonManagedReference("person-sponsorship")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<SponsoredLegislation> sponsoredLegislationList = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -117,8 +123,7 @@ public class Person extends RAFAudit {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Person)) return false;
-        Person person = (Person) o;
+        if (!(o instanceof Person person)) return false;
         return Objects.equals(personId, person.personId);
     }
 

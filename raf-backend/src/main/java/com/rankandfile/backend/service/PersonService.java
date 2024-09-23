@@ -8,12 +8,14 @@ import com.rankandfile.backend.processor.PersonProcessor;
 import com.rankandfile.backend.processor.SponsoredLegislationProcessor;
 import com.rankandfile.backend.repository.PersonRepository;
 import com.rankandfile.backend.repository.SponsoredLegislationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PersonService {
 
@@ -87,20 +89,80 @@ public class PersonService {
         boolean hasMoreRecords = true;
 
         while (hasMoreRecords) {
-            String response = this.webClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("member/{personId}/sponsored-legislation")
-                            .queryParam("api_key", apiConfig.getKey())
-                            .queryParam("limit", limit)
-                            .queryParam("offset", offset)
-                            .build(personId))
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            final int currentOffset = offset;
 
-            List<SponsoredLegislation> legislationList = sponsoredLegislationProcessor.process(response, personId);
-            allSponsLegList.addAll(legislationList);
+            log.info("Fetching sponsored legislation for personId: {}, offset: {}", personId, currentOffset);
+            try {
+                String response = this.webClient.get()
+                        .uri(uriBuilder -> uriBuilder.path("member/{personId}/sponsored-legislation")
+                                .queryParam("api_key", apiConfig.getKey())
+                                .queryParam("limit", limit)
+                                .queryParam("offset", currentOffset)
+                                .build(personId))
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
 
-            if (legislationList.size() < limit) {
+                if (response == null || response.isEmpty()) {
+                    log.warn("Received empty response from API for personId: {}", personId);
+                    break;
+                }
+
+                List<SponsoredLegislation> legislationList = sponsoredLegislationProcessor.process(response, personId);
+                allSponsLegList.addAll(legislationList);
+
+                if (legislationList.size() < limit) {
+                    hasMoreRecords = false;
+                } else {
+                    offset += limit;
+                }
+            } catch (Exception e) {
+                log.error("An error occurred while processing cosponsored legislation for personId: {}", personId, e);
+                hasMoreRecords = false;
+            }
+        }
+
+        sponsoredLegislationRepository.saveAll(allSponsLegList);
+
+        return allSponsLegList;
+    }
+
+    public List<SponsoredLegislation> getCoSponsoredLegislationByPersonId(String personId) {
+        List<SponsoredLegislation> allSponsLegList = new ArrayList<>();
+        int limit = 250;
+        int offset = 0;
+        boolean hasMoreRecords = true;
+
+        while (hasMoreRecords) {
+            final int currentOffset = offset;
+
+            log.info("Fetching cosponsored legislation for personId: {}, offset: {}", personId, currentOffset);
+            try {
+                String response = this.webClient.get()
+                        .uri(uriBuilder -> uriBuilder.path("member/{personId}/cosponsored-legislation")
+                                .queryParam("api_key", apiConfig.getKey())
+                                .queryParam("limit", limit)
+                                .queryParam("offset", currentOffset) // Use 'currentOffset' here
+                                .build(personId))
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+
+                if (response == null || response.isEmpty()) {
+                    log.warn("Received empty response from API for personId: {}", personId);
+                    break;
+                }
+
+                List<SponsoredLegislation> legislationList = sponsoredLegislationProcessor.process(response, personId);
+                allSponsLegList.addAll(legislationList);
+
+                if (legislationList.size() < limit) {
+                    hasMoreRecords = false;
+                } else {
+                    offset += limit;
+                }
+            } catch (Exception e) {
+                log.error("An error occurred while processing cosponsored legislation for personId: {}", personId, e);
                 hasMoreRecords = false;
             }
         }
