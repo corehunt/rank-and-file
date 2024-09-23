@@ -18,15 +18,13 @@ public class ScheduledMemberUpdateService {
     private final WebClient webClient;
     private final PersonProcessor personProcessor;
     private final PersonRepository personRepository;
-    private final Supplier personSupplier;
     private final ApiConfig apiConfig;
 
     @Autowired
-    public ScheduledMemberUpdateService(WebClient.Builder webClientBuilder, PersonProcessor personProcessor, PersonRepository personRepository, Supplier personSupplier, ApiConfig apiConfig) {
+    public ScheduledMemberUpdateService(WebClient.Builder webClientBuilder, PersonProcessor personProcessor, PersonRepository personRepository, ApiConfig apiConfig) {
         this.webClient = webClientBuilder.baseUrl(apiConfig.getUrl()).build();
         this.personProcessor = personProcessor;
         this.personRepository = personRepository;
-        this.personSupplier = personSupplier;
         this.apiConfig = apiConfig;
     }
 
