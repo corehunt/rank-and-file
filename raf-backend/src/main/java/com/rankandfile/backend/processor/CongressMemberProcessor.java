@@ -128,7 +128,7 @@ public class CongressMemberProcessor {
 
     private void handleNameFields(JsonObject memberObject, Person person) {
         String firstName = getAsString(memberObject, FIELD_FIRST_NAME);
-        String middleName = getAsString(memberObject, FIELD_MIDDLE_NAME); // New line
+        String middleName = getAsString(memberObject, FIELD_MIDDLE_NAME);
         String lastName = getAsString(memberObject, FIELD_LAST_NAME);
 
         if (firstName != null && lastName != null) {
@@ -144,20 +144,70 @@ public class CongressMemberProcessor {
             // Existing logic for handling 'name' field
             String name = getAsString(memberObject, FIELD_NAME);
             if (name != null) {
-                String[] nameArray = extractNames(name);
-                if (nameArray[0] != null && nameArray[1] != null) {
-                    person.setFirstName(nameArray[0]);
-                    person.setLastName(nameArray[nameArray.length - 1]);
-                    person.setFullName(String.join(" ", nameArray));
-                    if (nameArray.length == 3) {
-                        person.setMidName(nameArray[1]);
-                    }
+                // Check if the name is in "LastName, FirstName MiddleName(s), Suffix" format
+                if (name.contains(",")) {
+                    parseCommaSeparatedName(name, person);
                 } else {
-                    log.warn("Unable to extract names for member with ID {} due to invalid name format.", person.getPersonId());
+                    // Handle format: "FirstName MiddleName LastName"
+                    parseSpaceSeparatedName(name, person);
                 }
             } else {
                 log.warn("Member with ID {} missing name information.", person.getPersonId());
             }
+        }
+    }
+
+    private void parseCommaSeparatedName(String name, Person person) {
+        String[] parts = name.split(",");
+        if (parts.length >= 2) {
+            String lastNamePart = parts[0].trim();
+            String firstNamePart = parts[1].trim();
+            String suffix = null;
+            if (parts.length > 2) {
+                suffix = parts[2].trim();
+            }
+
+            // Split firstNamePart into first name and middle name(s)
+            String[] nameParts = firstNamePart.split("\\s+");
+            if (nameParts.length >= 1) {
+                person.setFirstName(nameParts[0]);
+                if (nameParts.length > 1) {
+                    String middleName = String.join(" ", Arrays.copyOfRange(nameParts, 1, nameParts.length));
+                    person.setMidName(middleName);
+                }
+                person.setLastName(lastNamePart);
+
+                // Construct full name
+                StringBuilder fullNameBuilder = new StringBuilder();
+                fullNameBuilder.append(person.getFirstName());
+                if (person.getMidName() != null) {
+                    fullNameBuilder.append(" ").append(person.getMidName());
+                }
+                fullNameBuilder.append(" ").append(person.getLastName());
+                if (suffix != null && !suffix.isEmpty()) {
+                    fullNameBuilder.append(", ").append(suffix);
+                }
+                person.setFullName(fullNameBuilder.toString());
+            } else {
+                log.warn("Unable to extract names for member with ID {} due to invalid first name format.", person.getPersonId());
+            }
+        } else {
+            log.warn("Unable to extract names for member with ID {} due to invalid comma-separated name format.", person.getPersonId());
+        }
+    }
+
+    private void parseSpaceSeparatedName(String name, Person person) {
+        String[] nameArray = name.trim().split("\\s+");
+        if (nameArray.length >= 2) {
+            person.setFirstName(nameArray[0]);
+            person.setLastName(nameArray[nameArray.length - 1]);
+            if (nameArray.length > 2) {
+                String middleName = String.join(" ", Arrays.copyOfRange(nameArray, 1, nameArray.length - 1));
+                person.setMidName(middleName);
+            }
+            person.setFullName(name);
+        } else {
+            log.warn("Unable to extract names for member with ID {} due to invalid space-separated name format.", person.getPersonId());
         }
     }
 
@@ -193,33 +243,6 @@ public class CongressMemberProcessor {
             }
         }
     }
-
-    private String[] extractNames(String fullName) {
-        // Handle names in the format "LastName, FirstName MiddleName"
-        if (fullName == null || !fullName.contains(",")) {
-            log.warn("Invalid name format: {}", fullName);
-            return new String[]{null, null};
-        }
-        String[] nameParts = fullName.split(",\\s*");
-        if (nameParts.length != 2) {
-            log.warn("Invalid name format: {}", fullName);
-            return new String[]{null, null};
-        }
-        String lastName = nameParts[0].trim();
-        String[] firstNameParts = nameParts[1].trim().split("\\s+");
-        String firstName = firstNameParts[0];
-        String middleName = "";
-        if (firstNameParts.length > 1) {
-            middleName = String.join(" ", Arrays.copyOfRange(firstNameParts, 1, firstNameParts.length));
-        }
-        if (middleName.isEmpty()) {
-            return new String[]{firstName, lastName};
-        } else {
-            return new String[]{firstName, middleName, lastName};
-        }
-    }
-
-
 
     private String getAsString(JsonObject obj, String field) {
         return obj.has(field) && !obj.get(field).isJsonNull() ? obj.get(field).getAsString() : null;

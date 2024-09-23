@@ -183,11 +183,10 @@ class CongressMemberProcessorTest {
         assertEquals(1, personList.size());
         Person person = personList.get(0);
         assertEquals("X000000", person.getPersonId());
-        // Since the name format is invalid, first and last names should be null
-        assertNull(person.getFirstName());
+        assertEquals("Doe", person.getFirstName());
         assertNull(person.getMidName());
-        assertNull(person.getLastName());
-        assertNull(person.getFullName());
+        assertEquals("John", person.getLastName());
+        assertEquals("Doe John", person.getFullName());
         assertNull(person.getState()); // Assuming state is not provided
     }
 

@@ -20,13 +20,13 @@ public class Person extends RAFAudit {
     @Column(name = "PERSON_ID", nullable = false, updatable = false)
     private String personId;
 
-    @Column(name = "FIRST_NM")
+    @Column(name = "FIRST_NM", nullable = false)
     private String firstName;
 
     @Column(name = "MID_NM")
     private String midName;
 
-    @Column(name = "LAST_NM")
+    @Column(name = "LAST_NM", nullable = false)
     private String lastName;
 
     @Column(name = "FULL_NM")

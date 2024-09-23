@@ -13,7 +13,6 @@ import com.rankandfile.backend.repository.SponsoredLegislationRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -31,16 +30,17 @@ public class SponsoredLegislationProcessor {
     private static final String FIELD_URL = "url";
 
     private final SponsoredLegislationRepository sponsoredLegislationRepository;
-
     private final PersonRepository personRepository;
-
     private final BillRepository billRepository;
-
     private final BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor;
-
     private final IdGenerator idGenerator;
 
-    public SponsoredLegislationProcessor(SponsoredLegislationRepository sponsoredLegislationRepository, PersonRepository personRepository, BillRepository billRepository, BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor, IdGenerator idGenerator) {
+    public SponsoredLegislationProcessor(
+            SponsoredLegislationRepository sponsoredLegislationRepository,
+            PersonRepository personRepository,
+            BillRepository billRepository,
+            BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor,
+            IdGenerator idGenerator) {
         this.sponsoredLegislationRepository = sponsoredLegislationRepository;
         this.personRepository = personRepository;
         this.billRepository = billRepository;
@@ -75,6 +75,7 @@ public class SponsoredLegislationProcessor {
         } else if (rootObject.has(FIELD_COSPONSORED_LEGISLATION)) {
             sponsorType = "Co-Sponsor";
             legislationArray = rootObject.getAsJsonArray(FIELD_COSPONSORED_LEGISLATION);
+            log.info("Processing Co-Sponsored Legislation for PersonId: {}", personId);
         } else {
             log.warn("No sponsored or cosponsored legislation found in the input JSON.");
             return Collections.emptyList();
@@ -100,8 +101,14 @@ public class SponsoredLegislationProcessor {
         // Create a map for quick lookup of existing SponsoredLegislation
         Map<String, SponsoredLegislation> existingLegislationMap = existingLegislations.stream()
                 .collect(Collectors.toMap(
-                        leg -> generateKey(leg.getBill().getCongress(), leg.getBill().getBillNo(), leg.getBill().getBillType()),
-                        leg -> leg));
+                        leg -> generateKey(
+                                leg.getBill().getCongress(),
+                                leg.getBill().getBillNo(),
+                                leg.getBill().getBillType(),
+                                leg.getSponsorType(),
+                                leg.getPerson().getPersonId()),
+                        leg -> leg,
+                        (existing, replacement) -> existing)); // Handle duplicate keys by keeping existing
 
         // Process the legislation array
         for (JsonElement element : legislationArray) {
@@ -120,11 +127,12 @@ public class SponsoredLegislationProcessor {
 
             Integer billNo = parseBillNumber(billNoStr);
 
-            if(billNo == null || congressNo == null) {
+            if (billNo == null || congressNo == null) {
+                log.warn("Invalid bill number or congress number. Skipping legislation.");
                 continue;
             }
 
-            String key = generateKey(congressNo, billNo, billType);
+            String key = generateKey(congressNo, billNo, billType, sponsorType, personId);
 
             // Fetch or create the Bill entity
             Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
@@ -134,6 +142,7 @@ public class SponsoredLegislationProcessor {
                 bill.setBillId(idGenerator.generateBillId(congressNo, billNo));
                 bill.setCongress(congressNo);
                 bill.setBillNo(billNo);
+                bill.setBillType(billType);
 
                 log.info("Creating new Bill with ID: {}", bill.getBillId());
                 billByCongressTypeNumberProcessor.updateBillFromJson(legislationObject, bill);
@@ -153,6 +162,9 @@ public class SponsoredLegislationProcessor {
                 legislationToProcess.setBill(bill);
                 legislationToProcess.setSponsorType(sponsorType);
                 sponsoredLegislations.add(legislationToProcess);
+
+                // Add the new legislation to the map to prevent duplicates in the same processing session
+                existingLegislationMap.put(key, legislationToProcess);
             } else {
                 log.info("SponsoredLegislation already exists with ID: {}", legislationToProcess.getSponLegId());
                 // Update sponsorType if it has changed (unlikely in this context)
@@ -193,9 +205,11 @@ public class SponsoredLegislationProcessor {
         return parseInteger(digitsOnly);
     }
 
-    private String generateKey(Integer congressNo, Integer billNo, String billType) {
+    private String generateKey(Integer congressNo, Integer billNo, String billType, String sponsorType, String personId) {
         String billNoStr = (billNo != null) ? billNo.toString() : "unknownBillNo";
         String billTypeStr = (billType != null) ? billType : "unknownBillType";
-        return congressNo + "-" + billNoStr + "-" + billTypeStr;
+        String sponsorTypeStr = (sponsorType != null) ? sponsorType : "unknownSponsorType";
+        String personIdStr = (personId != null) ? personId : "unknownPersonId";
+        return congressNo + "-" + billNoStr + "-" + billTypeStr + "-" + sponsorTypeStr + "-" + personIdStr;
     }
 }

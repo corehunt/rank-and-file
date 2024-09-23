@@ -1,5 +1,6 @@
 package com.rankandfile.backend.processor;
 
+import com.google.gson.JsonObject;
 import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.SponsoredLegislation;
@@ -54,20 +55,14 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
-        Bill bill = new Bill();
-        bill.setBillId("BILL1234");
-        bill.setCongress(118);
-        bill.setBillNo(1234);
-        bill.setBillType("HR");
-
         when(personRepository.findPersonByPersonId(personId)).thenReturn(person);
         when(billRepository.findByCongressAndBillNoAndBillType(118, 1234, "HR")).thenReturn(null);
-        when(billByCongressTypeNumberProcessor.process(anyString())).thenReturn(bill);
+        when(idGenerator.generateBillId(118, 1234)).thenReturn("BILL1234");
         when(idGenerator.generateSponsLegId()).thenReturn("SL123");
+        doNothing().when(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
 
         // Mock existing legislations
         when(sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, "Sponsor"))
@@ -83,14 +78,23 @@ public class SponsoredLegislationProcessorTest {
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SL123", legislation.getSponLegId());
         assertEquals(person, legislation.getPerson());
-        assertEquals(bill, legislation.getBill());
         assertEquals("Sponsor", legislation.getSponsorType());
+
+        // Verify Bill details
+        Bill bill = legislation.getBill();
+        assertNotNull(bill);
+        assertEquals("BILL1234", bill.getBillId());
+        assertEquals(118, bill.getCongress());
+        assertEquals(1234, bill.getBillNo());
+        assertEquals("HR", bill.getBillType());
 
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
         verify(billRepository).findByCongressAndBillNoAndBillType(118, 1234, "HR");
-        verify(billByCongressTypeNumberProcessor).process(anyString());
+        verify(idGenerator).generateBillId(118, 1234);
         verify(idGenerator).generateSponsLegId();
+        verify(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
+        verify(billRepository).save(any(Bill.class));
     }
 
     @Test
@@ -107,20 +111,14 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
-        Bill bill = new Bill();
-        bill.setBillId("BILL5678");
-        bill.setCongress(118);
-        bill.setBillNo(5678);
-        bill.setBillType("S");
-
         when(personRepository.findPersonByPersonId(personId)).thenReturn(person);
         when(billRepository.findByCongressAndBillNoAndBillType(118, 5678, "S")).thenReturn(null);
-        when(billByCongressTypeNumberProcessor.process(anyString())).thenReturn(bill);
+        when(idGenerator.generateBillId(118, 5678)).thenReturn("BILL5678");
         when(idGenerator.generateSponsLegId()).thenReturn("SL456");
+        doNothing().when(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
 
         // Mock existing legislations
         when(sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, "Co-Sponsor"))
@@ -136,14 +134,23 @@ public class SponsoredLegislationProcessorTest {
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SL456", legislation.getSponLegId());
         assertEquals(person, legislation.getPerson());
-        assertEquals(bill, legislation.getBill());
         assertEquals("Co-Sponsor", legislation.getSponsorType());
+
+        // Verify Bill details
+        Bill bill = legislation.getBill();
+        assertNotNull(bill);
+        assertEquals("BILL5678", bill.getBillId());
+        assertEquals(118, bill.getCongress());
+        assertEquals(5678, bill.getBillNo());
+        assertEquals("S", bill.getBillType());
 
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
         verify(billRepository).findByCongressAndBillNoAndBillType(118, 5678, "S");
-        verify(billByCongressTypeNumberProcessor).process(anyString());
+        verify(idGenerator).generateBillId(118, 5678);
         verify(idGenerator).generateSponsLegId();
+        verify(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
+        verify(billRepository).save(any(Bill.class));
     }
 
     @Test
@@ -191,7 +198,6 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
@@ -211,7 +217,7 @@ public class SponsoredLegislationProcessorTest {
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
         verifyNoMoreInteractions(personRepository);
-        verifyNoInteractions(idGenerator);
+        verifyNoInteractions(idGenerator, billRepository, billByCongressTypeNumberProcessor);
     }
 
     @Test
@@ -228,7 +234,6 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
@@ -265,21 +270,14 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
-        Bill bill = new Bill();
-        bill.setBillId("BILL1234");
-        bill.setCongress(118);
-        bill.setBillNo(1234);
-        bill.setBillType("HR");
-
         when(personRepository.findPersonByPersonId(personId)).thenReturn(person);
         when(billRepository.findByCongressAndBillNoAndBillType(118, 1234, "HR")).thenReturn(null);
-//        when(billByCongressTypeNumberProcessor.process(anyString())).thenReturn(bill);
         when(idGenerator.generateBillId(118, 1234)).thenReturn("BILL1234");
         when(idGenerator.generateSponsLegId()).thenReturn("SL123");
+        doNothing().when(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
 
         // Mock existing legislations
         when(sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, "Sponsor"))
@@ -295,14 +293,23 @@ public class SponsoredLegislationProcessorTest {
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SL123", legislation.getSponLegId());
         assertEquals(person, legislation.getPerson());
-        assertEquals(bill, legislation.getBill());
         assertEquals("Sponsor", legislation.getSponsorType());
+
+        // Verify Bill details
+        Bill bill = legislation.getBill();
+        assertNotNull(bill);
+        assertEquals("BILL1234", bill.getBillId());
+        assertEquals(118, bill.getCongress());
+        assertEquals(1234, bill.getBillNo());
+        assertEquals("HR", bill.getBillType());
 
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
         verify(billRepository).findByCongressAndBillNoAndBillType(118, 1234, "HR");
-        verify(billByCongressTypeNumberProcessor).process(anyString());
+        verify(idGenerator).generateBillId(118, 1234);
         verify(idGenerator).generateSponsLegId();
+        verify(billByCongressTypeNumberProcessor).updateBillFromJson(any(JsonObject.class), any(Bill.class));
+        verify(billRepository).save(any(Bill.class));
     }
 
     @Test
@@ -347,7 +354,6 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
@@ -375,20 +381,21 @@ public class SponsoredLegislationProcessorTest {
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SL123", legislation.getSponLegId());
         assertEquals(person, legislation.getPerson());
-        assertEquals(bill, legislation.getBill());
         assertEquals("Sponsor", legislation.getSponsorType());
+        assertEquals(bill, legislation.getBill());
 
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
         verify(billRepository).findByCongressAndBillNoAndBillType(118, 1234, "HR");
-        verifyNoInteractions(billByCongressTypeNumberProcessor);
         verify(idGenerator).generateSponsLegId();
+        verifyNoInteractions(billByCongressTypeNumberProcessor);
     }
 
     @Test
     public void testProcessSponsoredLegislationAlreadyExists() {
         // Prepare test data
         String personId = "P123";
+        String sponsorType = "Sponsor";
         String json = "{\n" +
                 "  \"sponsoredLegislation\": [\n" +
                 "    {\n" +
@@ -399,7 +406,6 @@ public class SponsoredLegislationProcessorTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
-
         Person person = new Person();
         person.setPersonId(personId);
 
@@ -413,13 +419,13 @@ public class SponsoredLegislationProcessorTest {
         existingLegislation.setSponLegId("SL123");
         existingLegislation.setPerson(person);
         existingLegislation.setBill(bill);
-        existingLegislation.setSponsorType("Sponsor");
+        existingLegislation.setSponsorType(sponsorType);
 
         when(personRepository.findPersonByPersonId(personId)).thenReturn(person);
         when(billRepository.findByCongressAndBillNoAndBillType(118, 1234, "HR")).thenReturn(bill);
 
         // Mock existing legislations
-        when(sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, "Sponsor"))
+        when(sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, sponsorType))
                 .thenReturn(Collections.singletonList(existingLegislation));
 
         // Execute the method
@@ -432,8 +438,8 @@ public class SponsoredLegislationProcessorTest {
         SponsoredLegislation legislation = result.get(0);
         assertEquals("SL123", legislation.getSponLegId());
         assertEquals(person, legislation.getPerson());
-        assertEquals(bill, legislation.getBill());
         assertEquals("Sponsor", legislation.getSponsorType());
+        assertEquals(bill, legislation.getBill());
 
         // Verify interactions
         verify(personRepository).findPersonByPersonId(personId);
@@ -459,6 +465,4 @@ public class SponsoredLegislationProcessorTest {
         // Verify interactions
         verifyNoInteractions(billRepository, billByCongressTypeNumberProcessor, idGenerator, personRepository);
     }
-
-
 }

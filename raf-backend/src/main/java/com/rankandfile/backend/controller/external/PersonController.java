@@ -43,17 +43,19 @@ public class PersonController {
 
     @PostMapping("fetch/members/{congressId}")
     public ResponseEntity<String> fetchAndSaveMembersOfCongress(@PathVariable String congressId) {
-        List<Person> congressPersonList = personService.fetchMembersOfCurrentCongress(congressId);
-        for (Person member : congressPersonList){
-            personService.savePerson(member);
-            log.info("successfully saved member: {}", member.getPersonId());
-        }
+        personService.fetchMembersOfCurrentCongress(congressId);
         return ResponseEntity.ok("Successfully fetched and saved members of Congress.");
     }
 
     @PostMapping("fetch/members/{bioguideId}/sponsored-legislation")
     public ResponseEntity<List<SponsoredLegislation>> getSponsoredLegislationByPerson(@PathVariable String bioguideId) {
         List<SponsoredLegislation> legislationList = personService.getSponsoredLegislationByPersonId(bioguideId);
+        return ResponseEntity.ok(legislationList);
+    }
+
+    @PostMapping("fetch/members/{bioguideId}/cosponsored-legislation")
+    public ResponseEntity<List<SponsoredLegislation>> getCoSponsoredLegislationByPerson(@PathVariable String bioguideId) {
+        List<SponsoredLegislation> legislationList = personService.getCoSponsoredLegislationByPersonId(bioguideId);
         return ResponseEntity.ok(legislationList);
     }
 }
