@@ -2,7 +2,7 @@ package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.SponsoredLegislation;
-import com.rankandfile.backend.service.PersonService;
+import com.rankandfile.backend.service.external.PersonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

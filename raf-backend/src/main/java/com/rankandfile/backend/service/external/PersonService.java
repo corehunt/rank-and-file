@@ -1,4 +1,4 @@
-package com.rankandfile.backend.service;
+package com.rankandfile.backend.service.external;
 
 import com.rankandfile.backend.config.ApiConfig;
 import com.rankandfile.backend.entity.Person;

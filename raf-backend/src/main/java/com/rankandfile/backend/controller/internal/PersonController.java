@@ -1,7 +1,7 @@
 package com.rankandfile.backend.controller.internal;
 
 import com.rankandfile.backend.entity.Person;
-import com.rankandfile.backend.service.PersonService;
+import com.rankandfile.backend.service.external.PersonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

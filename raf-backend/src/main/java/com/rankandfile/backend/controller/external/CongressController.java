@@ -1,7 +1,7 @@
 package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.entity.Congress;
-import com.rankandfile.backend.service.CongressService;
+import com.rankandfile.backend.service.external.CongressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
