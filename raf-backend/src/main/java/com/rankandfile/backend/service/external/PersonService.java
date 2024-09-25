@@ -37,17 +37,7 @@ public class PersonService {
         this.personProcessor = personProcessor;
     }
 
-    public Person fetchAndProcessPerson(String bioguideId) {
-        String response = this.webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/member/{bioguideId}")
-                        .queryParam("api_key", apiConfig.getKey())
-                        .build(bioguideId))
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
 
-        return personProcessor.validatePerson(response);
-    }
 
     public List<Person> fetchMembersOfCurrentCongress(String congressNo) {
         List<Person> allMembers = new ArrayList<>();

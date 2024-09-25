@@ -3,6 +3,7 @@ package com.rankandfile.backend.controller.external;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.SponsoredLegislation;
 import com.rankandfile.backend.service.external.PersonService;
+import com.rankandfile.backend.service.external.person.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,9 +18,11 @@ import java.util.List;
 public class PersonController {
 
     private final PersonService personService;
+    private final MemberService memberService;
 
-    public PersonController(PersonService personService) {
+    public PersonController(PersonService personService, MemberService memberService) {
         this.personService = personService;
+        this.memberService = memberService;
     }
 
     @GetMapping
@@ -30,14 +33,13 @@ public class PersonController {
 
     @GetMapping("/{bioguideId}")
     public ResponseEntity<Person> getPerson(@PathVariable String bioguideId) {
-        Person person = personService.fetchAndProcessPerson(bioguideId);
+        Person person = memberService.fetchAndProcessPerson(bioguideId);
         return ResponseEntity.ok(person);
     }
 
     @PostMapping("/fetch/{bioguideId}")
     public ResponseEntity<String> fetchAndSavePerson(@PathVariable String bioguideId) {
-        Person person = personService.fetchAndProcessPerson(bioguideId);
-        personService.savePerson(person);
+        Person person = memberService.fetchAndProcessPerson(bioguideId);
         return ResponseEntity.ok("Person fetched and saved successfully.");
     }
 
