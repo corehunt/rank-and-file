@@ -18,7 +18,7 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class BillByTypeAndNumberServiceTest {
+class BillByTypeAndNumberServiceTest {
 
     private MockWebServer mockWebServer;
 
@@ -71,7 +71,7 @@ public class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumber_SuccessfulRetrieval() throws Exception {
+    public void testGetBillByTypeAndNumberSuccessfulRetrieval() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -105,7 +105,7 @@ public class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumber_EmptyResponse() throws Exception {
+    public void testGetBillByTypeAndNumberEmptyResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -132,7 +132,7 @@ public class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumber_NullResponse() throws Exception {
+    public void testGetBillByTypeAndNumberNullResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -157,7 +157,7 @@ public class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumber_ExceptionDuringFetch() throws Exception {
+    public void testGetBillByTypeAndNumberExceptionDuringFetch() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -182,7 +182,7 @@ public class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumber_ExceptionDuringProcessing() throws Exception {
+    public void testGetBillByTypeAndNumberExceptionDuringProcessing() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;

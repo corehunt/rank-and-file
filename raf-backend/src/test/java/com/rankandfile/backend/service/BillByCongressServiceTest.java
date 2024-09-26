@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-public class BillByCongressServiceTest {
+class BillByCongressServiceTest {
 
     private MockWebServer mockWebServer;
 
@@ -101,7 +101,7 @@ public class BillByCongressServiceTest {
 
 
     @Test
-    public void testGetBillsByCongress_EmptyResponse() throws Exception {
+    public void testGetBillsByCongressEmptyResponse() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "";
@@ -124,7 +124,7 @@ public class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongress_NullResponse() throws Exception {
+    public void testGetBillsByCongressNullResponse() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
 
@@ -148,7 +148,7 @@ public class BillByCongressServiceTest {
 
 
     @Test
-    public void testGetBillsByCongress_EmptyBillList() throws Exception {
+    public void testGetBillsByCongressEmptyBillList() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";
@@ -174,7 +174,7 @@ public class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongress_ExceptionDuringFetch() throws Exception {
+    public void testGetBillsByCongressExceptionDuringFetch() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
 
@@ -198,7 +198,7 @@ public class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongress_ExceptionDuringProcessing() throws Exception {
+    public void testGetBillsByCongressExceptionDuringProcessing() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";
@@ -226,7 +226,7 @@ public class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongress_MultipleIterations() throws Exception {
+    public void testGetBillsByCongressMultipleIterations() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String responsePage1 = "response page 1";
@@ -264,7 +264,7 @@ public class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongress_ExactMultipleOfLimit() throws Exception {
+    public void testGetBillsByCongressExactMultipleOfLimit() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";

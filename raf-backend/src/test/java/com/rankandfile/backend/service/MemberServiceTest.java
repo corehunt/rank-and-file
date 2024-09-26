@@ -71,7 +71,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_SuccessfulRetrieval() throws Exception {
+    public void testFetchAndProcessPersonSuccessfulRetrieval() throws Exception {
         String bioguideId = "A000360";
         String response = "{\"personData\": \"valid data\"}";
         Person expectedPerson = new Person();
@@ -103,7 +103,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_EmptyResponse() throws Exception {
+    public void testFetchAndProcessPersonEmptyResponse() throws Exception {
         String bioguideId = "A000360";
         String response = "";
 
@@ -128,7 +128,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_NullResponse() throws Exception {
+    public void testFetchAndProcessPersonNullResponse() throws Exception {
         String bioguideId = "A000360";
 
         // Enqueue a response without setting the body (simulating null response)
@@ -151,7 +151,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_ExceptionDuringFetch() throws Exception {
+    public void testFetchAndProcessPersonExceptionDuringFetch() throws Exception {
         String bioguideId = "A000360";
 
         // Enqueue a mock response with an error status code
@@ -174,7 +174,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_ExceptionDuringProcessing() throws Exception {
+    public void testFetchAndProcessPersonExceptionDuringProcessing() throws Exception {
         String bioguideId = "A000360";
         String response = "{\"personData\": \"valid data\"}";
 
@@ -201,7 +201,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPerson_InvalidBioguideId() throws InterruptedException {
+    public void testFetchAndProcessPersonInvalidBioguideId() throws InterruptedException {
         String bioguideId = "";
 
         // Execute the method and expect an exception due to invalid bioguideId

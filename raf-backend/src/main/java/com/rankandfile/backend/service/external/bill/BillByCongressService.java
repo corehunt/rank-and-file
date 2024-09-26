@@ -40,7 +40,7 @@ public class BillByCongressService {
                 final int currentOffset = offset;
                 log.debug("Fetching bills with offset: {}", currentOffset);
 
-                String response = fetchBills(congressNo, limit, currentOffset);
+                String response = fetchBills(congressNo, currentOffset, limit)  ;
 
                 if (response == null || response.isEmpty()) {
                     log.warn("Received empty response for Congress number: {}, offset: {}", congressNo, currentOffset);
@@ -63,7 +63,7 @@ public class BillByCongressService {
                 }
             }
 
-            log.info("Total bills fetched: {}", allBillsByCongress.size());
+            log.info("Total bills fetched and processed: {}", allBillsByCongress.size());
             billRepository.saveAll(allBillsByCongress);
             log.info("Bills successfully saved.");
 
@@ -75,8 +75,8 @@ public class BillByCongressService {
         return allBillsByCongress;
     }
 
-    private String fetchBills(Integer congressNo, int limit, int offset) {
-        return webClient.get()
+    private String fetchBills(Integer congressNo, int offset, int limit) {
+        return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}")
                         .queryParam("limit", limit)
                         .queryParam("offset", offset)
