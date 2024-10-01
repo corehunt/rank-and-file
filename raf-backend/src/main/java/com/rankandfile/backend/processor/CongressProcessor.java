@@ -2,6 +2,7 @@ package com.rankandfile.backend.processor;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Congress;
 import com.rankandfile.backend.entity.Session;
 import com.rankandfile.backend.repository.CongressRepository;
@@ -27,7 +28,10 @@ public class CongressProcessor {
         this.idGenerator = idGenerator;
     }
 
-    public Congress processCongressData(JsonObject congressObject) {
+    public Congress processCongressData(String  json) {
+        JsonObject responseObject = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject congressObject = responseObject.getAsJsonObject("congress");
+
         Integer congressNumber = congressObject.get("number").getAsInt();
         String congressName = congressObject.get("name").getAsString();
         String startYear = congressObject.get("startYear").getAsString();

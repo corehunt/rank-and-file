@@ -1,0 +1,262 @@
+package com.rankandfile.backend.service;
+
+import com.rankandfile.backend.entity.Action;
+import com.rankandfile.backend.entity.Bill;
+import com.rankandfile.backend.processor.BillActionProcessor;
+import com.rankandfile.backend.repository.ActionRepository;
+import com.rankandfile.backend.repository.BillRepository;
+import com.rankandfile.backend.service.external.bill.BillActionService;
+import okhttp3.mockwebserver.*;
+import org.junit.jupiter.api.*;
+import org.mockito.*;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class BillActionServiceTest {
+
+    private MockWebServer mockWebServer;
+
+    @Mock
+    private BillRepository billRepository;
+
+    @Mock
+    private ActionRepository actionRepository;
+
+    @Mock
+    private BillActionProcessor billActionProcessor;
+
+    private WebClient webClient;
+
+    private BillActionService billActionService;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
+
+        String baseUrl = mockWebServer.url("/").toString();
+
+        // Build the WebClient using the baseUrl of the mock server
+        webClient = WebClient.builder()
+                .baseUrl(baseUrl)
+                .filter(addApiKeyQueryParamFilter())
+                .build();
+
+        billActionService = new BillActionService(webClient, billRepository, actionRepository, billActionProcessor);
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mockWebServer.shutdown();
+    }
+
+    private ExchangeFilterFunction addApiKeyQueryParamFilter() {
+        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+            URI updatedUri = UriComponentsBuilder.fromUri(clientRequest.url())
+                    .queryParam("api_key", "test_api_key")
+                    .build(true)
+                    .toUri();
+
+            ClientRequest updatedRequest = ClientRequest.from(clientRequest)
+                    .url(updatedUri)
+                    .build();
+
+            return Mono.just(updatedRequest);
+        });
+    }
+
+    @Test
+    public void testGetActionsByBillNumberSuccessfulRetrieval() throws Exception {
+        Integer congressNo = 117;
+        String billType = "hr";
+        Integer billNo = 1234;
+        int limit = 2;
+        String responsePage1 = "{\"actions\": [{}, {}]}"; // Simulated JSON response
+        String responsePage2 = "{\"actions\": [{}]}";     // Less than limit to stop pagination
+
+        Bill bill = new Bill();
+        bill.setBillId("117-1234");
+        bill.setBillNo(billNo);
+
+        // Mock billRepository to return a Bill
+        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+
+        // Enqueue mock responses
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responsePage1)
+                .addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responsePage2)
+                .addHeader("Content-Type", "application/json"));
+
+        // Mocking BillActionProcessor behavior
+        List<Action> actionsPage1 = Arrays.asList(new Action(), new Action());
+        List<Action> actionsPage2 = Collections.singletonList(new Action());
+
+        when(billActionProcessor.processActionList(responsePage1, bill)).thenReturn(actionsPage1);
+        when(billActionProcessor.processActionList(responsePage2, bill)).thenReturn(actionsPage2);
+
+        // Execute the method
+        List<Action> result = billActionService.getActionsByBillNumber(congressNo, billType, billNo, limit);
+
+        // Verify interactions and results
+        assertNotNull(result);
+        assertEquals(3, result.size()); // 2 from first page, 1 from second page
+        verify(actionRepository).saveAll(result);
+        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+
+        // Verify that the requests were made as expected
+        RecordedRequest request1 = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        RecordedRequest request2 = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertNotNull(request1, "First request was not made to the MockWebServer");
+        assertNotNull(request2, "Second request was not made to the MockWebServer");
+        assertEquals("GET", request1.getMethod());
+        assertEquals("GET", request2.getMethod());
+        assertTrue(request1.getPath().contains("api_key=test_api_key"));
+        assertTrue(request2.getPath().contains("api_key=test_api_key"));
+    }
+
+    @Test
+    public void testGetActionsByBillNumberEmptyResponse() throws Exception {
+        Integer congressNo = 117;
+        String billType = "hr";
+        Integer billNo = 1234;
+        int limit = 2;
+        String response = "";
+
+        Bill bill = new Bill();
+        bill.setBillId("117-1234");
+        bill.setBillNo(billNo);
+
+        // Mock billRepository to return a Bill
+        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+
+        // Enqueue the mock response with empty body
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(response)
+                .addHeader("Content-Type", "application/json"));
+
+        // Execute the method
+        List<Action> result = billActionService.getActionsByBillNumber(congressNo, billType, billNo, limit);
+
+        // Verify that the result is empty
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        // Verify that the request was made
+        RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertNotNull(recordedRequest, "No request was made to the MockWebServer");
+    }
+
+    @Test
+    public void testGetActionsByBillNumberNullResponse() throws Exception {
+        Integer congressNo = 117;
+        String billType = "hr";
+        Integer billNo = 1234;
+        int limit = 2;
+
+        Bill bill = new Bill();
+        bill.setBillId("117-1234");
+        bill.setBillNo(billNo);
+
+        // Mock billRepository to return a Bill
+        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+
+        // Enqueue a response without setting the body (simulating null response)
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json"));
+
+        // Execute the method
+        List<Action> result = billActionService.getActionsByBillNumber(congressNo, billType, billNo, limit);
+
+        // Verify that the result is empty
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        // Verify that the request was made
+        RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertNotNull(recordedRequest, "No request was made to the MockWebServer");
+    }
+
+    @Test
+    public void testGetActionsByBillNumberExceptionDuringFetch() throws Exception {
+        Integer congressNo = 117;
+        String billType = "hr";
+        Integer billNo = 1234;
+        int limit = 2;
+
+        Bill bill = new Bill();
+        bill.setBillId("117-1234");
+        bill.setBillNo(billNo);
+
+        // Mock billRepository to return a Bill
+        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+
+        // Enqueue a mock response with an error status code
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500)
+                .setBody("Internal Server Error")
+                .addHeader("Content-Type", "application/json"));
+
+        // Execute the method and expect an exception
+        Exception exception = assertThrows(Exception.class, () -> {
+            billActionService.getActionsByBillNumber(congressNo, billType, billNo, limit);
+        });
+
+        assertNotNull(exception);
+        verify(actionRepository, never()).saveAll(any());
+        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+
+        // Verify that the request was made
+        RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertNotNull(recordedRequest, "No request was made to the MockWebServer");
+    }
+
+    @Test
+    public void testGetActionsByBillNumberExceptionDuringProcessing() throws Exception {
+        Integer congressNo = 117;
+        String billType = "hr";
+        Integer billNo = 1234;
+        int limit = 2;
+        String response = "{\"actions\": [{}, {}]}";
+
+        Bill bill = new Bill();
+        bill.setBillId("117-1234");
+        bill.setBillNo(billNo);
+
+        // Mock billRepository to return a Bill
+        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+
+        // Enqueue the mock response
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(response)
+                .addHeader("Content-Type", "application/json"));
+
+        // Mock the processor to throw an exception
+        when(billActionProcessor.processActionList(response, bill)).thenThrow(new RuntimeException("Processing error"));
+
+        // Execute the method and expect an exception
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            billActionService.getActionsByBillNumber(congressNo, billType, billNo, limit);
+        });
+
+        assertNotNull(exception);
+        verify(actionRepository, never()).saveAll(any());
+        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+
+        // Verify that the request was made
+        RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+        assertNotNull(recordedRequest, "No request was made to the MockWebServer");
+    }
+}
