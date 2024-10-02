@@ -33,7 +33,7 @@ class BillByTypeAndNumberServiceTest {
     private BillByTypeAndNumberService billService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumberSuccessfulRetrieval() throws Exception {
+    void testGetBillByTypeAndNumberSuccessfulRetrieval() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -105,7 +105,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumberEmptyResponse() throws Exception {
+    void testGetBillByTypeAndNumberEmptyResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -132,7 +132,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumberNullResponse() throws Exception {
+    void testGetBillByTypeAndNumberNullResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -157,7 +157,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumberExceptionDuringFetch() throws Exception {
+    void testGetBillByTypeAndNumberExceptionDuringFetch() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -182,7 +182,7 @@ class BillByTypeAndNumberServiceTest {
     }
 
     @Test
-    public void testGetBillByTypeAndNumberExceptionDuringProcessing() throws Exception {
+    void testGetBillByTypeAndNumberExceptionDuringProcessing() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;

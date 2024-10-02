@@ -28,7 +28,7 @@ class CommitteeProcessorTest {
     private CommitteeProcessor committeeProcessor;
 
     @Test
-    public void testProcessValidCommittee() {
+    void testProcessValidCommittee() {
         String json = "{\n" +
                 "  \"committees\": [\n" +
                 "    {\n" +
@@ -66,7 +66,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessCommitteeWithSubcommittees() {
+    void testProcessCommitteeWithSubcommittees() {
         String json = "{\n" +
                 "  \"committees\": [\n" +
                 "    {\n" +
@@ -130,7 +130,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessCommitteeWithParent() {
+    void testProcessCommitteeWithParent() {
         String json = "{\n" +
                 "  \"committees\": [\n" +
                 "    {\n" +
@@ -174,7 +174,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessExistingCommittee() {
+    void testProcessExistingCommittee() {
         String json = "{\n" +
                 "  \"committees\": [\n" +
                 "    {\n" +
@@ -218,7 +218,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessNullJson() {
+    void testProcessNullJson() {
         // Execute the method
         List<Committee> result = committeeProcessor.process(null);
 
@@ -231,7 +231,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessEmptyJson() {
+    void testProcessEmptyJson() {
         // Execute the method
         List<Committee> result = committeeProcessor.process("");
 
@@ -244,7 +244,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessInvalidJson() {
+    void testProcessInvalidJson() {
         String json = "{ invalid json }";
 
         // Execute the method
@@ -259,7 +259,7 @@ class CommitteeProcessorTest {
     }
 
     @Test
-    public void testProcessJsonWithMissingFields() {
+    void testProcessJsonWithMissingFields() {
         String json = "{\n" +
                 "  \"committees\": [\n" +
                 "    {\n" +

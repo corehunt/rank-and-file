@@ -23,7 +23,7 @@ class CongressMemberProcessorTest {
     private CongressMemberProcessor congressMemberProcessor;
 
     @Test
-    public void testProcessMembersWithNameField() {
+    void testProcessMembersWithNameField() {
         String json = getMembersJsonWithNameField();
 
         // Mocking repository behavior
@@ -75,7 +75,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithExistingPerson() {
+    void testProcessMembersWithExistingPerson() {
         String json = getMembersJsonWithNameField();
 
         // Mock existing person in repository
@@ -132,7 +132,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithInvalidJson() {
+    void testProcessMembersWithInvalidJson() {
         String json = "{ invalid json ";
 
         List<Person> personList = congressMemberProcessor.processMembers(json);
@@ -142,7 +142,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithNullJson() {
+    void testProcessMembersWithNullJson() {
         String json = null;
 
         List<Person> personList = congressMemberProcessor.processMembers(json);
@@ -152,7 +152,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithEmptyMembersArray() {
+    void testProcessMembersWithEmptyMembersArray() {
         String json = "{ \"members\": [] }";
 
         List<Person> personList = congressMemberProcessor.processMembers(json);
@@ -162,7 +162,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithMissingBioguideId() {
+    void testProcessMembersWithMissingBioguideId() {
         String json = "{ \"members\": [ { \"firstName\": \"John\", \"lastName\": \"Doe\" } ] }";
 
         List<Person> personList = congressMemberProcessor.processMembers(json);
@@ -172,7 +172,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMembersWithInvalidNameFormat() {
+    void testProcessMembersWithInvalidNameFormat() {
         String json = "{ \"members\": [ { \"bioguideId\": \"X000000\", \"name\": \"Doe John\" } ] }";
 
         when(personRepository.findById("X000000")).thenReturn(Optional.empty());
@@ -191,7 +191,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithSeparateNameFields() {
+    void testProcessMemberWithSeparateNameFields() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -228,7 +228,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithMissingPartyHistory() {
+    void testProcessMemberWithMissingPartyHistory() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -260,7 +260,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithEmptyPartyHistory() {
+    void testProcessMemberWithEmptyPartyHistory() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -293,7 +293,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithInvalidDistrict() {
+    void testProcessMemberWithInvalidDistrict() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -325,7 +325,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithMissingState() {
+    void testProcessMemberWithMissingState() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -354,7 +354,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithMissingDepiction() {
+    void testProcessMemberWithMissingDepiction() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +
@@ -386,7 +386,7 @@ class CongressMemberProcessorTest {
     }
 
     @Test
-    public void testProcessMemberWithMultiplePartyHistoryEntries() {
+    void testProcessMemberWithMultiplePartyHistoryEntries() {
         String json = "{\n" +
                 "  \"members\": [\n" +
                 "    {\n" +

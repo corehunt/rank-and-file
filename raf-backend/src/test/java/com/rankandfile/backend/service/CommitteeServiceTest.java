@@ -35,7 +35,7 @@ class CommitteeServiceTest {
     private CommitteeService committeeService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -53,7 +53,7 @@ class CommitteeServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -73,7 +73,7 @@ class CommitteeServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessCommitteesSuccessfulRetrieval() throws Exception {
+    void testFetchAndProcessCommitteesSuccessfulRetrieval() throws Exception {
         int limit = 2;
         String responsePage1 = "{\"committees\": [{}, {}]}"; // Simulated JSON response with 2 committees
         String responsePage2 = "{\"committees\": [{}]}";
@@ -120,7 +120,7 @@ class CommitteeServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessCommitteesEmptyResponse() throws Exception {
+    void testFetchAndProcessCommitteesEmptyResponse() throws Exception {
         int limit = 2;
         String response = "";
 
@@ -148,7 +148,7 @@ class CommitteeServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessCommitteesExceptionDuringFetch() throws Exception {
+    void testFetchAndProcessCommitteesExceptionDuringFetch() throws Exception {
         int limit = 2;
 
         // Enqueue a mock response with an error status code
@@ -172,7 +172,7 @@ class CommitteeServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessCommitteesExceptionDuringProcessing() throws Exception {
+    void testFetchAndProcessCommitteesExceptionDuringProcessing() throws Exception {
         int limit = 2;
         String response = "{\"committees\": [{}, {}]}";
 
@@ -200,7 +200,7 @@ class CommitteeServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessCommitteesNoCommitteesReturned() throws Exception {
+    void testFetchAndProcessCommitteesNoCommitteesReturned() throws Exception {
         int limit = 2;
         String response = "{\"committees\": []}"; // Empty committees array
 

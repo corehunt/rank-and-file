@@ -44,7 +44,7 @@ class BillByCongressServiceTest {
     private BillByCongressService billByCongressService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -62,7 +62,7 @@ class BillByCongressServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -82,7 +82,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testWebClientCommunication() throws Exception {
+    void testWebClientCommunication() throws Exception {
         String response = "Hello World";
         mockWebServer.enqueue(new MockResponse()
                 .setBody(response)
@@ -101,7 +101,7 @@ class BillByCongressServiceTest {
 
 
     @Test
-    public void testGetBillsByCongressEmptyResponse() throws Exception {
+    void testGetBillsByCongressEmptyResponse() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "";
@@ -124,7 +124,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongressNullResponse() throws Exception {
+    void testGetBillsByCongressNullResponse() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
 
@@ -148,7 +148,7 @@ class BillByCongressServiceTest {
 
 
     @Test
-    public void testGetBillsByCongressEmptyBillList() throws Exception {
+    void testGetBillsByCongressEmptyBillList() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";
@@ -174,7 +174,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongressExceptionDuringFetch() throws Exception {
+    void testGetBillsByCongressExceptionDuringFetch() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
 
@@ -198,7 +198,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongressExceptionDuringProcessing() throws Exception {
+    void testGetBillsByCongressExceptionDuringProcessing() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";
@@ -226,7 +226,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongressMultipleIterations() throws Exception {
+    void testGetBillsByCongressMultipleIterations() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String responsePage1 = "response page 1";
@@ -264,7 +264,7 @@ class BillByCongressServiceTest {
     }
 
     @Test
-    public void testGetBillsByCongressExactMultipleOfLimit() throws Exception {
+    void testGetBillsByCongressExactMultipleOfLimit() throws Exception {
         Integer congressNo = 117;
         int limit = 2;
         String response = "some valid response";

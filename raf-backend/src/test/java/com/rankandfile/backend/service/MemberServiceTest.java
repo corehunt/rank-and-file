@@ -33,7 +33,7 @@ class MemberServiceTest {
     private MemberService memberService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class MemberServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonSuccessfulRetrieval() throws Exception {
+    void testFetchAndProcessPersonSuccessfulRetrieval() throws Exception {
         String bioguideId = "A000360";
         String response = "{\"personData\": \"valid data\"}";
         Person expectedPerson = new Person();
@@ -103,7 +103,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonEmptyResponse() throws Exception {
+    void testFetchAndProcessPersonEmptyResponse() throws Exception {
         String bioguideId = "A000360";
         String response = "";
 
@@ -128,7 +128,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonNullResponse() throws Exception {
+    void testFetchAndProcessPersonNullResponse() throws Exception {
         String bioguideId = "A000360";
 
         // Enqueue a response without setting the body (simulating null response)
@@ -151,7 +151,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonExceptionDuringFetch() throws Exception {
+    void testFetchAndProcessPersonExceptionDuringFetch() throws Exception {
         String bioguideId = "A000360";
 
         // Enqueue a mock response with an error status code
@@ -174,7 +174,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonExceptionDuringProcessing() throws Exception {
+    void testFetchAndProcessPersonExceptionDuringProcessing() throws Exception {
         String bioguideId = "A000360";
         String response = "{\"personData\": \"valid data\"}";
 
@@ -201,7 +201,7 @@ class MemberServiceTest {
     }
 
     @Test
-    public void testFetchAndProcessPersonInvalidBioguideId() throws InterruptedException {
+    void testFetchAndProcessPersonInvalidBioguideId() throws InterruptedException {
         String bioguideId = "";
 
         // Execute the method and expect an exception due to invalid bioguideId

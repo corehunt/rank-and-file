@@ -33,7 +33,7 @@ class CongressServiceTest {
     private CongressService congressService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class CongressServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class CongressServiceTest {
     }
 
     @Test
-    public void testFetchAndSaveCongressByNumberSuccessfulRetrieval() throws Exception {
+    void testFetchAndSaveCongressByNumberSuccessfulRetrieval() throws Exception {
         String congressNo = "117";
         String response = "{\"congress\": {\"number\": 117}}";
 
@@ -102,7 +102,7 @@ class CongressServiceTest {
     }
 
     @Test
-    public void testFetchAndSaveCongressByNumberExceptionDuringFetch() throws Exception {
+    void testFetchAndSaveCongressByNumberExceptionDuringFetch() {
         String congressNo = "117";
 
         // Enqueue a mock response with an error status code
@@ -121,7 +121,7 @@ class CongressServiceTest {
     }
 
     @Test
-    public void testFetchAndSaveCongressByNumberExceptionDuringProcessing() throws Exception {
+    void testFetchAndSaveCongressByNumberExceptionDuringProcessing() {
         String congressNo = "117";
         String response = "{\"congress\": {\"number\": 117}}";
 
