@@ -20,8 +20,10 @@ public class CommitteeController {
         this.committeeService = committeeService;
     }
 
+    // This controller is used to load all committees
+    // api.congress.gov endpoint: /committee
     @PostMapping("/all")
-    public ResponseEntity<String> getAllCommittees() {
+    public ResponseEntity<String> loadAllCommittees() {
         log.info("In Committee controller, loading all committees");
         committeeService.fetchAndProcessCommittees(LIMIT);
         return ResponseEntity.ok("Successfully loaded committees");
