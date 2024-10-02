@@ -39,7 +39,7 @@ class BillActionServiceTest {
     private BillActionService billActionService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -57,7 +57,7 @@ class BillActionServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -77,7 +77,7 @@ class BillActionServiceTest {
     }
 
     @Test
-    public void testGetActionsByBillNumberSuccessfulRetrieval() throws Exception {
+    void testGetActionsByBillNumberSuccessfulRetrieval() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -128,7 +128,7 @@ class BillActionServiceTest {
     }
 
     @Test
-    public void testGetActionsByBillNumberEmptyResponse() throws Exception {
+    void testGetActionsByBillNumberEmptyResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -160,7 +160,7 @@ class BillActionServiceTest {
     }
 
     @Test
-    public void testGetActionsByBillNumberNullResponse() throws Exception {
+    void testGetActionsByBillNumberNullResponse() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -190,7 +190,7 @@ class BillActionServiceTest {
     }
 
     @Test
-    public void testGetActionsByBillNumberExceptionDuringFetch() throws Exception {
+    void testGetActionsByBillNumberExceptionDuringFetch() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;
@@ -224,7 +224,7 @@ class BillActionServiceTest {
     }
 
     @Test
-    public void testGetActionsByBillNumberExceptionDuringProcessing() throws Exception {
+    void testGetActionsByBillNumberExceptionDuringProcessing() throws Exception {
         Integer congressNo = 117;
         String billType = "hr";
         Integer billNo = 1234;

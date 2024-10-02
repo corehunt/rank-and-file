@@ -13,6 +13,8 @@ public class IdGenerator {
 
     private static final String sponsLegPrefix = "SL";
 
+    private static final String committeePrefix = "CM";
+
     private static final SecureRandom random = new SecureRandom();
 
     public Integer generateCongressId() {
@@ -35,5 +37,9 @@ public class IdGenerator {
 
     public String generateSponsLegId() {
         return sponsLegPrefix.concat(String.valueOf(random.nextInt(999999)));
+    }
+
+    public String generateCommitteeId(String systemCode) {
+        return committeePrefix + systemCode;
     }
 }

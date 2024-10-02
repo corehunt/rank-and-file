@@ -35,7 +35,7 @@ class PersonProcessorTest {
     private JsonObject mockMemberJson;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         // Set up a mock JSON object representing a member
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -68,7 +68,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonNewPerson() {
+    void testValidatePersonNewPerson() {
         String bioguideId = "A123";
         when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
 
@@ -95,7 +95,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonExistingPerson() {
+    void testValidatePersonExistingPerson() {
         String bioguideId = "A123";
         Person existingPerson = new Person();
         existingPerson.setPersonId(bioguideId);
@@ -130,7 +130,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithNullValues() {
+    void testValidatePersonWithNullValues() {
         String bioguideId = "A123";
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -173,7 +173,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithNameField() {
+    void testValidatePersonWithNameField() {
         String bioguideId = "H234";
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -201,7 +201,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonInvalidJson() {
+    void testValidatePersonInvalidJson() {
         String invalidJson = "{ invalid json ";
 
         Person person = personProcessor.validatePerson(invalidJson);
@@ -213,7 +213,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithEmptyJson() {
+    void testValidatePersonWithEmptyJson() {
         String emptyJson = "";
 
         Person person = personProcessor.validatePerson(emptyJson);
@@ -225,7 +225,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithSeparateNameFields() {
+    void testValidatePersonWithSeparateNameFields() {
         String bioguideId = "C789";
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -255,7 +255,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithEmptyPartyHistory() {
+    void testValidatePersonWithEmptyPartyHistory() {
         String bioguideId = "D012";
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -288,7 +288,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithMultiplePartyHistoryEntries() {
+    void testValidatePersonWithMultiplePartyHistoryEntries() {
         String bioguideId = "E345";
         String json = "{\n" +
                 "  \"member\": {\n" +
@@ -327,7 +327,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testValidatePersonWithTerms() {
+    void testValidatePersonWithTerms() {
         String bioguideId = "F678";
         Person existingPerson = new Person();
         existingPerson.setPersonId(bioguideId);
@@ -404,7 +404,7 @@ class PersonProcessorTest {
     }
 
     @Test
-    public void testCleanAddress() {
+    void testCleanAddress() {
         String cleanedAddress = personProcessor.cleanAddress("Washington", "DC", "20515");
         assertEquals("Washington DC, 20515", cleanedAddress);
     }

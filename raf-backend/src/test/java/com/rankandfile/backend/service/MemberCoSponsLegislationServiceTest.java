@@ -33,7 +33,7 @@ class MemberCoSponsLegislationServiceTest {
     private MemberCoSponsLegislationService memberCoSponsLegislationService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetCoSponsoredLegislationByPersonIdSuccessfulRetrieval() throws Exception {
+    void testGetCoSponsoredLegislationByPersonIdSuccessfulRetrieval() throws Exception {
         String personId = "A000360";
         int limit = 2;
         String responsePage1 = "{\"cosponsoredLegislation\": [{}, {}]}";
@@ -114,7 +114,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetCoSponsoredLegislationByPersonIdEmptyResponse() throws Exception {
+    void testGetCoSponsoredLegislationByPersonIdEmptyResponse() {
         String personId = "A000360";
         int limit = 2;
         String response = "";
@@ -133,7 +133,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetCoSponsoredLegislationByPersonIdNullResponse() throws Exception {
+    void testGetCoSponsoredLegislationByPersonIdNullResponse() {
         String personId = "A000360";
         int limit = 2;
 
@@ -151,7 +151,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetCoSponsoredLegislationByPersonIdExceptionDuringFetch() throws Exception {
+    void testGetCoSponsoredLegislationByPersonIdExceptionDuringFetch() {
         String personId = "A000360";
         int limit = 2;
 
@@ -173,7 +173,7 @@ class MemberCoSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetCoSponsoredLegislationByPersonIdExceptionDuringProcessing() throws Exception {
+    void testGetCoSponsoredLegislationByPersonIdExceptionDuringProcessing(){
         String personId = "A000360";
         int limit = 2;
         String response = "{\"cosponsoredLegislation\": [{}, {}]}";

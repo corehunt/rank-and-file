@@ -33,7 +33,7 @@ class CongressClassPersonServiceTest {
     private CongressClassPersonService congressClassPersonService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class CongressClassPersonServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class CongressClassPersonServiceTest {
     }
 
     @Test
-    public void testFetchMembersOfCurrentCongressSuccessfulRetrieval() throws Exception {
+    void testFetchMembersOfCurrentCongressSuccessfulRetrieval() throws Exception {
         String congressNo = "117";
         int limit = 2;
         String responsePage1 = "{\"members\": [{}, {}]}";
@@ -114,7 +114,7 @@ class CongressClassPersonServiceTest {
     }
 
     @Test
-    public void testFetchMembersOfCurrentCongressEmptyResponse() throws Exception {
+    void testFetchMembersOfCurrentCongressEmptyResponse() {
         String congressNo = "117";
         int limit = 2;
         String response = "";
@@ -134,7 +134,7 @@ class CongressClassPersonServiceTest {
     }
 
     @Test
-    public void testFetchMembersOfCurrentCongressNullResponse() throws Exception {
+    void testFetchMembersOfCurrentCongressNullResponse() {
         String congressNo = "117";
         int limit = 2;
 
@@ -151,7 +151,7 @@ class CongressClassPersonServiceTest {
     }
 
     @Test
-    public void testFetchMembersOfCurrentCongressExceptionDuringFetch() throws Exception {
+    void testFetchMembersOfCurrentCongressExceptionDuringFetch() {
         String congressNo = "117";
         int limit = 2;
 
@@ -171,7 +171,7 @@ class CongressClassPersonServiceTest {
     }
 
     @Test
-    public void testFetchMembersOfCurrentCongressExceptionDuringProcessing() throws Exception {
+    void testFetchMembersOfCurrentCongressExceptionDuringProcessing() {
         String congressNo = "117";
         int limit = 2;
         String response = "{\"members\": [{}, {}]}";

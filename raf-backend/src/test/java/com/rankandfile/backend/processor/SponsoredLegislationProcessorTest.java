@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SponsoredLegislationProcessorTest {
+class SponsoredLegislationProcessorTest {
 
     @Mock
     private SponsoredLegislationRepository sponsoredLegislationRepository;
@@ -42,7 +42,7 @@ public class SponsoredLegislationProcessorTest {
     private SponsoredLegislationProcessor sponsoredLegislationProcessor;
 
     @Test
-    public void testProcessSponsoredLegislation() {
+    void testProcessSponsoredLegislation() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -98,7 +98,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessCosponsoredLegislation() {
+    void testProcessCosponsoredLegislation() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -154,7 +154,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessNullJson() {
+    void testProcessNullJson() {
         String personId = "P123";
         String json = null;
 
@@ -170,7 +170,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessEmptyJson() {
+    void testProcessEmptyJson() {
         String personId = "P123";
         String json = "";
 
@@ -186,7 +186,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessJsonWithMissingFields() {
+    void testProcessJsonWithMissingFields() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -221,7 +221,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessSkipsAmendments() {
+    void testProcessSkipsAmendments() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -257,7 +257,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessInvalidBillNumberFormat() {
+    void testProcessInvalidBillNumberFormat() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -313,7 +313,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessPersonNotFound() {
+    void testProcessPersonNotFound() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -341,7 +341,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessBillAlreadyExists() {
+    void testProcessBillAlreadyExists() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +
@@ -392,7 +392,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessSponsoredLegislationAlreadyExists() {
+    void testProcessSponsoredLegislationAlreadyExists() {
         // Prepare test data
         String personId = "P123";
         String sponsorType = "Sponsor";
@@ -448,7 +448,7 @@ public class SponsoredLegislationProcessorTest {
     }
 
     @Test
-    public void testProcessEmptyLegislationArray() {
+    void testProcessEmptyLegislationArray() {
         // Prepare test data
         String personId = "P123";
         String json = "{\n" +

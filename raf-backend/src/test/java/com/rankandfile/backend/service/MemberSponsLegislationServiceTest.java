@@ -33,7 +33,7 @@ class MemberSponsLegislationServiceTest {
     private MemberSponsLegislationService memberSponsLegislationService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         mockWebServer = new MockWebServer();
@@ -51,7 +51,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    void tearDown() throws Exception {
         mockWebServer.shutdown();
     }
 
@@ -71,7 +71,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetSponsoredLegislationByPersonIdSuccessfulRetrieval() throws Exception {
+    void testGetSponsoredLegislationByPersonIdSuccessfulRetrieval() throws Exception {
         String personId = "A000360";
         int limit = 2;
         String responsePage1 = "{\"sponsoredLegislation\": [{}, {}]}";
@@ -114,7 +114,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetSponsoredLegislationByPersonIdEmptyResponse() throws Exception {
+    void testGetSponsoredLegislationByPersonIdEmptyResponse() throws Exception {
         String personId = "A000360";
         int limit = 2;
         String response = "";
@@ -133,7 +133,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetSponsoredLegislationByPersonIdNullResponse() throws Exception {
+    void testGetSponsoredLegislationByPersonIdNullResponse() throws Exception {
         String personId = "A000360";
         int limit = 2;
 
@@ -150,7 +150,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetSponsoredLegislationByPersonIdExceptionDuringFetch() throws Exception {
+    void testGetSponsoredLegislationByPersonIdExceptionDuringFetch() throws Exception {
         String personId = "A000360";
         int limit = 2;
 
@@ -172,7 +172,7 @@ class MemberSponsLegislationServiceTest {
     }
 
     @Test
-    public void testGetSponsoredLegislationByPersonIdExceptionDuringProcessing() throws Exception {
+    void testGetSponsoredLegislationByPersonIdExceptionDuringProcessing() {
         String personId = "A000360";
         int limit = 2;
         String response = "{\"sponsoredLegislation\": [{}, {}]}";
