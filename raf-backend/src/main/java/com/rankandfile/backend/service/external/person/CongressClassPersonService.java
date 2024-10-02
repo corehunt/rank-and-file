@@ -43,7 +43,7 @@ public class CongressClassPersonService {
                 String response = fetchMembers(congressNo, limit, offset);
 
                 if(response == null || response.isEmpty()) {
-                    log.warn("Received emtpy response for Congress number: {}, offset: {}", congressNo, currentOffset);
+                    log.warn("Received empty response for Congress number: {}, offset: {}", congressNo, currentOffset);
                 }
 
                 List<Person> persons = congressMemberProcessor.processMembers(response);
