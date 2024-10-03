@@ -15,5 +15,6 @@
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_BILL_ACTION.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_MEM_SPONS_LEGISLATION.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_COMMITTEE.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-RAF_BILL_COMMITTEE-JOIN-TABLE.sql"/>
 
 </databaseChangeLog>
