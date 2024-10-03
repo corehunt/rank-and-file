@@ -58,4 +58,14 @@ public class Bill extends RAFAudit {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<SponsoredLegislation> sponsorships = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "RAF_BILL_COMMITTEE",
+            joinColumns = @JoinColumn(name = "BILL_ID"),
+            inverseJoinColumns = @JoinColumn(name = "COMMITTEE_ID")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Committee> committees = new ArrayList<>();
 }

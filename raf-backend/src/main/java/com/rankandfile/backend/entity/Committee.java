@@ -3,6 +3,8 @@ package com.rankandfile.backend.entity;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,4 +39,9 @@ public class Committee extends RAFAudit {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Committee> subCommittees = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "committees")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Bill> bills = new ArrayList<>();
 }

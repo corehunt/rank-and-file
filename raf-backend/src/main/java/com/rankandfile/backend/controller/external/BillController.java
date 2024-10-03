@@ -5,6 +5,7 @@ import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.service.external.bill.BillActionService;
 import com.rankandfile.backend.service.external.bill.BillByCongressService;
 import com.rankandfile.backend.service.external.bill.BillByTypeAndNumberService;
+import com.rankandfile.backend.service.external.bill.BillCommitteeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +24,16 @@ public class BillController {
     private static final int LIMIT = 250;
 
     private final BillByCongressService billByCongressService;
-
     private final BillByTypeAndNumberService billByTypeAndNumberService;
-
     private final BillActionService billActionService;
+    private final BillCommitteeService billCommitteeService;
 
     @Autowired
-    public BillController(BillByCongressService billByCongressService, BillByTypeAndNumberService billByTypeAndNumberService, BillActionService billActionService){
+    public BillController(BillByCongressService billByCongressService, BillByTypeAndNumberService billByTypeAndNumberService, BillActionService billActionService, BillCommitteeService billCommitteeService){
         this.billByCongressService = billByCongressService;
         this.billByTypeAndNumberService = billByTypeAndNumberService;
         this.billActionService = billActionService;
+        this.billCommitteeService = billCommitteeService;
     }
 
     //This controller is used to load all bills by congress number
@@ -62,5 +63,15 @@ public class BillController {
         log.info("In Bill Controller, retrieving action data for bill number: {}, during congress: {}", billNumber, congressNo);
         List<Action> actionsListByBill = billActionService.getActionsByBillNumber(congressNo, billType, billNumber, LIMIT);
         return ResponseEntity.ok(actionsListByBill);
+    }
+
+    //This controller is used to hydrate the committees for a specific bill, given the congress #, bill type, and bill #
+    //It populates a many-to-many relationship in the RAF_BILL_COMMITTEE join table
+    //api.congress.gov endpoint: /bill/{congress}/{billType}/{billNumber}/committees
+    @GetMapping("/{congressNo}/{billType}/{billNumber}/committees")
+    public ResponseEntity<String> loadCommitteesForBillNumber(@PathVariable Integer congressNo, @PathVariable String billType, @PathVariable Integer billNumber){
+        log.info("In Bill Controller, retrieving committee data for bill number: {}, during congress: {}", billNumber, congressNo);
+        billCommitteeService.getCommitteesByBillNumber(congressNo, billType, billNumber);
+        return ResponseEntity.ok("Successfully loaded committees for bill number: " + billNumber);
     }
 }
