@@ -2,10 +2,9 @@ package com.rankandfile.backend.controller.external;
 
 import com.rankandfile.backend.service.external.committee.CommitteeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -16,17 +15,25 @@ public class CommitteeController {
 
     private final CommitteeService committeeService;
 
+    @Autowired
     public CommitteeController(CommitteeService committeeService) {
         this.committeeService = committeeService;
     }
 
-    // This controller is used to load all committees
-    // api.congress.gov endpoint: /committee
-    @PostMapping("/all")
+    /**
+     * Loads all committees from the external API and saves them to the database.
+     * api.congress.gov endpoint: /committee
+     * @return A confirmation message.
+     */
+    @PutMapping("/all")
     public ResponseEntity<String> loadAllCommittees() {
-        log.info("In Committee controller, loading all committees");
-        committeeService.fetchAndProcessCommittees(LIMIT);
-        return ResponseEntity.ok("Successfully loaded committees");
+        log.info("Loading all committees");
+        try {
+            committeeService.fetchAndProcessCommittees(LIMIT);
+            return ResponseEntity.ok("Successfully loaded committees");
+        } catch (Exception e) {
+            log.error("Error loading committees: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to load committees");
+        }
     }
-
 }
