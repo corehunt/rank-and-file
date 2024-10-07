@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.rankandfile</groupId>
 	<artifactId>raf-backend</artifactId>
-	<version>0.0.11-SNAPSHOT</version>
+	<version>0.0.12-SNAPSHOT</version>
 	<name>rank-and-file-backend</name>
 	<description>Backend service and database for rankandfile.com web application</description>
 	<properties>
@@ -87,6 +87,11 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.16.1</version>
 		</dependency>
 	</dependencies>
 

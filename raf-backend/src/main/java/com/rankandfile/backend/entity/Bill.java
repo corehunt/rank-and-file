@@ -53,6 +53,16 @@ public class Bill extends RAFAudit {
     @Column(name = "ORIGIN_CHAMBER_CD")
     private String originChamberCd;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column(name = "SUMMARY_ACTION_DT")
+    private LocalDate summaryActionDt;
+
+    @Column(name = "SUMMARY_ACTION_DESC")
+    private String summaryActionDesc;
+
+    @Column(name = "SUMMARY_TXT", columnDefinition = "TEXT")
+    private String summaryTxt;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("bill-sponsorship")
     @ToString.Exclude
