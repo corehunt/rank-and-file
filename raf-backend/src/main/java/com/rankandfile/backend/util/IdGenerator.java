@@ -15,6 +15,8 @@ public class IdGenerator {
 
     private static final String committeePrefix = "CM";
 
+    private static final String textPrefix = "TX";
+
     private static final SecureRandom random = new SecureRandom();
 
     public Integer generateCongressId() {
@@ -41,5 +43,9 @@ public class IdGenerator {
 
     public String generateCommitteeId(String systemCode) {
         return committeePrefix + systemCode;
+    }
+
+    public String generateTextId(){
+        return textPrefix.concat(String.valueOf(random.nextInt(999999)));
     }
 }

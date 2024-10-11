@@ -78,4 +78,8 @@ public class Bill extends RAFAudit {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Committee> committees = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Text> billTexts = new ArrayList<>();
+
 }
