@@ -1,6 +1,6 @@
 package com.rankandfile.backend.controller.external;
 
-import com.rankandfile.backend.service.external.person.MemberService;
+import com.rankandfile.backend.service.external.person.IndividualMemberService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/member")
-public class MemberController {
+public class IndividualMemberController {
 
-    private final MemberService memberService;
+    private final IndividualMemberService individualMemberService;
 
     @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
+    public IndividualMemberController(IndividualMemberService individualMemberService) {
+        this.individualMemberService = individualMemberService;
     }
 
     /**
@@ -30,7 +30,7 @@ public class MemberController {
     public ResponseEntity<String> loadMember(@PathVariable String bioguideId) {
         log.info("Loading and saving member with bioguideId: {}", bioguideId);
         try {
-            memberService.fetchAndProcessPerson(bioguideId);
+            individualMemberService.fetchAndProcessPerson(bioguideId);
             return ResponseEntity.ok("Successfully loaded and saved member with bioguideId: " + bioguideId);
         } catch (EntityNotFoundException e) {
             log.error("Member not found: {}", e.getMessage());

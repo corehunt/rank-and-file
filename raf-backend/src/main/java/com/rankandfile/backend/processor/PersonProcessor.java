@@ -92,7 +92,7 @@ public class PersonProcessor {
         });
 
         // Update fields using helper methods
-        updateNameFields(memberObject, person);
+        //updateNameFields(memberObject, person); --> commenting out here as format from all members endpoint is cleaner
         updateAddressInformation(memberObject, person);
         updateCurrentMemberStatus(memberObject, person);
         updateWebsite(memberObject, person);
