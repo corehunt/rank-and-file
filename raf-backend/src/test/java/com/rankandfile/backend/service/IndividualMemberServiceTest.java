@@ -3,7 +3,7 @@ package com.rankandfile.backend.service;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.processor.PersonProcessor;
 import com.rankandfile.backend.repository.PersonRepository;
-import com.rankandfile.backend.service.external.person.MemberService;
+import com.rankandfile.backend.service.external.person.IndividualMemberService;
 import okhttp3.mockwebserver.*;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
@@ -18,7 +18,7 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class MemberServiceTest {
+class IndividualMemberServiceTest {
 
     private MockWebServer mockWebServer;
 
@@ -30,7 +30,7 @@ class MemberServiceTest {
 
     private WebClient webClient;
 
-    private MemberService memberService;
+    private IndividualMemberService individualMemberService;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -47,7 +47,7 @@ class MemberServiceTest {
                 .filter(addApiKeyQueryParamFilter())
                 .build();
 
-        memberService = new MemberService(personProcessor, webClient, personRepository);
+        individualMemberService = new IndividualMemberService(personProcessor, webClient, personRepository);
     }
 
     @AfterEach
@@ -87,7 +87,7 @@ class MemberServiceTest {
         when(personProcessor.validatePerson(response)).thenReturn(expectedPerson);
 
         // Execute the method
-        Person result = memberService.fetchAndProcessPerson(bioguideId);
+        Person result = individualMemberService.fetchAndProcessPerson(bioguideId);
 
         // Verify interactions and results
         assertNotNull(result);
@@ -114,7 +114,7 @@ class MemberServiceTest {
                 .addHeader("Content-Type", "application/json"));
 
         // Execute the method
-        Person result = memberService.fetchAndProcessPerson(bioguideId);
+        Person result = individualMemberService.fetchAndProcessPerson(bioguideId);
 
         // Verify that the result is null
         assertNull(result);
@@ -137,7 +137,7 @@ class MemberServiceTest {
                 .addHeader("Content-Type", "application/json"));
 
         // Execute the method
-        Person result = memberService.fetchAndProcessPerson(bioguideId);
+        Person result = individualMemberService.fetchAndProcessPerson(bioguideId);
 
         // Verify that the result is null
         assertNull(result);
@@ -162,7 +162,7 @@ class MemberServiceTest {
 
         // Execute the method and expect an exception
         Exception exception = assertThrows(Exception.class, () -> {
-            memberService.fetchAndProcessPerson(bioguideId);
+            individualMemberService.fetchAndProcessPerson(bioguideId);
         });
 
         assertNotNull(exception);
@@ -189,7 +189,7 @@ class MemberServiceTest {
 
         // Execute the method and expect an exception
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            memberService.fetchAndProcessPerson(bioguideId);
+            individualMemberService.fetchAndProcessPerson(bioguideId);
         });
 
         assertNotNull(exception);
@@ -206,7 +206,7 @@ class MemberServiceTest {
 
         // Execute the method and expect an exception due to invalid bioguideId
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            memberService.fetchAndProcessPerson(bioguideId);
+            individualMemberService.fetchAndProcessPerson(bioguideId);
         });
 
         assertNotNull(exception);

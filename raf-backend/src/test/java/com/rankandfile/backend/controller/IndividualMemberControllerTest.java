@@ -1,7 +1,7 @@
 package com.rankandfile.backend.controller;
 
-import com.rankandfile.backend.controller.external.MemberController;
-import com.rankandfile.backend.service.external.person.MemberService;
+import com.rankandfile.backend.controller.external.IndividualMemberController;
+import com.rankandfile.backend.service.external.person.IndividualMemberService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +18,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(MemberController.class)
-class MemberControllerTest {
+@WebMvcTest(IndividualMemberController.class)
+class IndividualMemberControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private MemberService memberService;
+    private IndividualMemberService individualMemberService;
 
     @Test
     void testLoadMemberSuccess() throws Exception {
@@ -36,7 +36,7 @@ class MemberControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Successfully loaded and saved member with bioguideId: " + bioguideId));
 
-        Mockito.verify(memberService, times(1)).fetchAndProcessPerson(bioguideId);
+        Mockito.verify(individualMemberService, times(1)).fetchAndProcessPerson(bioguideId);
     }
 
     @Test
@@ -44,14 +44,14 @@ class MemberControllerTest {
         String bioguideId = "INVALID_ID";
 
         Mockito.doThrow(new EntityNotFoundException("Member not found"))
-                .when(memberService).fetchAndProcessPerson(bioguideId);
+                .when(individualMemberService).fetchAndProcessPerson(bioguideId);
 
         mockMvc.perform(put("/api/member/{bioguideId}", bioguideId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Member not found: Member not found"));
 
-        Mockito.verify(memberService, times(1)).fetchAndProcessPerson(bioguideId);
+        Mockito.verify(individualMemberService, times(1)).fetchAndProcessPerson(bioguideId);
     }
 
     @Test
@@ -59,13 +59,13 @@ class MemberControllerTest {
         String bioguideId = "A000360";
 
         Mockito.doThrow(new RuntimeException("Unexpected error"))
-                .when(memberService).fetchAndProcessPerson(bioguideId);
+                .when(individualMemberService).fetchAndProcessPerson(bioguideId);
 
         mockMvc.perform(put("/api/member/{bioguideId}", bioguideId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Failed to load member with bioguideId: " + bioguideId));
 
-        Mockito.verify(memberService, times(1)).fetchAndProcessPerson(bioguideId);
+        Mockito.verify(individualMemberService, times(1)).fetchAndProcessPerson(bioguideId);
     }
 }

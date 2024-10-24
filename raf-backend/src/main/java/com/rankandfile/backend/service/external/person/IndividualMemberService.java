@@ -10,13 +10,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
 @Service
-public class MemberService {
+public class IndividualMemberService {
 
     private final WebClient webClient;
     private final PersonProcessor personProcessor;
     private final PersonRepository personRepository;
 
-    public MemberService(
+    public IndividualMemberService(
             PersonProcessor personProcessor,
             @Qualifier("congressGovApiWebClient") WebClient webClient, PersonRepository personRepository) {
         this.personProcessor = personProcessor;

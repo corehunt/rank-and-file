@@ -13,13 +13,13 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class CongressClassPersonService {
+public class MembersService {
 
     private final WebClient webClient;
     private final CongressMemberProcessor congressMemberProcessor;
     private final PersonRepository personRepository;
 
-    public CongressClassPersonService(
+    public MembersService(
             @Qualifier("congressGovApiWebClient") WebClient webClient,
             CongressMemberProcessor congressMemberProcessor,
             PersonRepository personRepository) {
@@ -28,22 +28,24 @@ public class CongressClassPersonService {
         this.personRepository = personRepository;
     }
 
-    public List<Person> fetchMembersOfCurrentCongress(String congressNo, int limit) {
+    public List<Person> fetchAndSaveMembers(int limit) {
         List<Person> allMembers = new ArrayList<>();
         int offset = 0;
         boolean hasMoreRecords = true;
 
-        log.info("Starting to fetching members for Congress number: {}", congressNo);
+        log.info("Starting to fetch all members");
 
         try {
             while (hasMoreRecords) {
                 int currentOffset = offset;
-                log.debug("Fetching members with offset: {},", currentOffset);
+                log.debug("Fetching members from offset {}", currentOffset);
 
-                String response = fetchMembers(congressNo, limit, offset);
+                String response = fetchMembers(limit, offset);
 
-                if(response == null || response.isEmpty()) {
-                    log.warn("Received empty response for Congress number: {}, offset: {}", congressNo, currentOffset);
+                if (response == null || response.isEmpty()) {
+                    log.warn("Received empty response for loading all members");
+                    hasMoreRecords = false;
+                    continue;
                 }
 
                 List<Person> persons = congressMemberProcessor.processMembers(response);
@@ -58,25 +60,30 @@ public class CongressClassPersonService {
             }
 
             log.info("Total members fetched: {}", allMembers.size());
-            personRepository.saveAll(allMembers);
-            log.info("Members successfully saved.");
+            if (!allMembers.isEmpty()) {
+                personRepository.saveAll(allMembers);
+                log.info("Members successfully saved");
+            } else {
+                log.info("No members to save");
+            }
 
         } catch (Exception e) {
-            log.error("An error occurred while fetching and processing members for Congress number: {}", congressNo, e);
+            log.error("An error occurred while fetching and processing members", e);
             throw e;
         }
 
         return allMembers;
     }
 
-    private String fetchMembers(String congressNo, int limit, int offset) {
-         return this.webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("member/congress/{congress}")
+    private String fetchMembers(int limit, int offset) {
+        return this.webClient.get()
+                .uri(uriBuilder -> uriBuilder.path("member")
                         .queryParam("limit", limit)
                         .queryParam("offset", offset)
-                        .build(congressNo))
+                        .build())
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
     }
+
 }
