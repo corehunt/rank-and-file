@@ -144,6 +144,53 @@ class BillByCongressTypeNumberProcessorTest {
         assertNull(processedBill);
     }
 
+    @Test
+    public void testProcessBillWithLaws() {
+        String json = getBillJsonWithLaws();
+
+        // Existing bill
+        Bill mockBill = new Bill();
+        mockBill.setBillId("117-3076");
+        mockBill.setCongress(117);
+        mockBill.setBillNo(3076);
+
+        when(billRepository.findByCongressAndBillNo(117, 3076)).thenReturn(mockBill);
+
+        Bill processedBill = billByCongressTypeNumberProcessor.process(json);
+
+        assertNotNull(processedBill);
+        assertEquals("117-3076", processedBill.getBillId());
+        assertEquals(3076, processedBill.getBillNo());
+        assertEquals("Postal Service Reform Act of 2022", processedBill.getBillTitle());
+        assertEquals("117-108", processedBill.getLawNo());
+        assertEquals("Public Law", processedBill.getLawType());
+        assertEquals("Y", processedBill.getIsLawFl());
+    }
+
+    @Test
+    public void testProcessBillWithoutLaws() {
+        String json = getValidBillJson();
+
+        // Existing bill
+        Bill mockBill = new Bill();
+        mockBill.setBillId("118-6937");
+        mockBill.setCongress(118);
+        mockBill.setBillNo(6937);
+        mockBill.setLawNo("Some Law No");
+        mockBill.setLawType("Some Law Type");
+        mockBill.setIsLawFl("Y");
+
+        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(mockBill);
+
+        Bill processedBill = billByCongressTypeNumberProcessor.process(json);
+
+        assertNotNull(processedBill);
+        assertEquals("118-6937", processedBill.getBillId());
+        assertNull(processedBill.getLawNo());
+        assertNull(processedBill.getLawType());
+        assertNull(processedBill.getIsLawFl());
+    }
+
     // Helper method to get valid JSON
     private String getValidBillJson() {
         return "{\n" +
@@ -162,6 +209,22 @@ class BillByCongressTypeNumberProcessorTest {
                 "        \"originChamber\": \"House\",\n" +
                 "        \"originChamberCode\": \"H\",\n" +
                 "        \"type\": \"HR\"\n" +
+                "    }\n" +
+                "}";
+    }
+
+    private String getBillJsonWithLaws() {
+        return "{\n" +
+                "    \"bill\": {\n" +
+                "        \"congress\": 117,\n" +
+                "        \"number\": \"3076\",\n" +
+                "        \"title\": \"Postal Service Reform Act of 2022\",\n" +
+                "        \"laws\": [\n" +
+                "            {\n" +
+                "                \"number\": \"117-108\",\n" +
+                "                \"type\": \"Public Law\"\n" +
+                "            }\n" +
+                "        ]\n" +
                 "    }\n" +
                 "}";
     }
