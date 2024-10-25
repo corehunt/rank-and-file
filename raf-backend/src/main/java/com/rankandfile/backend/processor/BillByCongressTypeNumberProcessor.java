@@ -1,5 +1,6 @@
 package com.rankandfile.backend.processor;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Bill;
@@ -29,6 +30,9 @@ public class BillByCongressTypeNumberProcessor {
     private static final String FIELD_ORIGIN_CHAMBER_CODE = "originChamberCode";
     private static final String FIELD_POLICY_AREA = "policyArea";
     private static final String FIELD_NAME = "name";
+    private static final String FIELD_LAWS = "laws";
+    private static final String FIELD_LAW_NUMBER = "number";
+    private static final String FIELD_LAW_TYPE = "type";
 
     private final BillRepository billRepository;
     private final IdGenerator idGenerator;
@@ -164,6 +168,33 @@ public class BillByCongressTypeNumberProcessor {
         if (!Objects.equals(billType, bill.getBillType())) {
             bill.setBillType(billType);
         }
+
+        // Process laws array
+        if (billObject.has(FIELD_LAWS) && billObject.get(FIELD_LAWS).isJsonArray()) {
+            JsonArray lawsArray = billObject.getAsJsonArray(FIELD_LAWS);
+            if (!lawsArray.isEmpty()) {
+                JsonObject lawObject = lawsArray.get(0).getAsJsonObject();
+                String lawNumber = getAsString(lawObject, FIELD_LAW_NUMBER);
+                String lawType = getAsString(lawObject, FIELD_LAW_TYPE);
+
+                // Since we assume both lawNumber and lawType are present
+                bill.setLawNo(lawNumber);
+                bill.setLawType(lawType);
+                bill.setIsLawFl("Y");
+            } else {
+                // Laws array is empty
+                clearLawFields(bill);
+            }
+        } else {
+            // Laws array is not present
+            clearLawFields(bill);
+        }
+    }
+
+    private void clearLawFields(Bill bill) {
+        bill.setLawNo(null);
+        bill.setLawType(null);
+        bill.setIsLawFl(null);
     }
 
     private String getAsString(JsonObject obj, String field) {

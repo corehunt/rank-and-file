@@ -99,10 +99,10 @@ class CongressMemberProcessorTest {
                 .orElse(null);
         assertNotNull(person1);
         assertEquals("B001320", person1.getPersonId());
-        assertEquals("OldFirstName", person1.getFirstName());
-        assertEquals(null, person1.getMidName());
-        assertEquals("OldLastName", person1.getLastName());
-//        assertEquals("OldFirstName OldLastName", person1.getFullName());
+        assertEquals("Laphonza", person1.getFirstName());
+        assertEquals("R.", person1.getMidName());
+        assertEquals("Butler", person1.getLastName());
+        assertEquals("Laphonza R. Butler", person1.getFullName());
         assertEquals("California", person1.getState());
         assertNull(person1.getCurrentDistrict());
         assertNull(person1.getWebsite());
