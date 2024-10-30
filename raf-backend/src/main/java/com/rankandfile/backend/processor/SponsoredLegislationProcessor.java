@@ -139,7 +139,7 @@ public class SponsoredLegislationProcessor {
             if (bill == null) {
                 log.info("Creating new Bill for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
                 bill = new Bill();
-                bill.setBillId(idGenerator.generateBillId(congressNo, billNo));
+                bill.setBillId(idGenerator.generateBillId(congressNo, billType, billNo));
                 bill.setCongress(congressNo);
                 bill.setBillNo(billNo);
                 bill.setBillType(billType);

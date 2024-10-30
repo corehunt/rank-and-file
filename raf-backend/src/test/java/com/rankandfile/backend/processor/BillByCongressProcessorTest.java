@@ -33,8 +33,8 @@ class BillByCongressProcessorTest {
     @Test
     void testProcessBillList() {
         // Mocking the ID generation
-        when(idGenerator.generateBillId(anyInt(), anyInt())).thenAnswer(invocation ->
-                invocation.getArgument(0) + "-" + invocation.getArgument(1)
+        when(idGenerator.generateBillId(anyInt(), anyString(), anyInt())).thenAnswer(invocation ->
+                invocation.getArgument(0) + "-" + invocation.getArgument(1) + invocation.getArgument(2)
         );
 
         // Mocking the BillRepository to return no existing bills
@@ -98,7 +98,7 @@ class BillByCongressProcessorTest {
         assertEquals("Message on Senate action sent to the House.", bill1.getLatestActionTxt());
 
         // Verify that the IdGenerator method was called the correct number of times
-        verify(idGenerator, times(3)).generateBillId(anyInt(), anyInt());
+        verify(idGenerator, times(3)).generateBillId(anyInt(), anyString(), anyInt());
     }
 
     @Test
@@ -241,7 +241,7 @@ class BillByCongressProcessorTest {
         assertEquals("Updated Text.", bill.getLatestActionTxt());
 
         // Verify that IdGenerator.generateBillId() was not called for existing bill
-        verify(idGenerator, never()).generateBillId(anyInt(), anyInt());
+        verify(idGenerator, never()).generateBillId(anyInt(), anyString(), anyInt());
     }
 
     @Test
