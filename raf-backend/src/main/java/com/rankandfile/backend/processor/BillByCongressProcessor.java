@@ -99,6 +99,7 @@ public class BillByCongressProcessor {
 
             Integer congressNo = getAsInteger(billObject, FIELD_CONGRESS);
             Integer billNo = getAsInteger(billObject, FIELD_NUMBER);
+            String billType = getAsString(billObject, FIELD_TYPE);
 
             if (congressNo == null || billNo == null) {
                 log.warn("Missing congress number or bill number in bill data. Skipping bill.");
@@ -111,7 +112,7 @@ public class BillByCongressProcessor {
             if (bill == null) {
                 // New bill
                 bill = new Bill();
-                bill.setBillId(idGenerator.generateBillId(congressNo, billNo));
+                bill.setBillId(idGenerator.generateBillId(congressNo, billType, billNo));
                 bill.setBillNo(billNo);
                 bill.setCongress(congressNo);
 

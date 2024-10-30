@@ -60,7 +60,7 @@ class BillByCongressTypeNumberProcessorTest {
 
         // No existing bill in the repository
         when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(null);
-        when(idGenerator.generateBillId(118, 6937)).thenReturn("118-6937");
+        when(idGenerator.generateBillId(118, "HR", 6937)).thenReturn("118-6937");
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
@@ -68,7 +68,7 @@ class BillByCongressTypeNumberProcessorTest {
         assertEquals("118-6937", processedBill.getBillId());
         assertEquals(6937, processedBill.getBillNo());
 
-        verify(idGenerator, times(1)).generateBillId(118, 6937);
+        verify(idGenerator, times(1)).generateBillId(118, "HR", 6937);
     }
 
     @Test

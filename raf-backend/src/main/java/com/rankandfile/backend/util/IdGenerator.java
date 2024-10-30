@@ -29,8 +29,8 @@ public class IdGenerator {
 
     public Integer generateTermId(){return random.nextInt(999999);}
 
-    public String generateBillId(Integer congressId, Integer billNo){
-        return congressId.toString().concat("-").concat(billNo.toString());
+    public String generateBillId(Integer congressId, String billType, Integer billNo){
+        return congressId.toString().concat("-").concat(billType).concat("-").concat(billNo.toString());
     }
 
     public String generateActionId() {
