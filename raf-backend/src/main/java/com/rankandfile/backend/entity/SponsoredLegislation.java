@@ -1,8 +1,6 @@
 package com.rankandfile.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -28,10 +26,9 @@ public class SponsoredLegislation extends RAFAudit {
 
     @ManyToOne
     @JoinColumn(name = "BILL_ID", nullable = false)
-    @JsonManagedReference("sponsorship-bill")
+    @JsonBackReference("bill-sponsorship")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonIgnoreProperties({"sponsorships"})
     private Bill bill;
 
     @Column(name = "SPONSOR_TYPE")
