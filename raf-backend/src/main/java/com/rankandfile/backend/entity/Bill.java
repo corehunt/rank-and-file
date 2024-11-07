@@ -1,7 +1,7 @@
 package com.rankandfile.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -73,7 +73,7 @@ public class Bill extends RAFAudit {
     private String isLawFl;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("bill-sponsorship")
+    @JsonBackReference("sponsorship-bill")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<SponsoredLegislation> sponsorships = new ArrayList<>();

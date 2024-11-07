@@ -23,8 +23,4 @@ public class PersonSearchDBService {
         return personRepository.findPersonByFullNameSearchTerm(searchTerm);
     }
 
-    public Person getPersonById(String personId) {
-        return personRepository.findPersonByPersonId(personId);
-    }
-
 }
