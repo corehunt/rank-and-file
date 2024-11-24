@@ -226,8 +226,8 @@ export default async function PoliticianProfile({
           <Tabs defaultValue="record" className="space-y-6">
             <TabsList className="flex w-auto md:w-fit overflow-x-auto justify-start">
               <TabsTrigger value="record">Congressional Record</TabsTrigger>
-              <TabsTrigger value="votes">Voting History</TabsTrigger>
-              <TabsTrigger value="bills">Sponsored Bills</TabsTrigger>
+              <TabsTrigger value="sponsored">Sponsored Bills</TabsTrigger>
+              <TabsTrigger value="cosponsored">Co-Sponsored Bills</TabsTrigger>
               <TabsTrigger value="finances">Financial Activity</TabsTrigger>
             </TabsList>
 
