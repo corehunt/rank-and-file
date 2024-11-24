@@ -224,7 +224,7 @@ export default async function PoliticianProfile({
         {/* Tabs for Additional Information */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs defaultValue="record" className="space-y-6">
-            <TabsList>
+            <TabsList className="flex w-auto md:w-fit overflow-x-auto justify-start">
               <TabsTrigger value="record">Congressional Record</TabsTrigger>
               <TabsTrigger value="votes">Voting History</TabsTrigger>
               <TabsTrigger value="bills">Sponsored Bills</TabsTrigger>
@@ -232,34 +232,28 @@ export default async function PoliticianProfile({
             </TabsList>
 
             <TabsContent value="record">
-              {/* Display committees, if available */}
-              {politicianData.congressionalRecord.committees.length > 0 && (
-                  <Card>
-                    <CardContent className="pt-6">
-                      <h2 className="text-xl font-semibold mb-4">
-                        Committee Memberships
-                      </h2>
-                      <div className="space-y-4">
-                        {politicianData.congressionalRecord.committees.map(
-                            (committee, index) => (
-                                <div
-                                    key={index}
-                                    className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0"
-                                >
-                                  <div>
-                                    {/* Uncomment and populate when data is available */}
-                                    {/* <p className="font-medium">{committee.name}</p>
-                            <p className="text-sm text-muted-foreground">{committee.role}</p> */}
-                                  </div>
-                                </div>
-                            )
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-              )}
-
-              {/* Additional sections for sponsored bills and recent votes can be added similarly */}
+              <Card>
+                <CardContent className="pt-6">
+                  <h2 className="text-xl font-semibold mb-4">Congressional Terms</h2>
+                  <div className="space-y-6">
+                    {politician.termList.map((term, index) => (
+                        <div key={index} className="border-b last:border-0 pb-6 last:pb-0">
+                          <div className="flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                              <h3 className="font-medium text-lg">
+                                {term.congress}th Congress ({term.startYr}-{term.endYr || 'Present'})
+                              </h3>
+                              <p className="text-muted-foreground">
+                                {term.memberType}, {term.stateNm} {term.district}nd District
+                              </p>
+                            </div>
+                            <Badge variant="outline">{term.chamber}</Badge>
+                          </div>
+                        </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Other Tabs Content */}
