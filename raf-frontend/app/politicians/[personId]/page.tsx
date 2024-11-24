@@ -3,54 +3,56 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin, Globe } from "lucide-react";
+import Link from "next/link";
 
 interface TermDTO {
-  startYear: number;
-  endYear: number;
+  termId: number;
   chamber: string;
-  state: string;
-  district: number;
-  party: string;
-  // Add other fields as necessary
+  congress: number;
+  district: number | null;
+  startYr: number;
+  endYr: number | null;
+  memberType: string;
+  stateCd: string;
+  stateNm: string;
 }
 
 interface PersonDTO {
   personId: string;
-  firstName: string;
-  midName: string;
-  lastName: string;
-  fullName: string;
-  birthDate: string;
-  deathDate: string;
-  website: string;
-  officeLocLine1: string;
-  officeLocLine2: string;
-  phoneNo: string;
-  state: string;
+  firstName: string | null;
+  midName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  birthDate: string | null;
+  deathDate: string | null;
+  website: string | null;
+  officeLocLine1: string | null;
+  officeLocLine2: string | null;
+  phoneNo: string | null;
+  state: string | null;
   currentDistrict: number | null;
-  currentMember: string; // Assuming "Yes" or "No"
-  biography: string;
-  email: string;
-  imageUrl: string;
-  imgAttribution: string;
-  partyMembership: string;
-  partyStartYr: number;
-  termList: TermDTO[];
+  currentMember: string | null;
+  biography: string | null;
+  email: string | null;
+  imageUrl: string | null;
+  imgAttribution: string | null;
+  partyMembership: string | null;
+  partyStartYr: number | null;
+  termList: TermDTO[] | null;
 }
 
-export async function generateStaticParams() {
-  // Fetch all politicians to generate static pages
-  const res = await fetch("http://localhost:8080/api/internal/all");
-  const politicians: PersonDTO[] = await res.json();
-
-  return politicians.map((politician) => ({
-    slug: politician.personId,
-  }));
-}
-
-export default async function PoliticianProfile({ params }: { params: { slug: string } }) {
-  const res = await fetch(`http://localhost:8080/api/internal/politician/${params.slug}`);
+export default async function PoliticianProfile({
+                                                  params,
+                                                }: {
+  params: { personId: string };
+}) {
+  const res = await fetch(
+      `http://localhost:8080/api/internal/politician/${params.personId}`,
+      {
+        cache: "no-store",
+      }
+  );
 
   if (!res.ok) {
     return notFound();
@@ -82,20 +84,22 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
     partyStartYr: politician.partyStartYr,
     termList: politician.termList,
     // Additional computed fields for your UI
-    name: politician.fullName,
+    name:
+        politician.fullName ||
+        `${politician.firstName || ""} ${politician.lastName || ""}`.trim(),
     district: politician.currentDistrict
         ? `District ${politician.currentDistrict}`
         : "At Large",
     chamber: getCurrentChamber(politician.termList),
-    membershipStatus: politician.currentMember === "Yes" ? "Active" : "Inactive",
+    membershipStatus:
+        politician.currentMember === "Yes" ? "Incumbent" : "Former Member",
     yearsActive: getYearsActive(politician.termList),
     officeLocation: {
       dc: politician.officeLocLine1 || "N/A",
       district: politician.officeLocLine2 || "N/A",
     },
     phone: {
-      dc: politician.phoneNo || "N/A",
-      district: "", // If available
+      dc: politician.phoneNo || "N/A"
     },
     congressionalRecord: {
       sponsoredBills: [], // Populate if available
@@ -111,7 +115,7 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
             <div className="flex flex-col md:flex-row gap-6">
               <div className="relative h-48 w-48 rounded-lg overflow-hidden flex-shrink-0 mx-auto md:mx-0">
                 <Image
-                    src={politicianData.imageUrl}
+                    src={politicianData.imageUrl || "/default-image.jpg"}
                     alt={politicianData.name}
                     fill
                     className="object-cover"
@@ -123,11 +127,15 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
                   <div className="space-y-2 text-center md:text-left">
                     <h1 className="text-3xl font-bold">{politicianData.name}</h1>
                     <p className="text-lg text-muted-foreground">
-                      {politicianData.district}, {politicianData.state}
+                      {politicianData.district}, {politicianData.state || "N/A"}
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                      <Badge variant="default">{politicianData.partyMembership}</Badge>
-                      <Badge variant="outline">{politicianData.membershipStatus}</Badge>
+                      <Badge variant={politicianData.partyMembership === "D" ? "default" : "destructive"}>
+                        {mapPartyCodeToName(politicianData.partyMembership)}
+                      </Badge>
+                      <Badge variant="outline">
+                        {politicianData.membershipStatus}
+                      </Badge>
                     </div>
                   </div>
 
@@ -135,11 +143,15 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
                   <div className="grid grid-cols-2 md:block text-center md:text-left gap-4">
                     <div>
                       <p className="text-sm font-medium">Chamber</p>
-                      <p className="text-muted-foreground">{politicianData.chamber}</p>
+                      <p className="text-muted-foreground">
+                        {politicianData.chamber}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Years Active</p>
-                      <p className="text-muted-foreground">{politicianData.yearsActive}</p>
+                      <p className="text-muted-foreground">
+                        {politicianData.yearsActive}
+                      </p>
                     </div>
                   </div>
 
@@ -150,10 +162,10 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
                       <div className="text-sm">
                         <p className="font-medium">Offices</p>
                         <p className="text-muted-foreground">
-                          DC: {politicianData.officeLocation.dc}
+                          {politicianData.officeLocation.dc}
                         </p>
                         <p className="text-muted-foreground">
-                          District: {politicianData.officeLocation.district}
+                          {politicianData.officeLocation.district}
                         </p>
                       </div>
                     </div>
@@ -161,12 +173,9 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
                       <Phone className="h-5 w-5 mt-0.5 text-muted-foreground" />
                       <div className="text-sm">
                         <p className="font-medium">Phone</p>
-                        <p className="text-muted-foreground">DC: {politicianData.phone.dc}</p>
-                        {politicianData.phone.district && (
-                            <p className="text-muted-foreground">
-                              District: {politicianData.phone.district}
-                            </p>
-                        )}
+                        <p className="text-muted-foreground">
+                          {politicianData.phone.dc}
+                        </p>
                       </div>
                     </div>
                     {politicianData.email && (
@@ -174,29 +183,39 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
                           <Mail className="h-5 w-5 mt-0.5 text-muted-foreground" />
                           <div className="text-sm">
                             <p className="font-medium">Email</p>
-                            <p className="text-muted-foreground">{politicianData.email}</p>
+                            <p className="text-muted-foreground">
+                              {politicianData.email}
+                            </p>
                           </div>
                         </div>
                     )}
                     {politicianData.website && (
                         <div className="flex items-start gap-2">
-                          <a
-                              href={politicianData.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 underline"
-                          >
-                            Visit Website
-                          </a>
+                          <Globe className="h-5 w-5 mt-0.5 text-muted-foreground"/>
+                          <div className="text-sm">
+                            <p className="font-medium">Website</p>
+                            <Link
+                                href={politician.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              {politician.website.replace('https://', '')}
+                            </Link>
+                          </div>
                         </div>
                     )}
                   </div>
                 </div>
 
                 {/* Biography Row */}
-                <div className="mt-6">
-                  <p className="text-muted-foreground md:text-left">{politicianData.biography}</p>
-                </div>
+                {politicianData.biography && (
+                    <div className="mt-6">
+                      <p className="text-muted-foreground md:text-left">
+                        {politicianData.biography}
+                      </p>
+                    </div>
+                )}
               </div>
             </div>
           </div>
@@ -217,19 +236,24 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
               {politicianData.congressionalRecord.committees.length > 0 && (
                   <Card>
                     <CardContent className="pt-6">
-                      <h2 className="text-xl font-semibold mb-4">Committee Memberships</h2>
+                      <h2 className="text-xl font-semibold mb-4">
+                        Committee Memberships
+                      </h2>
                       <div className="space-y-4">
-                        {politicianData.congressionalRecord.committees.map((committee, index) => (
-                            <div
-                                key={index}
-                                className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0"
-                            >
-                              <div>
-                                {/*<p className="font-medium">{committee.name}</p>*/}
-                                {/*<p className="text-sm text-muted-foreground">{committee.role}</p>*/}
-                              </div>
-                            </div>
-                        ))}
+                        {politicianData.congressionalRecord.committees.map(
+                            (committee, index) => (
+                                <div
+                                    key={index}
+                                    className="flex justify-between items-center border-b pb-4 last:border-0 last:pb-0"
+                                >
+                                  <div>
+                                    {/* Uncomment and populate when data is available */}
+                                    {/* <p className="font-medium">{committee.name}</p>
+                            <p className="text-sm text-muted-foreground">{committee.role}</p> */}
+                                  </div>
+                                </div>
+                            )
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -247,20 +271,34 @@ export default async function PoliticianProfile({ params }: { params: { slug: st
 }
 
 // Helper function to compute years active
-function getYearsActive(termList: TermDTO[]): string {
+function getYearsActive(termList: TermDTO[] | null): string {
   if (!termList || termList.length === 0) return "N/A";
-  const startYears = termList.map((term) => term.startYear);
-  const endYears = termList.map((term) => term.endYear);
+  const startYears = termList.map((term) => term.startYr);
+  const endYears = termList.map((term) => term.endYr ?? new Date().getFullYear());
   const minYear = Math.min(...startYears);
   const maxYear = Math.max(...endYears);
   return `${minYear} - ${maxYear}`;
 }
 
 // Helper function to get current chamber
-function getCurrentChamber(termList: TermDTO[]): string {
+function getCurrentChamber(termList: TermDTO[] | null): string {
   if (!termList || termList.length === 0) return "N/A";
-  const latestTerm = termList.reduce((latest, term) =>
-      term.endYear > latest.endYear ? term : latest
-  );
+  // Sort terms by endYr descending
+  const sortedTerms = [...termList].sort((a, b) => {
+    const aEndYear = a.endYr ?? new Date().getFullYear();
+    const bEndYear = b.endYr ?? new Date().getFullYear();
+    return bEndYear - aEndYear;
+  });
+  const latestTerm = sortedTerms[0];
   return latestTerm.chamber || "N/A";
+}
+
+// Helper function to map party code to full name
+function mapPartyCodeToName(partyCode: string | null): string {
+  const partyMap: { [key: string]: string } = {
+    R: "Republican",
+    D: "Democratic",
+    I: "Independent",
+  };
+  return partyMap[partyCode || ""] || "Unknown";
 }

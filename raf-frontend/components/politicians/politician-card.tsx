@@ -4,6 +4,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface PoliticianCardProps {
+    personId : string;
     name: string;
     state: string;
     party: string;
@@ -14,6 +15,7 @@ interface PoliticianCardProps {
 }
 
 export default function PoliticianCard({
+                                           personId,
                                            name,
                                            state,
                                            party,
@@ -23,7 +25,7 @@ export default function PoliticianCard({
                                            chamber,
                                        }: PoliticianCardProps) {
     return (
-        <Link href={`/politicians/${name.toLowerCase().replace(/\s+/g, "-")}`}>
+        <Link href={`/politicians/${personId}`}>
             <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardHeader className="space-y-0 pb-4">
                     <div className="flex flex-col sm:flex-row items-center gap-4">

@@ -257,7 +257,7 @@ export default function PoliticiansPage() {
                               }
                               status={status}
                               chamber={chamber}
-                          />
+                           personId={politician.personId}/>
                       );
                     })}
                   </div>
