@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Phone, Mail, MapPin, Globe } from "lucide-react";
 import Link from "next/link";
 
+import SponsoredBills from "@/components/politicians/SponsoredBills";
+import CoSponsoredBills from "@/components/politicians/CoSponsoredBills";
+import {getNumberSuffix} from "@/utils/numberUtils";
+
 interface TermDTO {
   termId: number;
   chamber: string;
@@ -60,7 +64,6 @@ export default async function PoliticianProfile({
 
   const politician: PersonDTO = await res.json();
 
-  // Map the fields from PersonDTO to match your component's data structure
   const politicianData = {
     personId: politician.personId,
     firstName: politician.firstName,
@@ -83,13 +86,12 @@ export default async function PoliticianProfile({
     partyMembership: politician.partyMembership,
     partyStartYr: politician.partyStartYr,
     termList: politician.termList,
-    // Additional computed fields for your UI
     name:
         politician.fullName ||
         `${politician.firstName || ""} ${politician.lastName || ""}`.trim(),
     district: politician.currentDistrict
         ? `District ${politician.currentDistrict}`
-        : "At Large",
+        : "",
     chamber: getCurrentChamber(politician.termList),
     membershipStatus:
         politician.currentMember === "Yes" ? "Incumbent" : "Former Member",
@@ -99,12 +101,7 @@ export default async function PoliticianProfile({
       district: politician.officeLocLine2 || "N/A",
     },
     phone: {
-      dc: politician.phoneNo || "N/A"
-    },
-    congressionalRecord: {
-      sponsoredBills: [], // Populate if available
-      recentVotes: [], // Populate if available
-      committees: [], // Populate if available
+      dc: politician.phoneNo || "N/A",
     },
   };
 
@@ -127,7 +124,7 @@ export default async function PoliticianProfile({
                   <div className="space-y-2 text-center md:text-left">
                     <h1 className="text-3xl font-bold">{politicianData.name}</h1>
                     <p className="text-lg text-muted-foreground">
-                      {politicianData.district}, {politicianData.state || "N/A"}
+                      {politicianData.chamber == "Senate" ? `Senator ${politicianData.state}` : `${politicianData.district}, ${politicianData.state}`}
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                       <Badge variant={politicianData.partyMembership === "D" ? "default" : "destructive"}>
@@ -191,7 +188,7 @@ export default async function PoliticianProfile({
                     )}
                     {politicianData.website && (
                         <div className="flex items-start gap-2">
-                          <Globe className="h-5 w-5 mt-0.5 text-muted-foreground"/>
+                          <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
                           <div className="text-sm">
                             <p className="font-medium">Website</p>
                             <Link
@@ -200,7 +197,7 @@ export default async function PoliticianProfile({
                                 rel="noopener noreferrer"
                                 className="text-muted-foreground hover:text-primary transition-colors"
                             >
-                              {politician.website.replace('https://', '')}
+                              {politician.website.replace("https://", "")}
                             </Link>
                           </div>
                         </div>
@@ -231,20 +228,32 @@ export default async function PoliticianProfile({
               <TabsTrigger value="finances">Financial Activity</TabsTrigger>
             </TabsList>
 
+            {/* Congressional Record Tab */}
             <TabsContent value="record">
               <Card>
                 <CardContent className="pt-6">
-                  <h2 className="text-xl font-semibold mb-4">Congressional Terms</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Congressional Terms
+                  </h2>
                   <div className="space-y-6">
-                    {politician.termList.map((term, index) => (
-                        <div key={index} className="border-b last:border-0 pb-6 last:pb-0">
+                    {politician.termList
+                        ?.sort((a, b) => b.congress - a.congress)
+                        .map((term, index) => (
+                            <div
+                            key={index}
+                            className="border-b last:border-0 pb-6 last:pb-0"
+                        >
                           <div className="flex flex-wrap justify-between items-start gap-4">
                             <div>
                               <h3 className="font-medium text-lg">
-                                {term.congress}th Congress ({term.startYr}-{term.endYr || 'Present'})
+                                {term.congress}{getNumberSuffix(term.congress)} Congress ({term.startYr}-
+                                {term.endYr || "Present"})
                               </h3>
                               <p className="text-muted-foreground">
-                                {term.memberType}, {term.stateNm} {term.district}nd District
+                                {term.memberType}, {term.stateNm}{" "}
+                                {term.district
+                                    ? `${term.district}${getNumberSuffix(term.district)} District`
+                                    : ""}
                               </p>
                             </div>
                             <Badge variant="outline">{term.chamber}</Badge>
@@ -256,8 +265,22 @@ export default async function PoliticianProfile({
               </Card>
             </TabsContent>
 
-            {/* Other Tabs Content */}
-            {/* ... */}
+            {/* Sponsored Bills Tab */}
+            <TabsContent value="sponsored">
+              <SponsoredBills personId={politician.personId} />
+            </TabsContent>
+
+            {/* Co-Sponsored Bills Tab */}
+            <TabsContent value="cosponsored">
+              <CoSponsoredBills personId={politician.personId} />
+            </TabsContent>
+
+            {/* Financial Activity Tab (Placeholder) */}
+            <TabsContent value="finances">
+              <p className="text-muted-foreground">
+                Financial activity information is not available at this time.
+              </p>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
