@@ -1,5 +1,3 @@
-// raf-frontend/app/api/politician/[personId]/cosponsored/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -18,7 +16,6 @@ export async function GET(
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Include any additional headers if necessary
                 },
             }
         );

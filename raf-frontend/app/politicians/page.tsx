@@ -24,7 +24,6 @@ interface TermDTO {
   memberType: string | null;
   stateCd: string | null;
   stateNm: string | null;
-  // Add other fields as necessary
 }
 
 interface PersonDTO {

@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
-// This is required for static site generation with dynamic routes
 export function generateStaticParams() {
   // In production, this would fetch from your API/database
   return [
@@ -25,7 +24,6 @@ const getPartyBadgeVariant = (party: string) => {
 };
 
 export default function BillPage({ params }: { params: { slug: string } }) {
-  // In production, fetch bill data based on slug
   const bill = {
     billNumber: "H.R. 1234",
     title: "Clean Energy Act",
