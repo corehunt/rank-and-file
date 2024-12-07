@@ -22,7 +22,7 @@ public class Bill extends RAFAudit {
     private String billId;
 
     @Column(name = "BILL_NO")
-    private Integer billNo;
+    private String billNo;
 
     @Column(name = "BILL_TITLE")
     private String billTitle;
@@ -42,7 +42,7 @@ public class Bill extends RAFAudit {
     private String policyArea;
 
     @Column(name = "CONGRESS")
-    private Integer congress;
+    private String congress;
 
     @Column(name = "BILL_TYPE")
     private String billType;

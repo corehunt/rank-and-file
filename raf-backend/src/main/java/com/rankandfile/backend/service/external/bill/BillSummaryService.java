@@ -26,7 +26,7 @@ public class BillSummaryService {
         this.billSummaryProcessor = billSummaryProcessor;
     }
 
-    public void fetchBillSummary(Integer congressNo, String billType, Integer billNumber) {
+    public void fetchBillSummary(String congressNo, String billType, String billNumber) {
         // Retrieve the Bill entity from the database
         Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNumber, billType);
         if (bill == null) {
@@ -54,7 +54,7 @@ public class BillSummaryService {
         }
     }
 
-    private String fetchSummary(Integer congressNo, String billType, Integer billNumber) {
+    private String fetchSummary(String congressNo, String billType, String billNumber) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congress}/{billType}/{billNumber}/summaries")
                         .build(congressNo, billType.toLowerCase(), billNumber))

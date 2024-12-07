@@ -33,7 +33,7 @@ public class BillActionService {
         this.billActionProcessor = billActionProcessor;
     }
 
-    public List<Action> getActionsByBillNumber(Integer congressNo, String billType, Integer billNo, int limit) {
+    public List<Action> getActionsByBillNumber(String congressNo, String billType, String billNo, int limit) {
         List<Action> allActionsList = new ArrayList<>();
         int offset = 0;
         boolean hasMoreRecords = true;
@@ -80,7 +80,7 @@ public class BillActionService {
         return allActionsList;
     }
 
-    private String fetchActions(Integer congressNo, String billType, Integer billNo, int limit, int offset) {
+    private String fetchActions(String congressNo, String billType, String billNo, int limit, int offset) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}/{billType}/{billNumber}/actions")
                         .queryParam("limit", limit)
