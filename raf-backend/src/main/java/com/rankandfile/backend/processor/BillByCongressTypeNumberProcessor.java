@@ -79,7 +79,7 @@ public class BillByCongressTypeNumberProcessor {
             return null;
         }
 
-        Bill bill = billRepository.findByCongressAndBillNo(congressNo, billNo);
+        Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         if (bill == null) {
             // Create new bill
             bill = new Bill();

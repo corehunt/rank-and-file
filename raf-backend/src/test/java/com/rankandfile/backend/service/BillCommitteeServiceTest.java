@@ -79,13 +79,13 @@ class BillCommitteeServiceTest {
         Integer billNo = 1234;
 
         // Mock the BillRepository to return null
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(null);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(null);
 
         // Execute the method
         billCommitteeService.getCommitteesByBillNumber(congressNo, billType, billNo);
 
         // Verify interactions
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         verifyNoMoreInteractions(billRepository);
         verifyNoInteractions(billCommitteeProcessor);
 
@@ -103,7 +103,7 @@ class BillCommitteeServiceTest {
         // Mock the BillRepository to return a Bill
         Bill bill = new Bill();
         bill.setBillId("BILL-1234");
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue the mock response
         mockWebServer.enqueue(new MockResponse()
@@ -114,7 +114,7 @@ class BillCommitteeServiceTest {
         billCommitteeService.getCommitteesByBillNumber(congressNo, billType, billNo);
 
         // Verify interactions
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         verifyNoInteractions(billCommitteeProcessor);
         verify(billRepository, never()).save(any());
 
@@ -132,7 +132,7 @@ class BillCommitteeServiceTest {
         // Mock the BillRepository to return a Bill
         Bill bill = new Bill();
         bill.setBillId("BILL-1234");
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue a mock response with an error status code
         mockWebServer.enqueue(new MockResponse()
@@ -146,7 +146,7 @@ class BillCommitteeServiceTest {
         });
 
         assertNotNull(exception);
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         verifyNoInteractions(billCommitteeProcessor);
         verify(billRepository, never()).save(any());
 
@@ -165,7 +165,7 @@ class BillCommitteeServiceTest {
         // Mock the BillRepository to return a Bill
         Bill bill = new Bill();
         bill.setBillId("BILL-1234");
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue the mock response
         mockWebServer.enqueue(new MockResponse()
@@ -183,7 +183,7 @@ class BillCommitteeServiceTest {
 
         assertNotNull(exception);
         assertEquals("Processing error", exception.getMessage());
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         verify(billCommitteeProcessor).process(responseBody, bill.getBillId());
         verify(billRepository, never()).save(any());
 

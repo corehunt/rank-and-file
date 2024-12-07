@@ -90,7 +90,7 @@ class BillActionServiceTest {
         bill.setBillNo(billNo);
 
         // Mock billRepository to return a Bill
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue mock responses
         mockWebServer.enqueue(new MockResponse()
@@ -114,7 +114,7 @@ class BillActionServiceTest {
         assertNotNull(result);
         assertEquals(3, result.size()); // 2 from first page, 1 from second page
         verify(actionRepository).saveAll(result);
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
 
         // Verify that the requests were made as expected
         RecordedRequest request1 = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
@@ -136,11 +136,11 @@ class BillActionServiceTest {
         String response = "";
 
         Bill bill = new Bill();
-        bill.setBillId("117-1234");
+        bill.setBillId("HR1171234");
         bill.setBillNo(billNo);
 
         // Mock billRepository to return a Bill
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue the mock response with empty body
         mockWebServer.enqueue(new MockResponse()
@@ -167,11 +167,11 @@ class BillActionServiceTest {
         int limit = 2;
 
         Bill bill = new Bill();
-        bill.setBillId("117-1234");
+        bill.setBillId("HR1171234");
         bill.setBillNo(billNo);
 
         // Mock billRepository to return a Bill
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue a response without setting the body (simulating null response)
         mockWebServer.enqueue(new MockResponse()
@@ -197,11 +197,11 @@ class BillActionServiceTest {
         int limit = 2;
 
         Bill bill = new Bill();
-        bill.setBillId("117-1234");
+        bill.setBillId("HR1171234");
         bill.setBillNo(billNo);
 
         // Mock billRepository to return a Bill
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue a mock response with an error status code
         mockWebServer.enqueue(new MockResponse()
@@ -216,7 +216,7 @@ class BillActionServiceTest {
 
         assertNotNull(exception);
         verify(actionRepository, never()).saveAll(any());
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
 
         // Verify that the request was made
         RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
@@ -232,11 +232,11 @@ class BillActionServiceTest {
         String response = "{\"actions\": [{}, {}]}";
 
         Bill bill = new Bill();
-        bill.setBillId("117-1234");
+        bill.setBillId("HR1171234");
         bill.setBillNo(billNo);
 
         // Mock billRepository to return a Bill
-        when(billRepository.findByCongressAndBillNo(congressNo, billNo)).thenReturn(bill);
+        when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(bill);
 
         // Enqueue the mock response
         mockWebServer.enqueue(new MockResponse()
@@ -253,7 +253,7 @@ class BillActionServiceTest {
 
         assertNotNull(exception);
         verify(actionRepository, never()).saveAll(any());
-        verify(billRepository).findByCongressAndBillNo(congressNo, billNo);
+        verify(billRepository).findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
 
         // Verify that the request was made
         RecordedRequest recordedRequest = mockWebServer.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);

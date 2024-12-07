@@ -35,8 +35,9 @@ class BillByCongressTypeNumberProcessorTest {
         mockBill.setBillId("118-6937");
         mockBill.setCongress(118);
         mockBill.setBillNo(6937);
+        mockBill.setBillType("HR");
 
-        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(mockBill);
+        when(billRepository.findByCongressAndBillNoAndBillType(118, 6937, "HR")).thenReturn(mockBill);
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
@@ -59,7 +60,7 @@ class BillByCongressTypeNumberProcessorTest {
         String json = getValidBillJson();
 
         // No existing bill in the repository
-        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(null);
+        when(billRepository.findByCongressAndBillNoAndBillType(118, 6937, "HR")).thenReturn(null);
         when(idGenerator.generateBillId(118, "HR", 6937)).thenReturn("118-6937");
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
@@ -73,38 +74,44 @@ class BillByCongressTypeNumberProcessorTest {
 
     @Test
     public void testProcessBillWithMissingFields() {
-        String json = "{ \"bill\": { \"congress\": 118, \"number\": \"6937\" } }";
+        String json = "{ \"bill\": { \"congress\": 118, \"number\": \"6937\", \"type\": \"HR\" } }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("118-6937");
         mockBill.setCongress(118);
         mockBill.setBillNo(6937);
+        mockBill.setBillType("HR");
 
-        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(mockBill);
+        when(billRepository.findByCongressAndBillNoAndBillType(118, 6937, "HR")).thenReturn(mockBill);
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
         assertNotNull(processedBill);
         assertEquals(118, processedBill.getCongress());
         assertEquals(6937, processedBill.getBillNo());
+        assertEquals("HR", processedBill.getBillType());
         assertNull(processedBill.getBillTitle());
         assertNull(processedBill.getIntroducedDt());
     }
 
     @Test
     public void testProcessBillWithInvalidDate() {
-        String json = "{ \"bill\": { \"congress\": 118, \"number\": \"6937\", \"introducedDate\": \"invalid-date\" } }";
+        String json = "{ \"bill\": { \"congress\": 118, \"number\": \"6937\", \"type\": \"HR\", \"introducedDate\": \"invalid-date\" } }";
 
         Bill mockBill = new Bill();
         mockBill.setBillId("118-6937");
         mockBill.setCongress(118);
         mockBill.setBillNo(6937);
+        mockBill.setBillType("HR");
 
-        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(mockBill);
+        when(billRepository.findByCongressAndBillNoAndBillType(118, 6937, "HR")).thenReturn(mockBill);
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
         assertNotNull(processedBill);
+        assertEquals(118, processedBill.getCongress());
+        assertEquals(6937, processedBill.getBillNo());
+        assertEquals("HR", processedBill.getBillType());
         assertNull(processedBill.getIntroducedDt());
     }
 
@@ -153,8 +160,9 @@ class BillByCongressTypeNumberProcessorTest {
         mockBill.setBillId("117-3076");
         mockBill.setCongress(117);
         mockBill.setBillNo(3076);
+        mockBill.setBillType("HR");
 
-        when(billRepository.findByCongressAndBillNo(117, 3076)).thenReturn(mockBill);
+        when(billRepository.findByCongressAndBillNoAndBillType(117, 3076, "HR")).thenReturn(mockBill);
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
@@ -173,19 +181,20 @@ class BillByCongressTypeNumberProcessorTest {
 
         // Existing bill
         Bill mockBill = new Bill();
-        mockBill.setBillId("118-6937");
+        mockBill.setBillId("HR1186937");
         mockBill.setCongress(118);
         mockBill.setBillNo(6937);
+        mockBill.setBillType("HR");
         mockBill.setLawNo("Some Law No");
         mockBill.setLawType("Some Law Type");
         mockBill.setIsLawFl("Y");
 
-        when(billRepository.findByCongressAndBillNo(118, 6937)).thenReturn(mockBill);
+        when(billRepository.findByCongressAndBillNoAndBillType(118, 6937, "HR")).thenReturn(mockBill);
 
         Bill processedBill = billByCongressTypeNumberProcessor.process(json);
 
         assertNotNull(processedBill);
-        assertEquals("118-6937", processedBill.getBillId());
+        assertEquals("HR1186937", processedBill.getBillId());
         assertNull(processedBill.getLawNo());
         assertNull(processedBill.getLawType());
         assertNull(processedBill.getIsLawFl());
@@ -218,6 +227,7 @@ class BillByCongressTypeNumberProcessorTest {
                 "    \"bill\": {\n" +
                 "        \"congress\": 117,\n" +
                 "        \"number\": \"3076\",\n" +
+                "        \"type\": \"HR\",\n" +
                 "        \"title\": \"Postal Service Reform Act of 2022\",\n" +
                 "        \"laws\": [\n" +
                 "            {\n" +
