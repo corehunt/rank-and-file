@@ -39,7 +39,7 @@ public class BillActionService {
         boolean hasMoreRecords = true;
 
         //TODO: implement bill creation in BillActionProcessor
-        Bill bill = billRepository.findByCongressAndBillNo(congressNo, billNo);
+        Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         if (bill == null) {
             return Collections.emptyList();
         }

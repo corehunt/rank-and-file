@@ -90,7 +90,7 @@ public class BillByCongressProcessor {
         // Create a map of existing bills for quick lookup
         Map<String, Bill> existingBillMap = existingBills.stream()
                 .collect(Collectors.toMap(
-                        bill -> generateKey(bill.getCongress(), bill.getBillNo()),
+                        bill -> bill.getBillId(),
                         bill -> bill
                 ));
 
@@ -106,13 +106,13 @@ public class BillByCongressProcessor {
                 continue;
             }
 
-            String key = generateKey(congressNo, billNo);
-            Bill bill = existingBillMap.get(key);
+            String billId = idGenerator.generateBillId(congressNo, billType, billNo);
+            Bill bill = existingBillMap.get(billId);
 
             if (bill == null) {
                 // New bill
                 bill = new Bill();
-                bill.setBillId(idGenerator.generateBillId(congressNo, billType, billNo));
+                bill.setBillId(billId);
                 bill.setBillNo(billNo);
                 bill.setCongress(congressNo);
 
@@ -257,14 +257,4 @@ public class BillByCongressProcessor {
         }
     }
 
-    /**
-     * Generates a unique key based on congress number and bill number.
-     *
-     * @param congressNo The congress number.
-     * @param billNo     The bill number.
-     * @return A unique key as a String.
-     */
-    private String generateKey(Integer congressNo, Integer billNo) {
-        return congressNo + "-" + billNo;
-    }
 }

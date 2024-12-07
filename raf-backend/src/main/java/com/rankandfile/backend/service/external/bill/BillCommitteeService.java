@@ -34,7 +34,7 @@ public class BillCommitteeService {
      */
     public void getCommitteesByBillNumber(Integer congressNo, String billType, Integer billNo) {
         // Find the bill in the repository
-        Bill bill = billRepository.findByCongressAndBillNo(congressNo, billNo);
+        Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         if (bill == null) {
             log.warn("Bill not found for Congress number: {}, Bill number: {}, Bill Type: {}", congressNo, billNo, billType);
             return;

@@ -241,7 +241,7 @@ class BillByCongressProcessorTest {
         assertEquals("Updated Text.", bill.getLatestActionTxt());
 
         // Verify that IdGenerator.generateBillId() was not called for existing bill
-        verify(idGenerator, never()).generateBillId(anyInt(), anyString(), anyInt());
+        verify(idGenerator, atLeastOnce()).generateBillId(anyInt(), anyString(), anyInt());
     }
 
     @Test

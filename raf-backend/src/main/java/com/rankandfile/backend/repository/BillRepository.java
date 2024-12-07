@@ -8,8 +8,6 @@ import java.util.Set;
 
 public interface BillRepository extends JpaRepository<Bill, String> {
 
-    Bill findByCongressAndBillNo(Integer congress, Integer billNo);
-
     List<Bill> findByCongressInAndBillNoIn(Set<Integer> congressNumbers, Set<Integer> billNumbers);
 
     Bill findByCongressAndBillNoAndBillType(Integer congress, Integer billNo, String billType);

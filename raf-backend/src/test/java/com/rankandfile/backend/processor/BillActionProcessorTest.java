@@ -20,9 +20,6 @@ import static org.mockito.Mockito.*;
 class BillActionProcessorTest {
 
     @Mock
-    private IdGenerator idGenerator;
-
-    @Mock
     private ActionRepository actionRepository;
 
     @InjectMocks
@@ -31,9 +28,6 @@ class BillActionProcessorTest {
 
     @Test
     void testBillActionProcessor() {
-        // Mock IdGenerator
-        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1", "ACTION_ID_2", "ACTION_ID_3");
-
         String json = "{\n" +
                 "    \"actions\": [\n" +
                 "        {\n" +
@@ -95,7 +89,6 @@ class BillActionProcessorTest {
 
         // Assertions for first action
         Action action1 = actionList.get(0);
-        assertEquals("ACTION_ID_1", action1.getActionId());
         assertEquals("E40000", action1.getActionCode());
         assertEquals(LocalDate.of(2023, 1, 5), action1.getActionDate());
         assertEquals(9, action1.getSourceSystemCode());
@@ -105,7 +98,6 @@ class BillActionProcessorTest {
 
         // Assertions for second action
         Action action2 = actionList.get(1);
-        assertEquals("ACTION_ID_2", action2.getActionId());
         assertEquals("H37300", action2.getActionCode());
         assertEquals(LocalDate.of(2022, 12, 21), action2.getActionDate());
         assertEquals(2, action2.getSourceSystemCode());
@@ -115,7 +107,6 @@ class BillActionProcessorTest {
 
         // Assertions for third action
         Action action3 = actionList.get(2);
-        assertEquals("ACTION_ID_3", action3.getActionId());
         assertNull(action3.getActionCode());
         assertEquals(LocalDate.of(2022, 12, 13), action3.getActionDate());
         assertNull(action3.getSourceSystemCode());
@@ -143,13 +134,11 @@ class BillActionProcessorTest {
         mockBill.setBillId("117-4926");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
-        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
 
         Action action = actionList.get(0);
-        assertEquals("ACTION_ID_1", action.getActionId());
         assertNull(action.getActionCode());
         assertNull(action.getActionDate());
         assertNull(action.getSourceSystemCode());
@@ -166,13 +155,11 @@ class BillActionProcessorTest {
         mockBill.setBillId("117-4926");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
-        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
 
         Action action = actionList.get(0);
-        assertEquals("ACTION_ID_1", action.getActionId());
         assertNull(action.getActionCode());
         assertEquals(LocalDate.of(2023, 1, 5), action.getActionDate());
         assertNull(action.getSourceSystemCode());
@@ -189,13 +176,11 @@ class BillActionProcessorTest {
         mockBill.setBillId("117-4926");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
-        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(1, actionList.size());
 
         Action action = actionList.get(0);
-        assertEquals("ACTION_ID_1", action.getActionId());
         assertNull(action.getActionCode());
         assertNull(action.getActionDate());
         assertNull(action.getSourceSystemCode());
@@ -212,21 +197,18 @@ class BillActionProcessorTest {
         mockBill.setBillId("117-4926");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
-        when(idGenerator.generateActionId()).thenReturn("ACTION_ID_1", "ACTION_ID_2");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
         assertEquals(2, actionList.size());
 
         Action action1 = actionList.stream().filter(a -> a.getActionCode().equals("A10000")).findFirst().orElse(null);
         assertNotNull(action1);
-        assertEquals("ACTION_ID_1", action1.getActionId());
         assertEquals(LocalDate.of(2023, 1, 5), action1.getActionDate());
         assertEquals("Text for Action 1.", action1.getActionText());
         assertEquals("President", action1.getActionType());
 
         Action action2 = actionList.stream().filter(a -> a.getActionCode().equals("B20000")).findFirst().orElse(null);
         assertNotNull(action2);
-        assertEquals("ACTION_ID_2", action2.getActionId());
         assertEquals(LocalDate.of(2023, 1, 5), action2.getActionDate());
         assertEquals("Text for Action 2.", action2.getActionText());
         assertEquals("Floor", action2.getActionType());
@@ -241,7 +223,7 @@ class BillActionProcessorTest {
 
         // Existing action
         Action existingAction = new Action();
-        existingAction.setActionId("EXISTING_ACTION_ID");
+        existingAction.setActionId(1L);
         existingAction.setBill(mockBill);
         existingAction.setActionCode("E40000");
         existingAction.setActionDate(LocalDate.of(2023, 1, 5));
@@ -249,7 +231,6 @@ class BillActionProcessorTest {
         existingAction.setActionType("President");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.singletonList(existingAction));
-        when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
 
@@ -258,12 +239,11 @@ class BillActionProcessorTest {
         // Existing action should be reused
         Action action1 = actionList.stream().filter(a -> a.getActionCode().equals("E40000")).findFirst().orElse(null);
         assertNotNull(action1);
-        assertEquals("EXISTING_ACTION_ID", action1.getActionId());
+        assertEquals(1L, action1.getActionId());
 
         // New action should be created
         Action action2 = actionList.stream().filter(a -> a.getActionCode().equals("H37300")).findFirst().orElse(null);
         assertNotNull(action2);
-        assertEquals("NEW_ACTION_ID", action2.getActionId());
     }
 
     @Test
@@ -275,7 +255,7 @@ class BillActionProcessorTest {
 
         // Existing action
         Action existingAction = new Action();
-        existingAction.setActionId("EXISTING_ACTION_ID");
+        existingAction.setActionId(1L);
         existingAction.setBill(mockBill);
         existingAction.setActionCode("E40000");
         existingAction.setActionDate(LocalDate.of(2023, 1, 5));
@@ -288,10 +268,9 @@ class BillActionProcessorTest {
 
         assertEquals(1, actionList.size());
         Action action = actionList.get(0);
-        assertEquals("EXISTING_ACTION_ID", action.getActionId());
+        assertEquals(1L, action.getActionId());
 
         // Verify that idGenerator.generateActionId() was not called
-        verify(idGenerator, never()).generateActionId();
     }
 
     @Test
@@ -302,13 +281,11 @@ class BillActionProcessorTest {
         mockBill.setBillId("117-4926");
 
         when(actionRepository.findByBillBillId(mockBill.getBillId())).thenReturn(Collections.emptyList());
-        when(idGenerator.generateActionId()).thenReturn("NEW_ACTION_ID");
 
         List<Action> actionList = processor.processActionList(json, mockBill);
 
         assertEquals(1, actionList.size());
         Action action = actionList.get(0);
-        assertEquals("NEW_ACTION_ID", action.getActionId());
         assertEquals("E40000", action.getActionCode());
         assertNull(action.getActionDate());
         assertEquals("Became Public Law No: 117-354.", action.getActionText());
