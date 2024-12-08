@@ -28,7 +28,7 @@ public class BillByCongressService {
         this.billByCongressProcessor = billByCongressProcessor;
     }
 
-    public List<Bill> getBillsByCongress(Integer congressNo, int limit) {
+    public List<Bill> getBillsByCongress(String congressNo, int limit) {
         List<Bill> allBillsByCongress = new ArrayList<>();
         int offset = 0;
         boolean hasMoreRecords = true;
@@ -75,7 +75,7 @@ public class BillByCongressService {
         return allBillsByCongress;
     }
 
-    private String fetchBills(Integer congressNo, int offset, int limit) {
+    private String fetchBills(String congressNo, int offset, int limit) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}")
                         .queryParam("limit", limit)

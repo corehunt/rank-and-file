@@ -30,9 +30,9 @@ class BillActionControllerTest {
 
     @Test
     void testLoadActionsForBillNumber_Success() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 1234;
+        String billNumber = "1234";
 
         mockMvc.perform(put("/api/bill/{congressNo}/{billType}/{billNumber}/actions", congressNo, billType, billNumber)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -44,9 +44,9 @@ class BillActionControllerTest {
 
     @Test
     void testLoadActionsForBillNumber_BillNotFound() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 9999;
+        String billNumber = "9999";
 
         Mockito.doThrow(new EntityNotFoundException("Bill not found"))
                 .when(billActionService).getActionsByBillNumber(congressNo, billType, billNumber, LIMIT);
@@ -61,9 +61,9 @@ class BillActionControllerTest {
 
     @Test
     void testLoadActionsForBillNumber_InternalServerError() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 1234;
+        String billNumber = "1234";
 
         Mockito.doThrow(new RuntimeException("Unexpected error"))
                 .when(billActionService).getActionsByBillNumber(congressNo, billType, billNumber, LIMIT);

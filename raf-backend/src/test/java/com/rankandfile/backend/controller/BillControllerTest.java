@@ -35,7 +35,7 @@ class BillControllerTest {
 
     @Test
     void testLoadBillsByCongressSuccess() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
 
         mockMvc.perform(put("/api/bill/{congressNo}", congressNo)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -47,7 +47,7 @@ class BillControllerTest {
 
     @Test
     void testLoadBillsByCongressCongressNotFound() throws Exception {
-        int congressNo = 999;
+        String congressNo = "999";
 
         Mockito.doThrow(new EntityNotFoundException("Congress not found"))
                 .when(billByCongressService).getBillsByCongress(congressNo, LIMIT);
@@ -62,7 +62,7 @@ class BillControllerTest {
 
     @Test
     void testLoadBillsByCongressInternalServerError() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
 
         Mockito.doThrow(new RuntimeException("Unexpected error"))
                 .when(billByCongressService).getBillsByCongress(congressNo, LIMIT);
@@ -77,9 +77,9 @@ class BillControllerTest {
 
     @Test
     void testLoadBillDataByTypeAndNumberSuccess() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 1234;
+        String billNumber = "1234";
 
         mockMvc.perform(put("/api/bill/{congressNo}/{billType}/{billNumber}", congressNo, billType, billNumber)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -92,9 +92,9 @@ class BillControllerTest {
 
     @Test
     void testLoadBillDataByTypeAndNumberBillNotFound() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 9999;
+        String billNumber = "9999";
 
         Mockito.doThrow(new EntityNotFoundException("Bill not found"))
                 .when(billByTypeAndNumberService).getBillByTypeAndNumber(congressNo, billType, billNumber);
@@ -110,9 +110,9 @@ class BillControllerTest {
 
     @Test
     void testLoadBillDataByTypeAndNumberInternalServerError() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 1234;
+        String billNumber = "1234";
 
         Mockito.doThrow(new RuntimeException("Unexpected error"))
                 .when(billByTypeAndNumberService).getBillByTypeAndNumber(congressNo, billType, billNumber);

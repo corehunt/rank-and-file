@@ -102,7 +102,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
         String response = "";
 
@@ -125,7 +125,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressNullResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
 
         // Enqueue a response without a body to simulate a null response
@@ -149,7 +149,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressEmptyBillList() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
         String response = "some valid response";
 
@@ -175,7 +175,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
 
         // Enqueue a mock response with an error status code
@@ -199,7 +199,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
         String response = "some valid response";
 
@@ -227,7 +227,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressMultipleIterations() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
         String responsePage1 = "response page 1";
         String responsePage2 = "response page 2";
@@ -265,7 +265,7 @@ class BillByCongressServiceTest {
 
     @Test
     void testGetBillsByCongressExactMultipleOfLimit() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         int limit = 2;
         String response = "some valid response";
 

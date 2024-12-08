@@ -25,7 +25,7 @@ public class BillByTypeAndNumberService {
         this.billByCongressTypeNumberProcessor = billByCongressTypeNumberProcessor;
     }
 
-    public Bill getBillByTypeAndNumber(Integer congressNo, String billType, Integer billNo) {
+    public Bill getBillByTypeAndNumber(String congressNo, String billType, String billNo) {
 
         try {
             String response = this.webClient.get()

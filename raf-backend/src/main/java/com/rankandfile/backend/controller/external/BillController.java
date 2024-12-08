@@ -35,7 +35,7 @@ public class BillController {
      */
     @PutMapping("/{congressNo}")
     public ResponseEntity<String> loadBillsByCongress(
-            @PathVariable Integer congressNo) {
+            @PathVariable String congressNo) {
         log.info("Loading bills for Congress number: {}", congressNo);
         try {
             billByCongressService.getBillsByCongress(congressNo, LIMIT);
@@ -61,9 +61,9 @@ public class BillController {
      */
     @PutMapping("/{congressNo}/{billType}/{billNumber}")
     public ResponseEntity<String> loadBillDataByTypeAndNumber(
-            @PathVariable Integer congressNo,
+            @PathVariable String congressNo,
             @PathVariable String billType,
-            @PathVariable Integer billNumber) {
+            @PathVariable String billNumber) {
         log.info("Loading bill data for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billByTypeAndNumberService.getBillByTypeAndNumber(congressNo, billType, billNumber);

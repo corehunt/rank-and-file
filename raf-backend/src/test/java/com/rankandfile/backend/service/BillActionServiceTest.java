@@ -78,9 +78,9 @@ class BillActionServiceTest {
 
     @Test
     void testGetActionsByBillNumberSuccessfulRetrieval() throws Exception {
-        Integer congressNo = 117;
-        String billType = "hr";
-        Integer billNo = 1234;
+        String congressNo = "117";
+        String billType = "HR";
+        String billNo = "1234";
         int limit = 2;
         String responsePage1 = "{\"actions\": [{}, {}]}"; // Simulated JSON response
         String responsePage2 = "{\"actions\": [{}]}";     // Less than limit to stop pagination
@@ -129,9 +129,9 @@ class BillActionServiceTest {
 
     @Test
     void testGetActionsByBillNumberEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         int limit = 2;
         String response = "";
 
@@ -161,9 +161,9 @@ class BillActionServiceTest {
 
     @Test
     void testGetActionsByBillNumberNullResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         int limit = 2;
 
         Bill bill = new Bill();
@@ -191,9 +191,9 @@ class BillActionServiceTest {
 
     @Test
     void testGetActionsByBillNumberExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         int limit = 2;
 
         Bill bill = new Bill();
@@ -225,9 +225,9 @@ class BillActionServiceTest {
 
     @Test
     void testGetActionsByBillNumberExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         int limit = 2;
         String response = "{\"actions\": [{}, {}]}";
 

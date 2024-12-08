@@ -74,9 +74,9 @@ class BillActionProcessorTest {
 
         Bill mockBill = new Bill();
         mockBill.setBillId("117-4926");
-        mockBill.setBillNo(4926);
+        mockBill.setBillNo("4926");
         mockBill.setBillTitle("Respect for Child Survivors Act");
-        mockBill.setCongress(117);
+        mockBill.setCongress("117");
         mockBill.setBillType("S");
         mockBill.setOriginChamberCd("S");
         mockBill.setOriginChamber("Senate");

@@ -74,9 +74,9 @@ class BillCommitteeServiceTest {
 
     @Test
     void testGetCommitteesByBillNumberBillNotFound() {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
 
         // Mock the BillRepository to return null
         when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType)).thenReturn(null);
@@ -95,9 +95,9 @@ class BillCommitteeServiceTest {
 
     @Test
     void testGetCommitteesByBillNumberEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         String responseBody = ""; // Empty response
 
         // Mock the BillRepository to return a Bill
@@ -125,9 +125,9 @@ class BillCommitteeServiceTest {
 
     @Test
     void testGetCommitteesByBillNumberExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
 
         // Mock the BillRepository to return a Bill
         Bill bill = new Bill();
@@ -157,9 +157,9 @@ class BillCommitteeServiceTest {
 
     @Test
     void testGetCommitteesByBillNumberExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         String responseBody = "{\"committees\": [{}, {}]}"; // Simulated JSON response
 
         // Mock the BillRepository to return a Bill

@@ -43,8 +43,8 @@ class BillSummaryProcessorTest {
                 "}";
 
         Bill bill = new Bill();
-        bill.setBillNo(3076);
-        bill.setCongress(117);
+        bill.setBillNo("3076");
+        bill.setCongress("117");
 
         // Invoke the processor method
         Bill updatedBill = billSummaryProcessor.processBillSummaryResponse(json, bill);
@@ -60,8 +60,8 @@ class BillSummaryProcessorTest {
         String json = "{ \"summaries\": [] }";
 
         Bill bill = new Bill();
-        bill.setBillNo(3076);
-        bill.setCongress(117);
+        bill.setBillNo("3076");
+        bill.setCongress("117");
 
         Bill updatedBill = billSummaryProcessor.processBillSummaryResponse(json, bill);
 
@@ -84,8 +84,8 @@ class BillSummaryProcessorTest {
                 "}";
 
         Bill bill = new Bill();
-        bill.setBillNo(3076);
-        bill.setCongress(117);
+        bill.setBillNo("3076");
+        bill.setCongress("117");
 
         Bill updatedBill = billSummaryProcessor.processBillSummaryResponse(json, bill);
 
