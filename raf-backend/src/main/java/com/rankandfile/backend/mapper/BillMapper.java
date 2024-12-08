@@ -4,7 +4,7 @@ import com.rankandfile.backend.dto.BillDTO;
 import com.rankandfile.backend.entity.Bill;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ActionMapper.class, CommitteeMapper.class})
 public interface BillMapper {
 
     BillDTO toBillDTO(Bill bill);

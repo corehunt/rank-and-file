@@ -91,4 +91,10 @@ public class Bill extends RAFAudit {
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Text> billTexts = new ArrayList<>();
 
+    // New relationship with actions
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonBackReference
+    private List<Action> actions = new ArrayList<>();
 }
