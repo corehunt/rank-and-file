@@ -23,9 +23,7 @@ public class BillService {
         this.idGenerator = idGenerator;
     }
 
-    public BillDTO getBillByCongressTypeNumber(String congressNo, String billType, String billNo) {
-        String billId = idGenerator.generateBillId(congressNo, billType, billNo);
-        log.info("BillId is {}", billId);
+    public BillDTO getBillById(String billId) {
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new EntityNotFoundException("Bill not found with given id: " + billId));
         log.info("Bill returned is {}", bill);

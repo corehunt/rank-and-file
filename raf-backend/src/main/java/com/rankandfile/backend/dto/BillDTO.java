@@ -1,6 +1,5 @@
 package com.rankandfile.backend.dto;
 
-import com.rankandfile.backend.entity.Action;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,5 +19,5 @@ public class BillDTO {
     private String originChamber;
     private String summaryTxt;
     private List<ActionDTO> actions;
-    private List<CommitteeDTO> committees;
+    private List<SponsoredLegislationDTO> sponsorships;
 }

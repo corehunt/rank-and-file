@@ -22,13 +22,9 @@ public class BillController {
         this.billService = billService;
     }
 
-    @GetMapping("/bill/{congressNo}/{billType}/{billNo}")
-    public ResponseEntity<BillDTO> getBillByCongressTypeNumber(
-            @PathVariable String congressNo,
-            @PathVariable String billType,
-            @PathVariable String billNo) {
-        BillDTO billDTO = billService.getBillByCongressTypeNumber(congressNo, billType, billNo);
-        log.info("billDTO: {}", billDTO);
+    @GetMapping("/bill/{billId}")
+    public ResponseEntity<BillDTO> getBillForBillPage(@PathVariable String billId) {
+        BillDTO billDTO = billService.getBillById(billId);
         return ResponseEntity.ok(billDTO);
     }
 }
