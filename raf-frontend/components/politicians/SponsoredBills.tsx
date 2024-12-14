@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {getNumberSuffix} from "@/utils/numberUtils";
+import Link from "next/link";
 
 interface BillDTO {
     billId: string;
@@ -166,12 +167,13 @@ export default function SponsoredBills({ personId }: SponsoredBillsProps) {
                                                 <div className="flex items-center gap-2">
                                                     <FileText
                                                         className="h-4 w-4 text-muted-foreground shrink-0"/> {/* Consistent size */}
-                                                    <h3
+                                                    <Link
                                                         className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis"
-                                                        title={item.bill.billTitle} // Shows full title on hover
+                                                        title={item.bill.billTitle}
+                                                        href={`/bills/${item.bill.billId}`}
                                                     >
                                                         {item.bill.billTitle}
-                                                    </h3>
+                                                    </Link>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 mt-1"> {/* Add spacing */}
                                                     <Badge variant="outline">

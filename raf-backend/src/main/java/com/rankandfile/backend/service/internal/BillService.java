@@ -4,7 +4,6 @@ import com.rankandfile.backend.dto.BillDTO;
 import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.mapper.BillMapper;
 import com.rankandfile.backend.repository.BillRepository;
-import com.rankandfile.backend.util.IdGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,10 @@ public class BillService {
 
     private final BillRepository billRepository;
     private final BillMapper billMapper;
-    private final IdGenerator idGenerator;
 
-    public BillService(BillRepository billRepository, BillMapper billMapper, IdGenerator idGenerator) {
+    public BillService(BillRepository billRepository, BillMapper billMapper) {
         this.billRepository = billRepository;
         this.billMapper = billMapper;
-        this.idGenerator = idGenerator;
     }
 
     public BillDTO getBillById(String billId) {

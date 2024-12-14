@@ -22,6 +22,7 @@ interface BillDTO {
   summaryTxt: string;
   actions: ActionDTO[];
   sponsorships: SponsoredLegislationDTO[];
+  billTexts: TextDTO[];
 }
 
 interface ActionDTO {
@@ -51,6 +52,13 @@ interface SponsoredLegislationDTO {
   sponLegId: string;
   sponsorType: string | null;
   person: PersonSponsorDTO | null;
+}
+
+interface TextDTO {
+  textId: string;
+  versionDate: string;
+  versionType: string;
+  pdfUrl: string;
 }
 
 
@@ -113,6 +121,14 @@ export default async function BillPage({
                 partyMembership: sponsorship.person.partyMembership || null,
               }
               : null,
+        }))
+        : [],
+    billTexts: bill.billTexts
+        ? bill.billTexts.map((text) => ({
+          textId: text.textId,
+          versionDate: text.versionDate,
+          versionType: text.versionType,
+          pdfUrl: text.pdfUrl,
         }))
         : [],
 
@@ -329,29 +345,30 @@ export default async function BillPage({
             </TabsContent>
 
             <TabsContent value="text">
-              {/*<Card>*/}
-              {/*  <CardContent className="pt-6">*/}
-              {/*    <h2 className="text-xl font-semibold mb-4">Bill Texts</h2>*/}
-              {/*    <div className="space-y-4">*/}
-              {/*      {bill.texts.map((text, index) => (*/}
-              {/*          <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0">*/}
-              {/*            <div>*/}
-              {/*              <p className="font-medium">{text.type}</p>*/}
-              {/*              <p className="text-sm text-muted-foreground">*/}
-              {/*                {new Date(text.date).toLocaleDateString()} • {text.pages} pages*/}
-              {/*              </p>*/}
-              {/*            </div>*/}
-              {/*            <Button variant="outline" asChild>*/}
-              {/*              <Link href={text.url}>*/}
-              {/*                <Download className="h-4 w-4 mr-2" />*/}
-              {/*                Download {text.format}*/}
-              {/*              </Link>*/}
-              {/*            </Button>*/}
-              {/*          </div>*/}
-              {/*      ))}*/}
-              {/*    </div>*/}
-              {/*  </CardContent>*/}
-              {/*</Card>*/}
+              <Card>
+                <CardContent className="pt-6">
+                  <h2 className="text-xl font-semibold mb-4">Bill Texts</h2>
+                  <div className="space-y-4">
+                    {bill.billTexts.map((text, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0">
+                          <div>
+                            <p className="font-medium">{text.versionType}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(text.versionDate).toLocaleDateString()}
+                              {/*• {text.pages} pages*/}
+                            </p>
+                          </div>
+                          <Button variant="outline" asChild>
+                            <Link href={text.pdfUrl}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download PDF
+                            </Link>
+                          </Button>
+                        </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="actions">

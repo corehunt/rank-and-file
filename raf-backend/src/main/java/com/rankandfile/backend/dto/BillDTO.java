@@ -19,5 +19,6 @@ public class BillDTO {
     private String originChamber;
     private String summaryTxt;
     private List<ActionDTO> actions;
-    private List<SponsoredLegislationDTO> sponsorships;
+    private List<SponsoredLegPersonDTO> sponsorships;
+    private List<TextDTO> billTexts;
 }
