@@ -25,9 +25,9 @@ public class BillTextController {
 
     @PutMapping("/{congressNo}/{billType}/{billNumber}/text")
     public ResponseEntity<String> loadBillTexts(
-            @PathVariable Integer congressNo,
+            @PathVariable String congressNo,
             @PathVariable String billType,
-            @PathVariable Integer billNumber) {
+            @PathVariable String billNumber) {
         log.info("Loading bill texts for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billTextService.fetchBillTexts(congressNo, billType, billNumber);

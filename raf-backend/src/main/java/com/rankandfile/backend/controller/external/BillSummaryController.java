@@ -30,9 +30,9 @@ public class BillSummaryController {
      */
     @PutMapping("/{congressNo}/{billType}/{billNumber}/summary")
     public ResponseEntity<String> loadBillSummary(
-            @PathVariable Integer congressNo,
+            @PathVariable String congressNo,
             @PathVariable String billType,
-            @PathVariable Integer billNumber) {
+            @PathVariable String billNumber) {
         log.info("Loading summary for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billSummaryService.fetchBillSummary(congressNo, billType, billNumber);

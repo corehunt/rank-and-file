@@ -121,11 +121,10 @@ public class SponsoredLegislationProcessor {
                 continue;
             }
 
-            Integer congressNo = getAsInteger(legislationObject, FIELD_CONGRESS);
-            String billNoStr = getAsString(legislationObject, FIELD_NUMBER);
+            String congressNo = getAsString(legislationObject, FIELD_CONGRESS);
+            String billNo = getAsString(legislationObject, FIELD_NUMBER);
             String billType = getAsString(legislationObject, FIELD_TYPE);
 
-            Integer billNo = parseBillNumber(billNoStr);
 
             if (billNo == null || congressNo == null) {
                 log.warn("Invalid bill number or congress number. Skipping legislation.");
@@ -205,7 +204,7 @@ public class SponsoredLegislationProcessor {
         return parseInteger(digitsOnly);
     }
 
-    private String generateKey(Integer congressNo, Integer billNo, String billType, String sponsorType, String personId) {
+    private String generateKey(String congressNo, String billNo, String billType, String sponsorType, String personId) {
         String billNoStr = (billNo != null) ? billNo.toString() : "unknownBillNo";
         String billTypeStr = (billType != null) ? billType : "unknownBillType";
         String sponsorTypeStr = (sponsorType != null) ? sponsorType : "unknownSponsorType";

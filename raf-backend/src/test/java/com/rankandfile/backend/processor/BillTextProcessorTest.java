@@ -88,9 +88,9 @@ class BillTextProcessorTest {
 
         Bill mockBill = new Bill();
         mockBill.setBillId("hr3076-117");
-        mockBill.setBillNo(3076);
+        mockBill.setBillNo("3076");
         mockBill.setBillTitle("Postal Service Reform Act of 2022");
-        mockBill.setCongress(117);
+        mockBill.setCongress("117");
         mockBill.setBillType("hr");
         mockBill.setOriginChamberCd("H");
         mockBill.setOriginChamber("House");

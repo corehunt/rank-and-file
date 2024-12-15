@@ -72,9 +72,9 @@ class BillByTypeAndNumberServiceTest {
 
     @Test
     void testGetBillByTypeAndNumberSuccessfulRetrieval() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         String response = "{\"billData\": \"valid data\"}";
         Bill expectedBill = new Bill();
         expectedBill.setBillNo(billNo);
@@ -106,9 +106,9 @@ class BillByTypeAndNumberServiceTest {
 
     @Test
     void testGetBillByTypeAndNumberEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         String response = "";
 
         // Enqueue the mock response with empty body
@@ -133,9 +133,9 @@ class BillByTypeAndNumberServiceTest {
 
     @Test
     void testGetBillByTypeAndNumberNullResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
 
         // Enqueue a response without setting the body (simulating null response)
         mockWebServer.enqueue(new MockResponse()
@@ -158,9 +158,9 @@ class BillByTypeAndNumberServiceTest {
 
     @Test
     void testGetBillByTypeAndNumberExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
 
         // Enqueue a mock response with an error status code
         mockWebServer.enqueue(new MockResponse()
@@ -183,9 +183,9 @@ class BillByTypeAndNumberServiceTest {
 
     @Test
     void testGetBillByTypeAndNumberExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNo = 1234;
+        String billNo = "1234";
         String response = "{\"billData\": \"valid data\"}";
 
         // Enqueue the mock response

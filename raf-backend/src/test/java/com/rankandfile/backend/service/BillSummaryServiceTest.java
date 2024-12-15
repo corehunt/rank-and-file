@@ -76,9 +76,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummarySuccessfulRetrieval() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String jsonResponse = "{\n" +
                 "  \"summaries\": [\n" +
                 "    {\n" +
@@ -123,9 +123,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummaryEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String jsonResponse = "";
 
         Bill bill = new Bill();
@@ -157,9 +157,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummaryNullResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
 
         Bill bill = new Bill();
         bill.setBillId("hr3076-117");
@@ -189,9 +189,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummaryExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
 
         Bill bill = new Bill();
         bill.setBillId("hr3076-117");
@@ -225,9 +225,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummaryExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String jsonResponse = "{\n" +
                 "  \"summaries\": [\n" +
                 "    {\n" +
@@ -273,9 +273,9 @@ class BillSummaryServiceTest {
 
     @Test
     void testFetchBillSummaryBillNotFound() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 9999;
+        String billNumber = "9999";
 
         // Mock billRepository to return null
         when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNumber, billType)).thenReturn(null);

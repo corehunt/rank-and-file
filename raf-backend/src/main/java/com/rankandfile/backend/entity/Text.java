@@ -3,6 +3,7 @@ package com.rankandfile.backend.entity;
 import com.rankandfile.backend.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -32,5 +33,6 @@ public class Text extends RAFAudit {
 
     @ManyToOne
     @JoinColumn(name = "BILL_ID", nullable = false)
+    @ToString.Exclude
     private Bill bill;
 }

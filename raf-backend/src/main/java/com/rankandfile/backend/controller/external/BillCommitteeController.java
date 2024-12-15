@@ -30,9 +30,9 @@ public class BillCommitteeController {
      */
     @PutMapping("/{congressNo}/{billType}/{billNumber}/committees")
     public ResponseEntity<String> loadCommitteesForBillNumber(
-            @PathVariable Integer congressNo,
+            @PathVariable String congressNo,
             @PathVariable String billType,
-            @PathVariable Integer billNumber) {
+            @PathVariable String billNumber) {
         log.info("Loading committee data for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billCommitteeService.getCommitteesByBillNumber(congressNo, billType, billNumber);

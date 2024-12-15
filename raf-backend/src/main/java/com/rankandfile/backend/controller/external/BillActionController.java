@@ -32,9 +32,9 @@ public class BillActionController {
      */
     @PutMapping("/{congressNo}/{billType}/{billNumber}/actions")
     public ResponseEntity<String> loadActionsForBillNumber(
-            @PathVariable Integer congressNo,
+            @PathVariable String congressNo,
             @PathVariable String billType,
-            @PathVariable Integer billNumber) {
+            @PathVariable String billNumber) {
         log.info("Loading action data for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billActionService.getActionsByBillNumber(congressNo, billType, billNumber, LIMIT);

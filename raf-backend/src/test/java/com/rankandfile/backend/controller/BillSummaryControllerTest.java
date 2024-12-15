@@ -29,9 +29,9 @@ class BillSummaryControllerTest {
 
     @Test
     void testLoadBillSummarySuccess() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 3076;
+        String billNumber = "3076";
 
         mockMvc.perform(put("/api/bill/{congressNo}/{billType}/{billNumber}/summary", congressNo, billType, billNumber)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -43,9 +43,9 @@ class BillSummaryControllerTest {
 
     @Test
     void testLoadBillSummaryBillNotFound() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 9999;
+        String billNumber = "9999";
 
         doThrow(new EntityNotFoundException("Bill not found"))
                 .when(billSummaryService).fetchBillSummary(congressNo, billType, billNumber);
@@ -60,9 +60,9 @@ class BillSummaryControllerTest {
 
     @Test
     void testLoadBillSummaryInternalServerError() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 3076;
+        String billNumber = "3076";
 
         doThrow(new RuntimeException("Unexpected error"))
                 .when(billSummaryService).fetchBillSummary(congressNo, billType, billNumber);

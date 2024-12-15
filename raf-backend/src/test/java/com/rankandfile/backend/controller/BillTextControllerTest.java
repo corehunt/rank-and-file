@@ -29,9 +29,9 @@ class BillTextControllerTest {
 
     @Test
     void testLoadBillTextsSuccess() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 3076;
+        String billNumber = "3076";
 
         mockMvc.perform(put("/api/bill/{congressNo}/{billType}/{billNumber}/text", congressNo, billType, billNumber)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -43,9 +43,9 @@ class BillTextControllerTest {
 
     @Test
     void testLoadBillTextsBillNotFound() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 9999;
+        String billNumber = "9999";
 
         Mockito.doThrow(new EntityNotFoundException("Bill not found"))
                 .when(billTextService).fetchBillTexts(congressNo, billType, billNumber);
@@ -60,9 +60,9 @@ class BillTextControllerTest {
 
     @Test
     void testLoadBillTextsInternalServerError() throws Exception {
-        int congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        int billNumber = 3076;
+        String billNumber = "3076";
 
         Mockito.doThrow(new RuntimeException("Unexpected error"))
                 .when(billTextService).fetchBillTexts(congressNo, billType, billNumber);

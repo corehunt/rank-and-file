@@ -78,9 +78,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsSuccessfulRetrieval() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String response = "{ \"textVersions\": [ { \"date\": \"2022-02-15T05:00:00Z\", \"type\": \"Placed on Calendar Senate\", \"formats\": [] } ] }";
 
         Bill bill = new Bill();
@@ -117,9 +117,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsBillNotFound() {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 9999;
+        String billNumber = "9999";
 
         // Mock billRepository to return null
         when(billRepository.findByCongressAndBillNoAndBillType(congressNo, billNumber, billType)).thenReturn(null);
@@ -139,9 +139,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsEmptyResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String response = "";
 
         Bill bill = new Bill();
@@ -171,9 +171,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsNullResponse() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
 
         Bill bill = new Bill();
         bill.setBillId("hr3076-117");
@@ -201,9 +201,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsExceptionDuringFetch() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
 
         Bill bill = new Bill();
         bill.setBillId("hr3076-117");
@@ -236,9 +236,9 @@ class BillTextServiceTest {
 
     @Test
     void testFetchBillTextsExceptionDuringProcessing() throws Exception {
-        Integer congressNo = 117;
+        String congressNo = "117";
         String billType = "hr";
-        Integer billNumber = 3076;
+        String billNumber = "3076";
         String response = "{ \"textVersions\": [ { \"date\": \"2022-02-15T05:00:00Z\", \"type\": \"Placed on Calendar Senate\", \"formats\": [] } ] }";
 
         Bill bill = new Bill();

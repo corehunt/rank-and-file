@@ -29,7 +29,7 @@ public class IdGenerator {
 
     public Integer generateTermId(){return random.nextInt(999999);}
 
-    public String generateBillId(Integer congressNumber, String billType, Integer billNumber) {
+    public String generateBillId(String congressNumber, String billType, String billNumber) {
         // Ensure billTypeCode is uppercase
         billType = billType.toUpperCase();
 
@@ -37,10 +37,10 @@ public class IdGenerator {
         String paddedBillTypeCode = String.format("%-7s", billType).replace(' ', '0');
 
         // Pad Congress Number with leading zeros to make 3 digits
-        String paddedCongressNumber = String.format("%03d", congressNumber);
+        String paddedCongressNumber = String.format("%-3s", congressNumber).replace(' ', '0');
 
         // Pad Bill Number with leading zeros to make 5 digits
-        String paddedBillNumber = String.format("%05d", billNumber);
+        String paddedBillNumber = String.format("%-5s", billNumber).replace(' ', '0');
 
         return paddedBillTypeCode + paddedCongressNumber + paddedBillNumber;
     }

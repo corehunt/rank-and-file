@@ -70,8 +70,8 @@ public class BillByCongressTypeNumberProcessor {
             return null;
         }
 
-        Integer congressNo = getAsInteger(billObject, FIELD_CONGRESS);
-        Integer billNo = getAsInteger(billObject, FIELD_NUMBER);
+        String congressNo = getAsString(billObject, FIELD_CONGRESS);
+        String billNo = getAsString(billObject, FIELD_NUMBER);
         String billType = getAsString(billObject, FIELD_TYPE);
 
         if (congressNo == null || billNo == null) {

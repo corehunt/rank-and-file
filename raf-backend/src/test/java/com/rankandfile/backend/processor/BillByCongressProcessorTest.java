@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -33,7 +34,7 @@ class BillByCongressProcessorTest {
     @Test
     void testProcessBillList() {
         // Mocking the ID generation
-        when(idGenerator.generateBillId(anyInt(), anyString(), anyInt())).thenAnswer(invocation ->
+        when(idGenerator.generateBillId(anyString(), anyString(), anyString())).thenAnswer(invocation ->
                 invocation.getArgument(0) + "-" + invocation.getArgument(1) + invocation.getArgument(2)
         );
 
@@ -86,10 +87,10 @@ class BillByCongressProcessorTest {
         assertEquals(3, finalBillList.size());
 
         // Assert the content of the first bill
-        Bill bill1 = finalBillList.stream().filter(b -> b.getBillNo() == 4367).findFirst().orElse(null);
+        Bill bill1 = finalBillList.stream().filter(b -> Objects.equals(b.getBillNo(), "4367")).findFirst().orElse(null);
         assertNotNull(bill1);
-        assertEquals(118, bill1.getCongress());
-        assertEquals(4367, bill1.getBillNo());
+        assertEquals("118", bill1.getCongress());
+        assertEquals("4367", bill1.getBillNo());
         assertEquals("Thomas R. Carper Water Resources Development Act of 2024", bill1.getBillTitle());
         assertEquals("S", bill1.getOriginChamberCd());
         assertEquals("Senate", bill1.getOriginChamber());
@@ -98,7 +99,7 @@ class BillByCongressProcessorTest {
         assertEquals("Message on Senate action sent to the House.", bill1.getLatestActionTxt());
 
         // Verify that the IdGenerator method was called the correct number of times
-        verify(idGenerator, times(3)).generateBillId(anyInt(), anyString(), anyInt());
+        verify(idGenerator, times(3)).generateBillId(anyString(), anyString(), anyString());
     }
 
     @Test
@@ -118,8 +119,8 @@ class BillByCongressProcessorTest {
 
         assertEquals(1, finalBillList.size());
         Bill bill = finalBillList.get(0);
-        assertEquals(118, bill.getCongress());
-        assertEquals(1234, bill.getBillNo());
+        assertEquals("118", bill.getCongress());
+        assertEquals("1234", bill.getBillNo());
         assertNull(bill.getBillTitle()); // Title is missing in JSON
         assertNull(bill.getLatestActionDt()); // Latest action date is missing
         assertNull(bill.getLatestActionTxt()); // Latest action text is missing
@@ -155,13 +156,13 @@ class BillByCongressProcessorTest {
         assertEquals(2, finalBillList.size());
 
         // First Bill
-        assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 4367 &&
+        assertTrue(finalBillList.stream().anyMatch(bill -> Objects.equals(bill.getBillNo(), "4367") &&
                 "Thomas R. Carper Water Resources Development Act of 2024".equals(bill.getBillTitle()) &&
                 "Message on Senate action sent to the House.".equals(bill.getLatestActionTxt()) &&
                 LocalDate.of(2024, 8, 2).equals(bill.getLatestActionDt())));
 
         // Second Bill
-        assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 1234 &&
+        assertTrue(finalBillList.stream().anyMatch(bill -> Objects.equals(bill.getBillNo(), "1234") &&
                 "A Sample Bill for Testing".equals(bill.getBillTitle()) &&
                 "Referred to Committee.".equals(bill.getLatestActionTxt()) &&
                 LocalDate.of(2024, 7, 15).equals(bill.getLatestActionDt())));
@@ -201,7 +202,7 @@ class BillByCongressProcessorTest {
         assertEquals(1, finalBillList.size());
 
         // Valid Bill
-        assertTrue(finalBillList.stream().anyMatch(bill -> bill.getBillNo() == 4367 &&
+        assertTrue(finalBillList.stream().anyMatch(bill -> Objects.equals(bill.getBillNo(), "4367") &&
                 "Thomas R. Carper Water Resources Development Act of 2024".equals(bill.getBillTitle())));
     }
 
@@ -221,8 +222,8 @@ class BillByCongressProcessorTest {
 
         Bill existingBill = new Bill();
         existingBill.setBillId("118-4367");
-        existingBill.setCongress(118);
-        existingBill.setBillNo(4367);
+        existingBill.setCongress("118");
+        existingBill.setBillNo("4367");
         existingBill.setBillTitle("Original Title");
         existingBill.setLatestActionDt(LocalDate.of(2024, 8, 1));
         existingBill.setLatestActionTxt("Original Text");
@@ -241,7 +242,7 @@ class BillByCongressProcessorTest {
         assertEquals("Updated Text.", bill.getLatestActionTxt());
 
         // Verify that IdGenerator.generateBillId() was not called for existing bill
-        verify(idGenerator, atLeastOnce()).generateBillId(anyInt(), anyString(), anyInt());
+        verify(idGenerator, atLeastOnce()).generateBillId(anyString(), anyString(), anyString());
     }
 
     @Test

@@ -32,7 +32,7 @@ public class BillCommitteeService {
      * @param billType   The type of the bill (e.g., "hr", "s").
      * @param billNo     The bill number.
      */
-    public void getCommitteesByBillNumber(Integer congressNo, String billType, Integer billNo) {
+    public void getCommitteesByBillNumber(String congressNo, String billType, String billNo) {
         // Find the bill in the repository
         Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
         if (bill == null) {
@@ -63,7 +63,7 @@ public class BillCommitteeService {
         }
     }
 
-    private String fetchCommittees(Integer congressNo, String billType, Integer billNo) {
+    private String fetchCommittees(String congressNo, String billType, String billNo) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congressNo}/{billType}/{billNumber}/committees")
                         .build(congressNo, billType.toLowerCase(), billNo))

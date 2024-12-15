@@ -32,7 +32,7 @@ public class BillTextService {
         this.textRepository = textRepository;
     }
 
-    public void fetchBillTexts(Integer congressNo, String billType, Integer billNumber) {
+    public void fetchBillTexts(String congressNo, String billType, String billNumber) {
 
         Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNumber, billType);
         if (bill == null) {
@@ -63,7 +63,7 @@ public class BillTextService {
         }
     }
 
-    private String fetchBillTextsFromApi(Integer congressNo, String billType, Integer billNumber) {
+    private String fetchBillTextsFromApi(String congressNo, String billType, String billNumber) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder.path("bill/{congress}/{billType}/{billNumber}/text")
                         .build(congressNo, billType.toLowerCase(), billNumber))
