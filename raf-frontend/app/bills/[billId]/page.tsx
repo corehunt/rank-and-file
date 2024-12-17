@@ -20,6 +20,7 @@ interface BillDTO {
   billType: string;
   originChamber: string;
   summaryTxt: string;
+  legislativeSubjects: string;
   actions: ActionDTO[];
   sponsorships: SponsoredLegislationDTO[];
   billTexts: TextDTO[];
@@ -144,6 +145,11 @@ export default async function BillPage({
         bill.summaryTxt && bill.summaryTxt.length > 100
             ? bill.summaryTxt.substring(0, 100) + "..."
             : bill.summaryTxt || "No summary available",
+    legislativeSubjects: bill.legislativeSubjects
+        ? bill.legislativeSubjects
+            .split('|')
+            .map((subject) => subject.trim())
+        : [],
   };
 
   const latestAction = bill.actions && bill.actions.length > 0
@@ -179,7 +185,6 @@ export default async function BillPage({
   }
 
 
-  // @ts-ignore
   return (
       <div className="min-h-screen bg-muted/30">
         <div className="bg-background border-b">
@@ -221,19 +226,23 @@ export default async function BillPage({
                   </Card>
 
                   {/* Subjects */}
-                  {/*<Card>*/}
-                  {/*  <CardContent className="pt-6">*/}
-                  {/*    <h2 className="text-xl font-semibold mb-4">Subjects</h2>*/}
-                  {/*    <div className="flex flex-wrap gap-2">*/}
-                  {/*      {bill..map((subject, index) => (*/}
-                  {/*          <Badge key={index} variant="secondary">*/}
-                  {/*            <Tag className="h-3 w-3 mr-1" />*/}
-                  {/*            {subject}*/}
-                  {/*          </Badge>*/}
-                  {/*      ))}*/}
-                  {/*    </div>*/}
-                  {/*  </CardContent>*/}
-                  {/*</Card>*/}
+                  <Card>
+                    <CardContent className="pt-6">
+                      <h2 className="text-xl font-semibold mb-4">Subjects</h2>
+                      <div className="flex flex-wrap gap-2">
+                        {billData.legislativeSubjects.length > 0 ? (
+                            billData.legislativeSubjects.map((subject, index) => (
+                                <Badge key={index} variant="secondary" className="flex items-center">
+                                  <Tag className="h-3 w-3 mr-1" />
+                                  {subject}
+                                </Badge>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No subjects available.</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Latest Action */}
                   <Card>

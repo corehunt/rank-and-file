@@ -18,6 +18,7 @@ public class BillDTO {
     private String billType;
     private String originChamber;
     private String summaryTxt;
+    private String legislativeSubjects;
     private List<ActionDTO> actions;
     private List<SponsoredLegPersonDTO> sponsorships;
     private List<TextDTO> billTexts;
