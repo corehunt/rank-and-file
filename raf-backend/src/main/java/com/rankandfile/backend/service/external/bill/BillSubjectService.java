@@ -50,7 +50,7 @@ public class BillSubjectService {
                 bill.setLegislativeSubjects(subjectString);
             }
             billRepository.save(bill);
-            log.info("subject sucessfully saved for billId: {}", bill.getBillId());
+            log.info("subject successfully saved for billId: {}", bill.getBillId());
         } catch (Exception e) {
             log.error("An error occurred while fetching bill subjects for Congress: {}, Bill Number: {}, Bill Type: {}, error: {}", congressNo, billNumber, billType, e.getMessage(), e);
             throw e;
