@@ -25,6 +25,7 @@ interface BillDTO {
   sponsorships: SponsoredLegislationDTO[];
   billTexts: TextDTO[];
   relatedBills: RelatedBillDTO[];
+  committees: CommiteeDTO[];
 }
 
 interface ActionDTO {
@@ -71,6 +72,14 @@ interface RelatedBillDTO {
   congress: number;
   billType: string;
   originChamber: string;
+}
+
+interface CommiteeDTO {
+  committeeId: string;
+  chamber: string;
+  commTypeCd: string;
+  commName: string;
+  sysCode: string;
 }
 
 
@@ -170,6 +179,15 @@ export default async function BillPage({
           congress: relatedBill.congress,
           billType: relatedBill.billType,
           originChamber: relatedBill.originChamber,
+        }))
+        : [],
+    committees: bill.committees
+        ? bill.committees.map((committee) => ({
+          committeeId: committee.committeeId,
+          chamber: committee.chamber,
+          commTypeCd: committee.commTypeCd,
+          commName: committee.commName,
+          sysCode: committee.sysCode,
         }))
         : [],
   };
@@ -453,32 +471,33 @@ export default async function BillPage({
             </TabsContent>
 
             <TabsContent value="committees">
-              {/*<Card>*/}
-              {/*  <CardContent className="pt-6">*/}
-              {/*    <h2 className="text-xl font-semibold mb-4">Committee Assignments</h2>*/}
-              {/*    <div className="space-y-6">*/}
-              {/*      {bill.committees.map((committee, index) => (*/}
-              {/*          <div key={index} className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">*/}
-              {/*            <div className="space-y-2">*/}
-              {/*              <Link*/}
-              {/*                  href={`/committees/${committee.name.toLowerCase().replace(/\s+/g, "-")}`}*/}
-              {/*                  className="font-medium hover:text-primary"*/}
-              {/*              >*/}
-              {/*                {committee.name}*/}
-              {/*              </Link>*/}
-              {/*              <div className="flex flex-wrap gap-2">*/}
-              {/*                <Badge variant="outline">{committee.chamber}</Badge>*/}
-              {/*                <Badge variant="secondary">{committee.role}</Badge>*/}
-              {/*              </div>*/}
-              {/*            </div>*/}
-              {/*            <p className="text-sm text-muted-foreground shrink-0">*/}
-              {/*              Referred on {new Date(committee.referralDate).toLocaleDateString()}*/}
-              {/*            </p>*/}
-              {/*          </div>*/}
-              {/*      ))}*/}
-              {/*    </div>*/}
-              {/*  </CardContent>*/}
-              {/*</Card>*/}
+              <Card>
+                <CardContent className="pt-6">
+                  <h2 className="text-xl font-semibold mb-4">Committee Assignments</h2>
+                  <div className="space-y-6">
+                    {bill.committees.map((committee, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">
+                          <div className="space-y-2">
+                            <Link
+                                href={`/committees/${committee.committeeId}`}
+                                className="font-medium hover:text-primary"
+                            >
+                              {committee.commName}
+                            </Link>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge variant="outline">{committee.chamber} Committee</Badge>
+                              <Badge variant="secondary">{committee.commTypeCd}</Badge>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground shrink-0">
+                            Referred on
+                            {/*{new Date(committee.referralDate).toLocaleDateString()}*/}
+                          </p>
+                        </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="related">
