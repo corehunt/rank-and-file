@@ -24,6 +24,7 @@ interface BillDTO {
   actions: ActionDTO[];
   sponsorships: SponsoredLegislationDTO[];
   billTexts: TextDTO[];
+  relatedBills: RelatedBillDTO[];
 }
 
 interface ActionDTO {
@@ -60,6 +61,16 @@ interface TextDTO {
   versionDate: string;
   versionType: string;
   pdfUrl: string;
+}
+
+interface RelatedBillDTO {
+  billId: string;
+  billNo: string;
+  billTitle: string;
+  introducedDt: string;
+  congress: number;
+  billType: string;
+  originChamber: string;
 }
 
 
@@ -150,6 +161,17 @@ export default async function BillPage({
             .split('|')
             .map((subject) => subject.trim())
         : [],
+    relatedBills: bill.relatedBills
+        ? bill.relatedBills.map((relatedBill) => ({
+          billId: relatedBill.billId,
+          billNo: relatedBill.billNo,
+          billTitle: relatedBill.billTitle,
+          introducedDt: relatedBill.introducedDt,
+          congress: relatedBill.congress,
+          billType: relatedBill.billType,
+          originChamber: relatedBill.originChamber,
+        }))
+        : [],
   };
 
   const latestAction = bill.actions && bill.actions.length > 0
@@ -197,7 +219,7 @@ export default async function BillPage({
                     {bill.originChamber} Bill • {bill.congress}{getNumberSuffix(bill.congress)} Congress
                   </p>
                 </div>
-                <Badge variant="default">{bill.introducedDt}</Badge>
+                {/*<Badge variant="default">{bill.introducedDt}</Badge>*/}
               </div>
             </div>
           </div>
@@ -368,7 +390,7 @@ export default async function BillPage({
                             </p>
                           </div>
                           <Button variant="outline" asChild>
-                            <Link href={text.pdfUrl}>
+                            <Link href={text.pdfUrl} target="_blank" rel="noopener noreferrer">
                               <Download className="h-4 w-4 mr-2" />
                               Download PDF
                             </Link>
@@ -460,29 +482,44 @@ export default async function BillPage({
             </TabsContent>
 
             <TabsContent value="related">
-              {/*<Card>*/}
-              {/*  <CardContent className="pt-6">*/}
-              {/*    <h2 className="text-xl font-semibold mb-4">Related Bills</h2>*/}
-              {/*    <div className="space-y-6">*/}
-              {/*      {bill.relatedBills.map((relatedBill, index) => (*/}
-              {/*          <div key={index} className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">*/}
-              {/*            <div className="space-y-2">*/}
-              {/*              <Link*/}
-              {/*                  href={`/bills/${relatedBill.number.toLowerCase().replace(/\s+/g, "-")}`}*/}
-              {/*                  className="font-medium hover:text-primary"*/}
-              {/*              >*/}
-              {/*                {relatedBill.number} - {relatedBill.title}*/}
-              {/*              </Link>*/}
-              {/*              <div className="flex flex-wrap gap-2">*/}
-              {/*                <Badge variant="outline">{relatedBill.congress}</Badge>*/}
-              {/*                <Badge variant="secondary">{relatedBill.relationship}</Badge>*/}
-              {/*              </div>*/}
-              {/*            </div>*/}
-              {/*          </div>*/}
-              {/*      ))}*/}
-              {/*    </div>*/}
-              {/*  </CardContent>*/}
-              {/*</Card>*/}
+              <Card>
+                <CardContent className="pt-6">
+                  <h2 className="text-xl font-semibold mb-4">Related Bills</h2>
+                  <div className="space-y-6">
+                    {bill.relatedBills && bill.relatedBills.length > 0 ? (
+                        bill.relatedBills.map((relatedBill, index) => (
+                            <div
+                                key={relatedBill.billId || index}
+                                className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0"
+                            >
+                              <div className="space-y-2">
+                                <Link
+                                    href={`/bills/${relatedBill.billId}`}
+                                    className="font-medium hover:text-primary"
+                                >
+                                  {relatedBill.billType} {relatedBill.billNo} - {relatedBill.billTitle}
+                                </Link>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge variant="secondary">{relatedBill.originChamber} Bill</Badge>
+                                  <Badge variant="outline">
+                                    {relatedBill.congress}
+                                    {getNumberSuffix(relatedBill.congress)} Congress
+                                  </Badge>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground shrink-0">
+                                Introduced {new Date(relatedBill.introducedDt).toLocaleDateString()}
+                              </p>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">
+                          There are no related bills at this time.
+                        </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>
