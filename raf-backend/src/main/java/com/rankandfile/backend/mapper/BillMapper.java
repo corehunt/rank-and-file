@@ -5,7 +5,7 @@ import com.rankandfile.backend.entity.Bill;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {ActionMapper.class, SponsoredLegPersonMapper.class})
+@Mapper(componentModel = "spring", uses = {ActionMapper.class, SponsoredLegPersonMapper.class, CommitteeMapper.class})
 public interface BillMapper {
 
     @Mapping(target = "sponsorships", source = "sponsorships")

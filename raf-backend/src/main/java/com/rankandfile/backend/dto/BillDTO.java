@@ -23,4 +23,5 @@ public class BillDTO {
     private List<SponsoredLegPersonDTO> sponsorships;
     private List<TextDTO> billTexts;
     private List<RelatedBillDTO> relatedBills;
+    private List<CommitteeDTO> committees;
 }

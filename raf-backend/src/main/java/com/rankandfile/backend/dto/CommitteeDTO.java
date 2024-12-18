@@ -11,6 +11,4 @@ public class CommitteeDTO {
     private String commTypeCd;
     private String commName;
     private String sysCode;
-    private CommitteeDTO parent;
-//    private List<CommitteeDTO> subCommittees;
 }
