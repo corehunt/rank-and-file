@@ -10,15 +10,19 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Table(name = "RAF_BILL")
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Bill extends RAFAudit {
 
     @Id
     @Column(name = "BILL_ID", nullable = false, updatable = false)
+    @EqualsAndHashCode.Include
     private String billId;
 
     @Column(name = "BILL_NO")
@@ -100,4 +104,13 @@ public class Bill extends RAFAudit {
     @EqualsAndHashCode.Exclude
     @JsonBackReference
     private List<Action> actions = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "RAF_BILL_RELATED_BILLS",
+            joinColumns = @JoinColumn(name = "BILL_ID"),
+            inverseJoinColumns = @JoinColumn(name = "RELATED_BILL_ID")
+    )
+    @ToString.Exclude
+    private Set<Bill> relatedBills = new HashSet<>();
 }
