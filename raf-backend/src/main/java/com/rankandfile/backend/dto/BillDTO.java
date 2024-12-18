@@ -22,4 +22,5 @@ public class BillDTO {
     private List<ActionDTO> actions;
     private List<SponsoredLegPersonDTO> sponsorships;
     private List<TextDTO> billTexts;
+    private List<RelatedBillDTO> relatedBills;
 }

@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rankandfile.backend.entity.Bill;
-import com.rankandfile.backend.repository.BillRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +14,11 @@ import java.util.List;
 @Component
 public class BillSubjectProcessor {
 
-    private final BillRepository billRepository;
+    private static final String FIELD_SUBJECTS = "subjects";
+    private static final String FIELD_LEG_SUBJECTS = "legislativeSubjects";
+    private static final String FIELD_NAME = "name";
 
-    public BillSubjectProcessor(BillRepository billRepository) {
-        this.billRepository = billRepository;
-    }
+    public BillSubjectProcessor() {};
 
     /**
      * Processes the JSON response to extract legislative subjects and updates the RAF_BILL table.
@@ -39,18 +37,18 @@ public class BillSubjectProcessor {
             return null;
         }
 
-        if (rootObject == null || !rootObject.has("subjects")) {
+        if (rootObject == null || !rootObject.has(FIELD_SUBJECTS)) {
             log.warn("No subjects found in the response for Bill ID: {}", billId);
             return null;
         }
 
-        JsonObject subjectsObject = rootObject.getAsJsonObject("subjects");
-        if (subjectsObject == null || !subjectsObject.has("legislativeSubjects")) {
+        JsonObject subjectsObject = rootObject.getAsJsonObject(FIELD_SUBJECTS);
+        if (subjectsObject == null || !subjectsObject.has(FIELD_LEG_SUBJECTS)) {
             log.warn("No legislativeSubjects found for Bill ID: {}", billId);
             return null;
         }
 
-        JsonArray legislativeSubjectsArray = subjectsObject.getAsJsonArray("legislativeSubjects");
+        JsonArray legislativeSubjectsArray = subjectsObject.getAsJsonArray(FIELD_LEG_SUBJECTS);
         if (legislativeSubjectsArray == null || legislativeSubjectsArray.isEmpty()) {
             log.warn("legislativeSubjects array is empty for Bill ID: {}", billId);
             return null;
@@ -60,8 +58,8 @@ public class BillSubjectProcessor {
 
         for (JsonElement element : legislativeSubjectsArray) {
             JsonObject subjectObject = element.getAsJsonObject();
-            String name = subjectObject.has("name") && !subjectObject.get("name").isJsonNull()
-                    ? subjectObject.get("name").getAsString()
+            String name = subjectObject.has(FIELD_NAME) && !subjectObject.get(FIELD_NAME).isJsonNull()
+                    ? subjectObject.get(FIELD_NAME).getAsString()
                     : null;
             if (name != null && !name.trim().isEmpty()) {
                 subjects.add(name.trim());
