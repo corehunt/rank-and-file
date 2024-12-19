@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rankandfile.backend.entity.Leadership;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
 import com.rankandfile.backend.repository.PersonRepository;
@@ -101,6 +102,7 @@ public class PersonProcessor {
         updateState(memberObject, person);
         updateCurrentDistrict(memberObject, person);
         updateTerms(memberObject, person);
+        updateLeaderships(memberObject, person);
 
         log.info("Completed processing Person with ID: {}", person.getPersonId());
         return person;
@@ -436,6 +438,88 @@ public class PersonProcessor {
         }
     }
 
+    private void updateLeaderships(JsonObject memberObject, Person person) {
+        JsonArray leadershipArray = memberObject.getAsJsonArray("leadership"); // Use the correct JSON field name
+        if (leadershipArray == null || leadershipArray.isEmpty()) {
+            log.debug("No leadership entries found in JSON data for person ID: {}", person.getPersonId());
+            return;
+        }
+
+        List<Leadership> existingLeaderships = person.getLeadershipList();
+        if (existingLeaderships == null) {
+            existingLeaderships = new ArrayList<>();
+            person.setLeadershipList(existingLeaderships);
+        }
+
+        if (!existingLeaderships.isEmpty()) {
+            // **Scenario 1: Existing Person with Existing Leadership Entries**
+
+            // Create a map of existing leaderships for quick lookup using a unique key
+            Map<String, Leadership> existingLeadershipMap = existingLeaderships.stream()
+                    .collect(Collectors.toMap(this::generateLeadershipKey, l -> l));
+
+            // Set to keep track of processed leadership keys
+            Set<String> processedLeadershipKeys = new HashSet<>();
+
+            for (JsonElement leadershipElement : leadershipArray) {
+                if (!leadershipElement.isJsonObject()) {
+                    log.warn("Invalid leadership format, expected JsonObject but found: {}", leadershipElement);
+                    continue;
+                }
+
+                JsonObject leadershipObject = leadershipElement.getAsJsonObject();
+
+                // Generate a unique key for the leadership based on fields like congress and leadershipType
+                String leadershipKey = generateLeadershipKey(leadershipObject);
+
+                if (existingLeadershipMap.containsKey(leadershipKey)) {
+                    // **Update Existing Leadership**
+                    Leadership existingLeadership = existingLeadershipMap.get(leadershipKey);
+                    updateLeadershipFields(leadershipObject, existingLeadership, person);
+                    processedLeadershipKeys.add(leadershipKey);
+                    log.debug("Updated existing leadership with key: {}", leadershipKey);
+                } else {
+                    // **Add New Leadership**
+                    Leadership newLeadership = new Leadership();
+                    newLeadership.setLeadershipId(idGenerator.generateLeadershipId()); // Assuming a similar ID generator
+                    updateLeadershipFields(leadershipObject, newLeadership, person);
+                    existingLeaderships.add(newLeadership);
+                    processedLeadershipKeys.add(leadershipKey);
+                    log.debug("Added new leadership with key: {}", leadershipKey);
+                }
+            }
+
+            // **Remove Orphaned Leaderships**
+            existingLeaderships.removeIf(leadership -> {
+                String key = generateLeadershipKey(leadership);
+                if (!processedLeadershipKeys.contains(key)) {
+                    log.debug("Removing leadership with key: {}", key);
+                    return true;
+                }
+                return false;
+            });
+
+        } else {
+            // **Scenario 2: New Person with No Existing Leadership Entries**
+
+            for (JsonElement leadershipElement : leadershipArray) {
+                if (!leadershipElement.isJsonObject()) {
+                    log.warn("Invalid leadership format, expected JsonObject but found: {}", leadershipElement);
+                    continue;
+                }
+
+                JsonObject leadershipObject = leadershipElement.getAsJsonObject();
+
+                // **Add All Leadership as New Entries**
+                Leadership newLeadership = new Leadership();
+                newLeadership.setLeadershipId(idGenerator.generateLeadershipId()); // Assuming a similar ID generator
+                updateLeadershipFields(leadershipObject, newLeadership, person);
+                existingLeaderships.add(newLeadership);
+                log.debug("Added new leadership with generated leadershipId: {}", newLeadership.getLeadershipId());
+            }
+        }
+    }
+
     /**
      * Generates a unique key for a term based on chamber, congress, and startYear.
      *
@@ -478,4 +562,42 @@ public class PersonProcessor {
         term.setStateNm(getAsString(termObject, FIELD_STATE_NAME));
         term.setPerson(person);
     }
+
+    /**
+     * Generates a unique key for a Leadership object from its key fields.
+     * For example, you could combine congress and leadershipType.
+     */
+    private String generateLeadershipKey(Leadership leadership) {
+        // Adjust as needed based on what makes a leadership unique
+        String congress = leadership.getCongress() != null ? leadership.getCongress() : "";
+        String leadershipType = leadership.getLeadershipType() != null ? leadership.getLeadershipType() : "";
+        return congress + "_" + leadershipType;
+    }
+
+    /**
+     * Generates a unique key for a Leadership from a JSON object
+     */
+    private String generateLeadershipKey(JsonObject leadershipObject) {
+        String congress = leadershipObject.has("congress") ? leadershipObject.get("congress").getAsString() : "";
+        String leadershipType = leadershipObject.has("type") ? leadershipObject.get("type").getAsString() : "";
+        return congress + "_" + leadershipType;
+    }
+
+    /**
+     * Updates Leadership fields from the JsonObject.
+     * Similar to updateTermFields, but for leadership.
+     */
+    private void updateLeadershipFields(JsonObject leadershipObject, Leadership leadership, Person person) {
+        leadership.setPerson(person);
+        if (leadershipObject.has("congress")) {
+            leadership.setCongress(leadershipObject.get("congress").getAsString());
+        }
+        if (leadershipObject.has("type")) {
+            leadership.setLeadershipType(leadershipObject.get("type").getAsString());
+        }
+        if (leadershipObject.has("current")) {
+            leadership.setCurrentLeader(leadershipObject.get("current").getAsString());
+        }
+    }
+
 }

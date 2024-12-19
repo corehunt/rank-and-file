@@ -90,6 +90,10 @@ public class Person extends RAFAudit {
     private List<Term> termList = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Leadership> leadershipList = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("person-sponsorship")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
