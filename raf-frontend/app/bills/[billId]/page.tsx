@@ -39,7 +39,7 @@ interface ActionDTO {
   committeeRef: string | null;
 }
 
-interface PersonSponsorDTO {
+interface PersonSummaryDTO {
   personId: string;
   firstName: string | null;
   midName: string | null;
@@ -54,7 +54,7 @@ interface PersonSponsorDTO {
 interface SponsoredLegislationDTO {
   sponLegId: string;
   sponsorType: string | null;
-  person: PersonSponsorDTO | null;
+  person: PersonSummaryDTO | null;
 }
 
 interface TextDTO {
