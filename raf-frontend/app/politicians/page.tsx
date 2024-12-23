@@ -14,12 +14,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-import {
-  HOUSE_DEMOCRATIC_LEADERSHIP,
-  HOUSE_REPUBLICAN_LEADERSHIP,
-  SENATE_DEMOCRATIC_LEADERSHIP,
-  SENATE_REPUBLICAN_LEADERSHIP
-} from "./data/leadership";
 import { LeadershipSection } from "./components/leadership-section";
 
 interface TermDTO {
@@ -58,6 +52,24 @@ interface PersonDTO {
   termList: TermDTO[] | null;
 }
 
+interface PersonSummaryDTO {
+  personId: string;
+  firstName: string | null;
+  midName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  state: string | null;
+  currentDistrict: number | null;
+  imageUrl: string | null;
+  partyMembership: string | null;
+}
+
+interface LeadershipDTO {
+  leadershipId: string;
+  leadershipType: string;
+  person: PersonSummaryDTO;
+}
+
 export default function PoliticiansPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -70,6 +82,31 @@ export default function PoliticiansPage() {
   const [filteredPoliticians, setFilteredPoliticians] = useState<PersonDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // --- New State for fetched leadership ---
+  const [leadership, setLeadership] = useState<LeadershipDTO[]>([]);
+  const [loadingLeadership, setLoadingLeadership] = useState(true);
+  const [leadershipError, setLeadershipError] = useState<string | null>(null);
+
+  /** Fetch leadership on mount **/
+  useEffect(() => {
+    fetch("/api/politicians/leadership")
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Error fetching leadership: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data: LeadershipDTO[]) => {
+          setLeadership(data);
+          setLoadingLeadership(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching leadership:", error);
+          setLeadershipError(error.message);
+          setLoadingLeadership(false);
+        });
+  }, []);
 
   const handleFilterChange = (type: string, value: string | string[]) => {
     setFilters((prev) => ({
@@ -128,8 +165,7 @@ export default function PoliticiansPage() {
           D: "Democratic",
           I: "Independent",
         };
-        const partyName =
-            partyMap[politician.partyMembership || ""] || "Unknown";
+        const partyName = partyMap[politician.partyMembership || ""] || "Unknown";
         return filters.parties.includes(partyName);
       });
     }
@@ -146,9 +182,39 @@ export default function PoliticiansPage() {
     setFilteredPoliticians(filtered);
   }, [filters, politicians]);
 
-  // Determine whether to show leadership
-  // Show leadership if no search has been done OR if searched but no results
-  const showLeadership = !hasSearched || (hasSearched && filteredPoliticians.length === 0 && !loading);
+  /**
+   * Show leadership if no search has been done OR
+   * if searched but no results & not currently loading
+   */
+  const showLeadership =
+      !hasSearched || (hasSearched && filteredPoliticians.length === 0 && !loading);
+
+  /**
+   * Group leadership by House vs. Senate:
+   * - If person.currentDistrict !== null => House
+   * - If person.currentDistrict === null => Senate
+   */
+  const houseLeadership = leadership.filter(
+      (item) => item.person.currentDistrict !== null
+  );
+  const senateLeadership = leadership.filter(
+      (item) => item.person.currentDistrict === null
+  );
+
+  // Group by party
+  const houseRepublican = houseLeadership.filter(
+      (l) => l.person.partyMembership === "R"
+  );
+  const houseDemocratic = houseLeadership.filter(
+      (l) => l.person.partyMembership === "D"
+  );
+
+  const senateRepublican = senateLeadership.filter(
+      (l) => l.person.partyMembership === "R"
+  );
+  const senateDemocratic = senateLeadership.filter(
+      (l) => l.person.partyMembership === "D"
+  );
 
   return (
       <div className="min-h-screen bg-muted/30">
@@ -193,14 +259,10 @@ export default function PoliticiansPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <aside className="hidden lg:block lg:col-span-1">
-              <PoliticianFilters
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-              />
+              <PoliticianFilters filters={filters} onFilterChange={handleFilterChange} />
             </aside>
 
             <main className="lg:col-span-3 space-y-8">
-
               {/* Politicians Results */}
               {hasSearched && (
                   <>
@@ -267,44 +329,59 @@ export default function PoliticiansPage() {
               {/* Leadership Sections - Only show if no successful search results */}
               {showLeadership && (
                   <>
-                    <div className="bg-card rounded-lg border p-6">
-                      <h2 className="text-2xl font-bold mb-6">House Leadership</h2>
-                      <div className="grid gap-8">
-                        <div className="bg-muted/50 rounded-lg p-6">
-                          <LeadershipSection
-                              title="Republican Leadership"
-                              leaders={HOUSE_REPUBLICAN_LEADERSHIP}
-                          />
+                    {/* If leadership is still loading, show a loader or error */}
+                    {loadingLeadership && (
+                        <div className="text-center text-muted-foreground py-8">
+                          Loading leadership...
                         </div>
-                        <div className="bg-muted/50 rounded-lg p-6">
-                          <LeadershipSection
-                              title="Democratic Leadership"
-                              leaders={HOUSE_DEMOCRATIC_LEADERSHIP}
-                          />
+                    )}
+                    {leadershipError && (
+                        <div className="text-center text-destructive py-8">
+                          Error fetching leadership: {leadershipError}
                         </div>
-                      </div>
-                    </div>
+                    )}
 
-                    <div className="bg-card rounded-lg border p-6">
-                      <h2 className="text-2xl font-bold mb-6">Senate Leadership</h2>
-                      <div className="grid gap-8">
-                        <div className="bg-muted/50 rounded-lg p-6">
-                          <LeadershipSection
-                              title="Democratic Leadership"
-                              leaders={SENATE_DEMOCRATIC_LEADERSHIP}
-                          />
-                        </div>
-                        <div className="bg-muted/50 rounded-lg p-6">
-                          <LeadershipSection
-                              title="Republican Leadership"
-                              leaders={SENATE_REPUBLICAN_LEADERSHIP}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    {!loadingLeadership && !leadershipError && leadership.length > 0 && (
+                        <>
+                          <div className="bg-card rounded-lg border p-6">
+                            <h2 className="text-2xl font-bold mb-6">House Leadership</h2>
+                            <div className="grid gap-8">
+                              <div className="bg-muted/50 rounded-lg p-6">
+                                <LeadershipSection
+                                    title="Republican Leadership"
+                                    leaders={houseRepublican}
+                                />
+                              </div>
+                              <div className="bg-muted/50 rounded-lg p-6">
+                                <LeadershipSection
+                                    title="Democratic Leadership"
+                                    leaders={houseDemocratic}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-card rounded-lg border p-6">
+                            <h2 className="text-2xl font-bold mb-6">Senate Leadership</h2>
+                            <div className="grid gap-8">
+                              <div className="bg-muted/50 rounded-lg p-6">
+                                <LeadershipSection
+                                    title="Democratic Leadership"
+                                    leaders={senateDemocratic}
+                                />
+                              </div>
+                              <div className="bg-muted/50 rounded-lg p-6">
+                                <LeadershipSection
+                                    title="Republican Leadership"
+                                    leaders={senateRepublican}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                    )}
                   </>
               )}
-
             </main>
           </div>
         </div>
