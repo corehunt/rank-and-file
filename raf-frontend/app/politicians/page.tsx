@@ -14,6 +14,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
+import {
+  HOUSE_DEMOCRATIC_LEADERSHIP,
+  HOUSE_REPUBLICAN_LEADERSHIP,
+  SENATE_DEMOCRATIC_LEADERSHIP,
+  SENATE_REPUBLICAN_LEADERSHIP
+} from "./data/leadership";
+import { LeadershipSection } from "./components/leadership-section";
+
 interface TermDTO {
   termId: number;
   chamber: string | null;
@@ -55,11 +63,13 @@ export default function PoliticiansPage() {
   const [filters, setFilters] = useState({
     chamber: "all",
     parties: [] as string[],
-    status: [] as string[], // No default status filter
+    status: [] as string[],
   });
+
   const [politicians, setPoliticians] = useState<PersonDTO[]>([]);
   const [filteredPoliticians, setFilteredPoliticians] = useState<PersonDTO[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleFilterChange = (type: string, value: string | string[]) => {
     setFilters((prev) => ({
@@ -70,6 +80,7 @@ export default function PoliticiansPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setHasSearched(true);
     fetchPoliticians();
   };
 
@@ -86,7 +97,6 @@ export default function PoliticiansPage() {
           return res.json();
         })
         .then((data: PersonDTO[]) => {
-          console.log("Data received from API:", data); // Optional: For debugging
           setPoliticians(data);
           setFilteredPoliticians(data);
           setLoading(false);
@@ -104,9 +114,7 @@ export default function PoliticiansPage() {
     if (filters.chamber !== "all") {
       filtered = filtered.filter((politician) => {
         if (!politician.termList || politician.termList.length === 0) return false;
-        const sortedTerms = [...politician.termList].sort(
-            (a, b) => b.startYr - a.startYr
-        );
+        const sortedTerms = [...politician.termList].sort((a, b) => b.startYr - a.startYr);
         const recentTerm = sortedTerms[0];
         return recentTerm.chamber === filters.chamber;
       });
@@ -138,16 +146,17 @@ export default function PoliticiansPage() {
     setFilteredPoliticians(filtered);
   }, [filters, politicians]);
 
+  // Determine whether to show leadership
+  // Show leadership if no search has been done OR if searched but no results
+  const showLeadership = !hasSearched || (hasSearched && filteredPoliticians.length === 0 && !loading);
+
   return (
       <div className="min-h-screen bg-muted/30">
         <div className="bg-background border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-4">
-              U.S. Politicians
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4">U.S. Politicians</h1>
             <p className="text-base sm:text-lg text-muted-foreground mb-6">
-              Track voting records, sponsored bills, and financial connections of
-              current and past Congress members.
+              Track voting records, sponsored bills, and financial connections of current and past Congress members.
             </p>
             <form onSubmit={handleSearch} className="flex gap-4">
               <div className="relative flex-1">
@@ -169,19 +178,14 @@ export default function PoliticiansPage() {
           <div className="lg:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  Filters
-                </Button>
+                <Button variant="outline" className="w-full">Filters</Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                 <SheetHeader>
                   <SheetTitle>Filter Politicians</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6">
-                  <PoliticianFilters
-                      filters={filters}
-                      onFilterChange={handleFilterChange}
-                  />
+                  <PoliticianFilters filters={filters} onFilterChange={handleFilterChange} />
                 </div>
               </SheetContent>
             </Sheet>
@@ -194,73 +198,113 @@ export default function PoliticiansPage() {
                   onFilterChange={handleFilterChange}
               />
             </aside>
-            <main className="lg:col-span-3">
-              {filteredPoliticians.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    No politicians found matching your criteria
-                  </div>
-              ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                    {filteredPoliticians.map((politician) => {
-                      // Extract the chamber from the most recent term
-                      let chamber = "Unknown";
-                      if (
-                          politician.termList &&
-                          politician.termList.length > 0
-                      ) {
-                        const sortedTerms = [...politician.termList].sort(
-                            (a, b) => b.startYr - a.startYr
-                        );
-                        const recentTerm = sortedTerms[0];
-                        chamber = recentTerm.chamber || "Unknown";
-                      }
 
-                      // Determine if the politician is a Senator
-                      const isSenator = chamber === "Senate";
+            <main className="lg:col-span-3 space-y-8">
 
-                      // For Senators, we omit the district line
-                      let districtDisplay = "";
-                      if (!isSenator) {
-                        // For House members, display the district
-                        if (politician.currentDistrict !== null) {
-                          districtDisplay = `District ${politician.currentDistrict}`;
-                        } else {
-                          districtDisplay = "District Unknown";
-                        }
-                      }
+              {/* Politicians Results */}
+              {hasSearched && (
+                  <>
+                    {loading ? (
+                        <div className="text-center text-muted-foreground py-8">Loading...</div>
+                    ) : filteredPoliticians.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          No politicians found matching your criteria
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                          {filteredPoliticians.map((politician) => {
+                            let chamber = "Unknown";
+                            if (politician.termList && politician.termList.length > 0) {
+                              const sortedTerms = [...politician.termList].sort(
+                                  (a, b) => b.startYr - a.startYr
+                              );
+                              const recentTerm = sortedTerms[0];
+                              chamber = recentTerm.chamber || "Unknown";
+                            }
 
-                      // Map party code to full name
-                      const partyMap: { [key: string]: string } = {
-                        R: "Republican",
-                        D: "Democratic",
-                        I: "Independent",
-                      };
-                      const partyName =
-                          partyMap[politician.partyMembership || ""] || "Unknown";
-
-                      // Determine status
-                      const status =
-                          politician.currentMember === "Yes"
-                              ? "Incumbent"
-                              : "Former Member";
-
-                      return (
-                          <PoliticianCard
-                              key={politician.personId}
-                              name={politician.fullName || "Unknown"}
-                              state={politician.state || "Unknown"}
-                              party={partyName}
-                              district={districtDisplay}
-                              imageUrl={
-                                  politician.imageUrl || "/default-image.jpg"
+                            const isSenator = chamber === "Senate";
+                            let districtDisplay = "";
+                            if (!isSenator) {
+                              if (politician.currentDistrict !== null) {
+                                districtDisplay = `District ${politician.currentDistrict}`;
+                              } else {
+                                districtDisplay = "District Unknown";
                               }
-                              status={status}
-                              chamber={chamber}
-                           personId={politician.personId}/>
-                      );
-                    })}
-                  </div>
+                            }
+
+                            const partyMap: { [key: string]: string } = {
+                              R: "Republican",
+                              D: "Democratic",
+                              I: "Independent",
+                            };
+                            const partyName =
+                                partyMap[politician.partyMembership || ""] || "Unknown";
+
+                            const status =
+                                politician.currentMember === "Yes"
+                                    ? "Incumbent"
+                                    : "Former Member";
+
+                            return (
+                                <PoliticianCard
+                                    key={politician.personId}
+                                    name={politician.fullName || "Unknown"}
+                                    state={politician.state || "Unknown"}
+                                    party={partyName}
+                                    district={districtDisplay}
+                                    imageUrl={politician.imageUrl || "/default-image.jpg"}
+                                    status={status}
+                                    chamber={chamber}
+                                    personId={politician.personId}
+                                />
+                            );
+                          })}
+                        </div>
+                    )}
+                  </>
               )}
+
+              {/* Leadership Sections - Only show if no successful search results */}
+              {showLeadership && (
+                  <>
+                    <div className="bg-card rounded-lg border p-6">
+                      <h2 className="text-2xl font-bold mb-6">House Leadership</h2>
+                      <div className="grid gap-8">
+                        <div className="bg-muted/50 rounded-lg p-6">
+                          <LeadershipSection
+                              title="Republican Leadership"
+                              leaders={HOUSE_REPUBLICAN_LEADERSHIP}
+                          />
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-6">
+                          <LeadershipSection
+                              title="Democratic Leadership"
+                              leaders={HOUSE_DEMOCRATIC_LEADERSHIP}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-card rounded-lg border p-6">
+                      <h2 className="text-2xl font-bold mb-6">Senate Leadership</h2>
+                      <div className="grid gap-8">
+                        <div className="bg-muted/50 rounded-lg p-6">
+                          <LeadershipSection
+                              title="Democratic Leadership"
+                              leaders={SENATE_DEMOCRATIC_LEADERSHIP}
+                          />
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-6">
+                          <LeadershipSection
+                              title="Republican Leadership"
+                              leaders={SENATE_REPUBLICAN_LEADERSHIP}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+              )}
+
             </main>
           </div>
         </div>
