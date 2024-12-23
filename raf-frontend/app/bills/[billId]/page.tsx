@@ -39,7 +39,7 @@ interface ActionDTO {
   committeeRef: string | null;
 }
 
-interface PersonSponsorDTO {
+interface PersonSummaryDTO {
   personId: string;
   firstName: string | null;
   midName: string | null;
@@ -54,7 +54,7 @@ interface PersonSponsorDTO {
 interface SponsoredLegislationDTO {
   sponLegId: string;
   sponsorType: string | null;
-  person: PersonSponsorDTO | null;
+  person: PersonSummaryDTO | null;
 }
 
 interface TextDTO {
@@ -289,9 +289,13 @@ export default async function BillPage({
                     <CardContent className="pt-6">
                       <h2 className="text-xl font-semibold mb-4">Latest Action</h2>
                       <div className="space-y-2">
-                        <p className="text-muted-foreground">{latestAction.actionText}</p>
+                        <p className="text-muted-foreground">
+                          {latestAction?.actionText || "No action text available."}
+                        </p>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(latestAction?.actionDate).toLocaleDateString()}
+                          {latestAction?.actionDate
+                              ? new Date(latestAction.actionDate).toLocaleDateString()
+                              : "No date available"}
                         </p>
                       </div>
                     </CardContent>

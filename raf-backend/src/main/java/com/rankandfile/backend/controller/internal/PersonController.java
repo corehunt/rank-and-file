@@ -1,5 +1,6 @@
 package com.rankandfile.backend.controller.internal;
 
+import com.rankandfile.backend.dto.LeadershipDTO;
 import com.rankandfile.backend.dto.PersonDTO;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.mapper.PersonMapper;
@@ -44,5 +45,11 @@ public class PersonController {
     public ResponseEntity<PersonDTO> getPersonFromId(@PathVariable String personId) {
         PersonDTO personDTO = personService.getPersonDTOById(personId);
         return ResponseEntity.ok(personDTO);
+    }
+
+    @GetMapping("/politician/leadership")
+    public ResponseEntity<List<LeadershipDTO>> getLeadershipFromId() {
+        List<LeadershipDTO> leadershipDTOList = personService.getCurrentLeadership();
+        return ResponseEntity.ok(leadershipDTOList);
     }
 }

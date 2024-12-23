@@ -18,5 +18,6 @@
     <include file="db/changelog/scripts/v1/CREATE-RAF_BILL_COMMITTEE-JOIN-TABLE.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_BILL_TEXT.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_RELATED_BILLS.sql"/>
+    <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_LEADERSHIP.sql"/>
 
 </databaseChangeLog>

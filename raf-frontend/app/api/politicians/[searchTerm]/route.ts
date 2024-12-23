@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const revalidate = 0;
+
 interface TermDTO {
     termId: number;
     chamber: string;

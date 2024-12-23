@@ -60,4 +60,6 @@ public class IdGenerator {
     public String generateTextId(){
         return textPrefix.concat(String.valueOf(random.nextInt(999999)));
     }
+
+    public Integer generateLeadershipId(){return random.nextInt(999999);}
 }

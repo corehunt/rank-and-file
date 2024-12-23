@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class SponsoredLegislationDTO {
     private String sponLegId;
-    private PersonSponsorDTO person;
+    private PersonSummaryDTO person;
     private String sponsorType;
     private BillDTO bill;
 }

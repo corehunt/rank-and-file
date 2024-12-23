@@ -3,7 +3,7 @@ package com.rankandfile.backend.dto;
 import lombok.Data;
 
 @Data
-public class PersonSponsorDTO {
+public class PersonSummaryDTO {
     private String personId;
     private String firstName;
     private String midName;

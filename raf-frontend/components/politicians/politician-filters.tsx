@@ -22,7 +22,7 @@ export default function PoliticianFilters({
   return (
       <Card className="sticky top-4">
         <CardHeader>
-          <h2 className="text-lg font-semibold">Filters</h2>
+          <h2 className="text-lg font-semibold">Search Result Filters</h2>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Chamber Filter */}
