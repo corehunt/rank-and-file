@@ -2,13 +2,11 @@
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface BillFiltersProps {
   filters: {
-    status: string;
     chamber: string[];
     party: string[];
     congress: string[];
@@ -30,33 +28,7 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
           <h2 className="text-lg font-semibold">Filters</h2>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="font-medium">Status</h3>
-            <RadioGroup
-                value={filters.status}
-                onValueChange={(value) => onFilterChange("status", value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="all" id="all" />
-                <Label htmlFor="all">All Status</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="In Committee" id="active" />
-                <Label htmlFor="active">In Committee</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Passed House" id="passed" />
-                <Label htmlFor="passed">Passed House</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Failed" id="failed" />
-                <Label htmlFor="failed">Failed</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <Separator />
-
+          {/* Congress Filter */}
           <div className="space-y-4">
             <h3 className="font-medium">Congress</h3>
             <div className="space-y-2">
@@ -66,10 +38,10 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                         id={congress}
                         checked={filters.congress.includes(congress)}
                         onCheckedChange={(checked) => {
-                          const newCongresses = checked
+                          const newList = checked
                               ? [...filters.congress, congress]
-                              : filters.congress.filter(c => c !== congress);
-                          onFilterChange("congress", newCongresses);
+                              : filters.congress.filter((c) => c !== congress);
+                          onFilterChange("congress", newList);
                         }}
                     />
                     <Label htmlFor={congress}>{congress}</Label>
@@ -80,6 +52,7 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
 
           <Separator />
 
+          {/* Chamber Filter (House / Senate) */}
           <div className="space-y-4">
             <h3 className="font-medium">Chamber</h3>
             <div className="space-y-2">
@@ -90,7 +63,7 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                     onCheckedChange={(checked) => {
                       const newChambers = checked
                           ? [...filters.chamber, "house"]
-                          : filters.chamber.filter(c => c !== "house");
+                          : filters.chamber.filter((c) => c !== "house");
                       onFilterChange("chamber", newChambers);
                     }}
                 />
@@ -103,7 +76,7 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                     onCheckedChange={(checked) => {
                       const newChambers = checked
                           ? [...filters.chamber, "senate"]
-                          : filters.chamber.filter(c => c !== "senate");
+                          : filters.chamber.filter((c) => c !== "senate");
                       onFilterChange("chamber", newChambers);
                     }}
                 />
@@ -114,6 +87,7 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
 
           <Separator />
 
+          {/* Party Filter */}
           <div className="space-y-4">
             <h3 className="font-medium">Party</h3>
             <div className="space-y-2">
@@ -122,10 +96,10 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                     id="democratic"
                     checked={filters.party.includes("Democratic")}
                     onCheckedChange={(checked) => {
-                      const newParties = checked
+                      const newParty = checked
                           ? [...filters.party, "Democratic"]
-                          : filters.party.filter(p => p !== "Democratic");
-                      onFilterChange("party", newParties);
+                          : filters.party.filter((p) => p !== "Democratic");
+                      onFilterChange("party", newParty);
                     }}
                 />
                 <Label htmlFor="democratic">Democratic Sponsor</Label>
@@ -135,10 +109,10 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                     id="republican"
                     checked={filters.party.includes("Republican")}
                     onCheckedChange={(checked) => {
-                      const newParties = checked
+                      const newParty = checked
                           ? [...filters.party, "Republican"]
-                          : filters.party.filter(p => p !== "Republican");
-                      onFilterChange("party", newParties);
+                          : filters.party.filter((p) => p !== "Republican");
+                      onFilterChange("party", newParty);
                     }}
                 />
                 <Label htmlFor="republican">Republican Sponsor</Label>
@@ -148,10 +122,10 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
                     id="bipartisan"
                     checked={filters.party.includes("Bipartisan")}
                     onCheckedChange={(checked) => {
-                      const newParties = checked
+                      const newParty = checked
                           ? [...filters.party, "Bipartisan"]
-                          : filters.party.filter(p => p !== "Bipartisan");
-                      onFilterChange("party", newParties);
+                          : filters.party.filter((p) => p !== "Bipartisan");
+                      onFilterChange("party", newParty);
                     }}
                 />
                 <Label htmlFor="bipartisan">Bipartisan</Label>
