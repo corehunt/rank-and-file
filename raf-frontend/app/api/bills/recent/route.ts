@@ -33,7 +33,7 @@ interface PersonSummaryDTO {
 
 interface TextDTO {
     textId: string;
-    versionDate: string; // or Date if you prefer
+    versionDate: string;
     versionType: string;
     pdfUrl: string;
 }
@@ -42,7 +42,7 @@ interface RelatedBillDTO {
     billId: string;
     billNo: number;
     billTitle: string;
-    introducedDt: string; // or Date
+    introducedDt: string;
     congress: number;
     billType: string;
     originChamber: string;
@@ -60,8 +60,8 @@ interface BillDTO {
     billId: string;
     billNo: number | null;
     billTitle: string | null;
-    introducedDt: string | null; // or Date
-    latestActionDt: string | null; // or Date
+    introducedDt: string | null;
+    latestActionDt: string | null;
     latestActionTxt: string | null;
     policyArea: string | null;
     congress: number | null;
