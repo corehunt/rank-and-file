@@ -11,4 +11,6 @@ public interface BillRepository extends JpaRepository<Bill, String> {
     List<Bill> findByCongressInAndBillNoIn(Set<Integer> congressNumbers, Set<Integer> billNumbers);
 
     Bill findByCongressAndBillNoAndBillType(String congress, String billNo, String billType);
+
+    List<Bill> findTop10ByOrderByIntroducedDtDesc();
 }

@@ -8,6 +8,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class BillService {
@@ -26,6 +29,13 @@ public class BillService {
         log.info("Bill returned is {}", bill);
 
         return billMapper.toBillDTO(bill);
+    }
+
+    public List<BillDTO> getRecentBills() {
+        List<Bill> bills = billRepository.findTop10ByOrderByIntroducedDtDesc();
+        return bills.stream()
+                .map(billMapper::toBillDTO)
+                .collect(Collectors.toList());
     }
 
 }

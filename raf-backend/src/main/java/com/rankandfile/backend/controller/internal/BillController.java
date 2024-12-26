@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/internal")
@@ -26,5 +28,11 @@ public class BillController {
     public ResponseEntity<BillDTO> getBillForBillPage(@PathVariable String billId) {
         BillDTO billDTO = billService.getBillById(billId);
         return ResponseEntity.ok(billDTO);
+    }
+
+    @GetMapping("/bill/recent")
+    public ResponseEntity<List<BillDTO>> getRecentBills() {
+        List<BillDTO> recentBills = billService.getRecentBills();
+        return ResponseEntity.ok(recentBills);
     }
 }

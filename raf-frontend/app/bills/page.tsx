@@ -11,104 +11,166 @@ import {
   SheetContent,
   SheetTrigger,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
 } from "@/components/ui/sheet";
 
-const SAMPLE_BILLS = [
-  {
-    id: 1,
-    title: "H.R. 1234 - Clean Energy Act",
-    sponsor: "Jane Smith",
-    party: "Democratic",
-    state: "CA",
-    status: "In Committee",
-    introducedDate: "2023-09-15",
-    summary: "A bill to promote renewable energy development and reduce carbon emissions through federal incentives and regulations.",
-    chamber: "house",
-    congress: "118th Congress (2023-2024)"
-  },
-  {
-    id: 2,
-    title: "S. 789 - Infrastructure Investment Act",
-    sponsor: "John Doe",
-    party: "Republican",
-    state: "TX",
-    status: "Passed House",
-    introducedDate: "2023-08-22",
-    summary: "A comprehensive bill to fund critical infrastructure projects across the United States, including roads, bridges, and public transportation systems.",
-    chamber: "senate",
-    congress: "118th Congress (2023-2024)"
-  }
-];
+interface PersonSummaryDTO {
+  personId: string;
+  firstName: string | null;
+  midName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  state: string | null;
+  currentDistrict: number | null;
+  imageUrl: string | null;
+  partyMembership: string | null;
+}
+
+interface SponsoredLegPersonDTO {
+  sponLegId: string;
+  sponsorType: string | null;
+  person: PersonSummaryDTO | null;
+}
+
+interface BillDTO {
+  billId: string;
+  billNo: number | null;
+  billTitle: string | null;
+  introducedDt: string | null;
+  latestActionDt: string | null;
+  latestActionTxt: string | null;
+  policyArea: string | null;
+  congress: number | null;
+  billType: string | null;
+  originChamber: string | null;
+  summaryTxt: string | null;
+  legislativeSubjects: string | null;
+  sponsorships: SponsoredLegPersonDTO[] | null;
+}
 
 export default function BillsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    status: "all",
     chamber: [] as string[],
     party: [] as string[],
-    congress: [] as string[]
+    congress: [] as string[],
   });
-  const [filteredBills, setFilteredBills] = useState(SAMPLE_BILLS);
 
-  const handleFilterChange = (type: string, value: string | string[]) => {
-    setFilters(prev => ({
-      ...prev,
-      [type]: value
-    }));
-  };
+  // Store recent bills (fetched on mount)
+  const [recentBills, setRecentBills] = useState<BillDTO[]>([]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
+  // Store search results (updated whenever searchQuery or filters change)
+  const [searchResults, setSearchResults] = useState<BillDTO[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
+  /**
+   * 1) Fetch “recent bills”
+   */
   useEffect(() => {
-    let filtered = SAMPLE_BILLS;
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(bill =>
-          bill.title.toLowerCase().includes(query) ||
-          bill.sponsor.toLowerCase().includes(query) ||
-          bill.summary.toLowerCase().includes(query)
-      );
+    async function fetchRecentBills() {
+      try {
+        const res = await fetch("/api/bills/recent", { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("Failed to fetch recent bills");
+        }
+        const data: BillDTO[] = await res.json();
+        setRecentBills(data);
+      } catch (error) {
+        console.error("Error fetching recent bills:", error);
+      }
     }
 
-    if (filters.status !== "all") {
-      filtered = filtered.filter(bill =>
-          bill.status === filters.status
-      );
+    fetchRecentBills();
+  }, []);
+
+  /**
+   * 2) Whenever searchQuery or filters change, fetch from API.
+   *    If searchQuery is empty & filters are default, do NOT show search results
+   *    so that “recent bills” remain visible.
+   */
+  useEffect(() => {
+    const isDefaultFilters =
+        filters.chamber.length === 0 &&
+        filters.party.length === 0 &&
+        filters.congress.length === 0;
+
+    // If no search & default filters, we show recent (no search results)
+    if (!searchQuery.trim() && isDefaultFilters) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
     }
 
-    if (filters.chamber.length > 0) {
-      filtered = filtered.filter(bill =>
-          filters.chamber.includes(bill.chamber)
-      );
+    async function fetchSearchResults() {
+      try {
+        setIsSearching(true);
+
+        const queryParams = new URLSearchParams({
+          q: searchQuery,
+          chamber: filters.chamber.join(","),
+          party: filters.party.join(","),
+          congress: filters.congress.join(","),
+        });
+
+        const res = await fetch(`/api/bills?${queryParams}`, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("Failed to fetch search results");
+        }
+
+        const data: BillDTO[] = await res.json();
+        setSearchResults(data);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+        setSearchResults([]);
+      }
     }
 
-    if (filters.party.length > 0) {
-      filtered = filtered.filter(bill =>
-          filters.party.includes(bill.party)
-      );
-    }
-
-    if (filters.congress.length > 0) {
-      filtered = filtered.filter(bill =>
-          filters.congress.includes(bill.congress)
-      );
-    }
-
-    setFilteredBills(filtered);
+    fetchSearchResults();
   }, [searchQuery, filters]);
+
+  function handleFilterChange(type: string, value: string | string[]) {
+    setFilters((prev) => ({
+      ...prev,
+      [type]: value,
+    }));
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+  }
+
+  function getMainSponsorName(
+      bill: BillDTO
+  ): { name: string; party: string; state: string } | null {
+    if (!bill.sponsorships || bill.sponsorships.length === 0) return null;
+
+    const mainSponsor = bill.sponsorships.find(
+        (s) => s.sponsorType && s.sponsorType.toLowerCase() === "sponsor"
+    );
+    if (!mainSponsor || !mainSponsor.person) return null;
+
+    return {
+      name: mainSponsor.person.fullName || "Unknown Sponsor",
+      party: mainSponsor.person.partyMembership || "Unknown",
+      state: mainSponsor.person.state || "??",
+    };
+  }
+
+  const showSearchResults = isSearching && searchResults.length > 0;
+  const showNoResults = isSearching && searchResults.length === 0;
+  const showRecentBills = !isSearching;
 
   return (
       <div className="min-h-screen bg-muted/30">
+        {/* Page Header */}
         <div className="bg-background border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4">Legislative Bills</h1>
             <p className="text-base sm:text-lg text-muted-foreground mb-6">
               Track and analyze current and historical legislation in Congress.
             </p>
+
+            {/* Search Form */}
             <form onSubmit={handleSearch} className="flex gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -125,7 +187,9 @@ export default function BillsPage() {
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Mobile Filters */}
           <div className="lg:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
@@ -138,41 +202,84 @@ export default function BillsPage() {
                   <SheetTitle>Filter Bills</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6">
-                  <BillFilters
-                      filters={filters}
-                      onFilterChange={handleFilterChange}
-                  />
+                  <BillFilters filters={filters} onFilterChange={handleFilterChange} />
                 </div>
               </SheetContent>
             </Sheet>
           </div>
 
+          {/* Desktop layout: Filters on the left, results on the right */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <aside className="hidden lg:block lg:col-span-1">
-              <BillFilters
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-              />
+              <BillFilters filters={filters} onFilterChange={handleFilterChange} />
             </aside>
+
             <main className="lg:col-span-3">
-              {filteredBills.length === 0 ? (
+              {/* Show Recent Bills */}
+              {showRecentBills && recentBills.length > 0 && (
+                  <section className="mb-8">
+                    <h2 className="text-xl font-semibold mb-4">Recent Bills</h2>
+                    <div className="grid gap-6">
+                      {recentBills.map((bill) => {
+                        const sponsorInfo = getMainSponsorName(bill);
+                        return (
+                            <BillCard
+                                key={bill.billId}
+                                billId={bill.billId}
+                                displayTitle={
+                                  bill.billType && bill.billNo
+                                      ? `${bill.billType} ${bill.billNo} - ${bill.billTitle}`
+                                      : bill.billTitle || "Untitled Bill"
+                                }
+                                sponsorName={sponsorInfo?.name}
+                                sponsorParty={sponsorInfo?.party}
+                                sponsorState={sponsorInfo?.state}
+                                introducedDate={
+                                  bill.introducedDt
+                                      ? new Date(bill.introducedDt).toLocaleDateString()
+                                      : undefined
+                                }
+                                summary={bill.summaryTxt || undefined}
+                            />
+                        );
+                      })}
+                    </div>
+                  </section>
+              )}
+
+              {/* Search Results */}
+              {showSearchResults && (
+                  <div className="grid gap-6">
+                    {searchResults.map((bill) => {
+                      const sponsorInfo = getMainSponsorName(bill);
+                      return (
+                          <BillCard
+                              key={bill.billId}
+                              billId={bill.billId}
+                              displayTitle={
+                                bill.billType && bill.billNo
+                                    ? `${bill.billType} ${bill.billNo} - ${bill.billTitle}`
+                                    : bill.billTitle || "Untitled Bill"
+                              }
+                              sponsorName={sponsorInfo?.name}
+                              sponsorParty={sponsorInfo?.party}
+                              sponsorState={sponsorInfo?.state}
+                              introducedDate={
+                                bill.introducedDt
+                                    ? new Date(bill.introducedDt).toLocaleDateString()
+                                    : undefined
+                              }
+                              summary={bill.summaryTxt || undefined}
+                          />
+                      );
+                    })}
+                  </div>
+              )}
+
+              {/* No Results */}
+              {showNoResults && (
                   <div className="text-center text-muted-foreground py-8">
                     No bills found matching your criteria
-                  </div>
-              ) : (
-                  <div className="grid gap-6">
-                    {filteredBills.map((bill) => (
-                        <BillCard
-                            key={bill.id}
-                            title={bill.title}
-                            sponsor={bill.sponsor}
-                            party={bill.party}
-                            state={bill.state}
-                            status={bill.status}
-                            introducedDate={bill.introducedDate}
-                            summary={bill.summary}
-                        />
-                    ))}
                   </div>
               )}
             </main>
