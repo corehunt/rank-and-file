@@ -1,8 +1,7 @@
 package com.rankandfile.backend.repository;
 
 import com.rankandfile.backend.entity.Bill;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface BillSearchRepository {
     /**
@@ -10,9 +9,9 @@ public interface BillSearchRepository {
      * returning them sorted by text relevance desc, then introduced date desc.
      *
      * @param parsedQuery Boolean-mode query string (e.g. "+tax* +credit*")
-     * @param page  Zero-based page index
-     * @param size  Number of results per page
-     * @return List of Bill entities matching the search
+     * @param page        zero-based page index
+     * @param size        number of results per page
+     * @return a Page of Bill entities matching the search
      */
-    List<Bill> searchBills(String parsedQuery, int page, int size);
+    Page<Bill> searchBills(String parsedQuery, int page, int size);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import BillCard from "@/components/bills/bill-card";
@@ -48,6 +48,19 @@ interface BillDTO {
   sponsorships: SponsoredLegPersonDTO[] | null;
 }
 
+/**
+ * Paged result structure from the backend.
+ * Adjust if your fields differ.
+ */
+interface PageDTO<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number; // zero-based page index
+}
+
+/* ---------------------- Main Component ---------------------- */
 export default function BillsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -56,15 +69,23 @@ export default function BillsPage() {
     congress: [] as string[],
   });
 
-  // Store recent bills (fetched on mount)
+  // "recentBills" for when user hasn't triggered search
   const [recentBills, setRecentBills] = useState<BillDTO[]>([]);
 
-  // Store search results (populated only when user submits)
-  const [searchResults, setSearchResults] = useState<BillDTO[]>([]);
+  // Page-based results from the backend
+  const [pagedResults, setPagedResults] = useState<PageDTO<BillDTO> | null>(null);
+
+  // State for controlling whether user is searching or viewing recent
   const [isSearching, setIsSearching] = useState(false);
 
+  // Pagination: 1-based
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Loading flag
+  const [loading, setLoading] = useState(false);
+
   /**
-   * 1) Fetch “recent bills” on mount.
+   * 1) Fetch recent bills on mount
    */
   useEffect(() => {
     async function fetchRecentBills() {
@@ -79,16 +100,9 @@ export default function BillsPage() {
         console.error("Error fetching recent bills:", error);
       }
     }
-
     fetchRecentBills();
   }, []);
 
-  /**
-   * handleFilterChange
-   * If you want filter changes to immediately re-trigger searching,
-   * call `handleSearch()` inside here. But for now,
-   * we only search on form submit, so do NOT auto-fetch.
-   */
   function handleFilterChange(type: string, value: string | string[]) {
     setFilters((prev) => ({
       ...prev,
@@ -97,34 +111,45 @@ export default function BillsPage() {
   }
 
   /**
-   * handleSearch
-   * Triggers the search manually on form submission.
+   * handleSearch: triggers search on user submit (Enter / Search button).
    */
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
 
-    // Check if the user typed anything or changed filters
+    // If user typed nothing & filters are default -> show recent
     const isDefaultFilters =
         filters.chamber.length === 0 &&
         filters.party.length === 0 &&
         filters.congress.length === 0;
 
-    // If no search query & default filters → show recent bills
     if (!searchQuery.trim() && isDefaultFilters) {
-      setSearchResults([]);
       setIsSearching(false);
+      setPagedResults(null);
+      setCurrentPage(1);
       return;
     }
 
-    // Otherwise, actually do the search
+    // Otherwise, do an actual search on page 1
+    setCurrentPage(1);
+    await doSearch(1); // fetch page 1
+  }
+
+  /**
+   * doSearch: fetches from the backend with pagination
+   * - page is 1-based
+   */
+  async function doSearch(page: number) {
     try {
       setIsSearching(true);
+      setLoading(true);
 
       const queryParams = new URLSearchParams({
         q: searchQuery,
         chamber: filters.chamber.join(","),
         party: filters.party.join(","),
         congress: filters.congress.join(","),
+        page: String(page - 1), // backend expects zero-based
+        size: "10",
       });
 
       const res = await fetch(`/api/bills?${queryParams}`, { cache: "no-store" });
@@ -132,25 +157,31 @@ export default function BillsPage() {
         throw new Error("Failed to fetch search results");
       }
 
-      const data: BillDTO[] = await res.json();
-      setSearchResults(data);
+      const data: PageDTO<BillDTO> = await res.json();
+      setPagedResults(data);
     } catch (error) {
       console.error("Error fetching search results:", error);
-      setSearchResults([]);
+      setPagedResults(null);
+    } finally {
+      setLoading(false);
     }
   }
 
+  useEffect(() => {
+    if (isSearching) {
+      doSearch(currentPage);
+    }
+  }, [currentPage]);
+
   /**
-   * Helper function to get main sponsor.
+   * getMainSponsorName helper
    */
   function getMainSponsorName(bill: BillDTO): { name: string; party: string; state: string } | null {
     if (!bill.sponsorships || bill.sponsorships.length === 0) return null;
-
     const mainSponsor = bill.sponsorships.find(
         (s) => s.sponsorType && s.sponsorType.toLowerCase() === "sponsor"
     );
     if (!mainSponsor || !mainSponsor.person) return null;
-
     return {
       name: mainSponsor.person.fullName || "Unknown Sponsor",
       party: mainSponsor.person.partyMembership || "Unknown",
@@ -158,12 +189,76 @@ export default function BillsPage() {
     };
   }
 
-  /**
-   * Decide what to display
-   */
-  const showSearchResults = isSearching && searchResults.length > 0;
-  const showNoResults = isSearching && searchResults.length === 0;
-  const showRecentBills = !isSearching; // user hasn't triggered search yet
+  function renderPaginationButtons() {
+    if (!pagedResults) return null;
+
+    const { totalPages } = pagedResults;
+    const buttons = [];
+
+    // Prev
+    buttons.push(
+        <Button
+            key="prev"
+            variant="outline"
+            size="icon"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+    );
+
+    // Page #s
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+          i === 1 ||
+          i === totalPages ||
+          (i >= currentPage - 1 && i <= currentPage + 1)
+      ) {
+        buttons.push(
+            <Button
+                key={i}
+                variant={currentPage === i ? "default" : "outline"}
+                onClick={() => setCurrentPage(i)}
+                className="hidden sm:inline-flex"
+            >
+              {i}
+            </Button>
+        );
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        buttons.push(
+            <Button
+                key={`dots-${i}`}
+                variant="outline"
+                disabled
+                className="hidden sm:inline-flex"
+            >
+              ...
+            </Button>
+        );
+      }
+    }
+
+    // Next
+    buttons.push(
+        <Button
+            key="next"
+            variant="outline"
+            size="icon"
+            disabled={pagedResults && currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+    );
+
+    return buttons;
+  }
+
+  const showingSearchResults = isSearching && pagedResults !== null;
+
+  const noResults =
+      isSearching && !loading && pagedResults && pagedResults.content.length === 0;
 
   return (
       <div className="min-h-screen bg-muted/30">
@@ -220,8 +315,8 @@ export default function BillsPage() {
             </aside>
 
             <main className="lg:col-span-3">
-              {/* Show Recent Bills if not searching */}
-              {showRecentBills && recentBills.length > 0 && (
+              {/* If not searching, show recent bills */}
+              {!showingSearchResults && recentBills.length > 0 && (
                   <section className="mb-8">
                     <h2 className="text-xl font-semibold mb-4">Recent Bills</h2>
                     <div className="grid gap-6">
@@ -252,40 +347,64 @@ export default function BillsPage() {
                   </section>
               )}
 
-              {/* Search Results */}
-              {showSearchResults && (
-                  <div className="grid gap-6">
-                    {searchResults.map((bill) => {
-                      const sponsorInfo = getMainSponsorName(bill);
-                      return (
-                          <BillCard
-                              key={bill.billId}
-                              billId={bill.billId}
-                              displayTitle={
-                                bill.billType && bill.billNo
-                                    ? `${bill.billType} ${bill.billNo} - ${bill.billTitle}`
-                                    : bill.billTitle || "Untitled Bill"
-                              }
-                              sponsorName={sponsorInfo?.name}
-                              sponsorParty={sponsorInfo?.party}
-                              sponsorState={sponsorInfo?.state}
-                              introducedDate={
-                                bill.introducedDt
-                                    ? new Date(bill.introducedDt).toLocaleDateString()
-                                    : undefined
-                              }
-                              summary={bill.summaryTxt || undefined}
-                          />
-                      );
-                    })}
-                  </div>
-              )}
+              {/* If searching, show loading or results */}
+              {isSearching && (
+                  <>
+                    {/* Loading indicator */}
+                    {loading && (
+                        <div className="text-center text-muted-foreground py-4">
+                          Loading...
+                        </div>
+                    )}
 
-              {/* No Results */}
-              {showNoResults && (
-                  <div className="text-center text-muted-foreground py-8">
-                    No bills found matching your criteria
-                  </div>
+                    {/* No Results */}
+                    {noResults && (
+                        <div className="text-center text-muted-foreground py-8">
+                          No bills found matching your criteria
+                        </div>
+                    )}
+
+                    {/* Show Paged Results */}
+                    {!loading && pagedResults && pagedResults.content.length > 0 && (
+                        <>
+                          <div className="grid gap-6">
+                            {pagedResults.content.map((bill) => {
+                              const sponsorInfo = getMainSponsorName(bill);
+                              return (
+                                  <BillCard
+                                      key={bill.billId}
+                                      billId={bill.billId}
+                                      displayTitle={
+                                        bill.billType && bill.billNo
+                                            ? `${bill.billType} ${bill.billNo} - ${bill.billTitle}`
+                                            : bill.billTitle || "Untitled Bill"
+                                      }
+                                      sponsorName={sponsorInfo?.name}
+                                      sponsorParty={sponsorInfo?.party}
+                                      sponsorState={sponsorInfo?.state}
+                                      introducedDate={
+                                        bill.introducedDt
+                                            ? new Date(bill.introducedDt).toLocaleDateString()
+                                            : undefined
+                                      }
+                                      summary={bill.summaryTxt || undefined}
+                                  />
+                              );
+                            })}
+                          </div>
+
+                          {/* Pagination */}
+                          {pagedResults.totalPages > 1 && (
+                              <div className="flex justify-center gap-2 pt-4">
+                                {renderPaginationButtons()}
+                              </div>
+                          )}
+                          <div className="text-center text-sm text-muted-foreground mt-2">
+                            Page {currentPage} of {pagedResults.totalPages}
+                          </div>
+                        </>
+                    )}
+                  </>
               )}
             </main>
           </div>

@@ -5,9 +5,10 @@ import com.rankandfile.backend.entity.Bill;
 import com.rankandfile.backend.mapper.BillMapper;
 import com.rankandfile.backend.repository.BillSearchRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,19 +17,32 @@ public class BillSearchService {
     private final BillSearchRepository billSearchRepository;
     private final BillMapper billMapper;
 
-    public List<BillDTO> searchBills(String rawQuery, int page, int size) {
+    /**
+     * Searches bills in full-text boolean mode and returns a paged list of BillDTO.
+     *
+     * @param rawQuery the raw search string
+     * @param page     zero-based page index
+     * @param size     page size
+     * @return a Page of BillDTO
+     */
+    public Page<BillDTO> searchBillsPaged(String rawQuery, int page, int size) {
         String parsedQuery = buildBooleanQuery(rawQuery);
         if (parsedQuery.isEmpty()) {
-            return List.of();
+            // Return an empty page if there's no valid query
+            return Page.empty();
         }
 
-        List<Bill> billEntities = billSearchRepository.searchBills(parsedQuery, page, size);
+        Pageable pageable = PageRequest.of(page, size);
 
-        return billEntities.stream()
-                .map(billMapper::toBillDTO)
-                .toList();
+        Page<Bill> billPage = billSearchRepository.searchBills(parsedQuery, page, size);
+
+        return billPage.map(billMapper::toBillDTO);
     }
 
+    /**
+     * Builds a MySQL boolean-mode query for partial matching.
+     * e.g. "tax credit" -> "+tax* +credit*"
+     */
     private String buildBooleanQuery(String raw) {
         if (raw == null || raw.isBlank()) return "";
 
