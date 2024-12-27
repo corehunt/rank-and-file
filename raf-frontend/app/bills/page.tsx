@@ -59,12 +59,12 @@ export default function BillsPage() {
   // Store recent bills (fetched on mount)
   const [recentBills, setRecentBills] = useState<BillDTO[]>([]);
 
-  // Store search results (updated whenever searchQuery or filters change)
+  // Store search results (populated only when user submits)
   const [searchResults, setSearchResults] = useState<BillDTO[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   /**
-   * 1) Fetch “recent bills”
+   * 1) Fetch “recent bills” on mount.
    */
   useEffect(() => {
     async function fetchRecentBills() {
@@ -84,50 +84,11 @@ export default function BillsPage() {
   }, []);
 
   /**
-   * 2) Whenever searchQuery or filters change, fetch from API.
-   *    If searchQuery is empty & filters are default, do NOT show search results
-   *    so that “recent bills” remain visible.
+   * handleFilterChange
+   * If you want filter changes to immediately re-trigger searching,
+   * call `handleSearch()` inside here. But for now,
+   * we only search on form submit, so do NOT auto-fetch.
    */
-  useEffect(() => {
-    const isDefaultFilters =
-        filters.chamber.length === 0 &&
-        filters.party.length === 0 &&
-        filters.congress.length === 0;
-
-    // If no search & default filters, we show recent (no search results)
-    if (!searchQuery.trim() && isDefaultFilters) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    async function fetchSearchResults() {
-      try {
-        setIsSearching(true);
-
-        const queryParams = new URLSearchParams({
-          q: searchQuery,
-          chamber: filters.chamber.join(","),
-          party: filters.party.join(","),
-          congress: filters.congress.join(","),
-        });
-
-        const res = await fetch(`/api/bills?${queryParams}`, { cache: "no-store" });
-        if (!res.ok) {
-          throw new Error("Failed to fetch search results");
-        }
-
-        const data: BillDTO[] = await res.json();
-        setSearchResults(data);
-      } catch (error) {
-        console.error("Error fetching search results:", error);
-        setSearchResults([]);
-      }
-    }
-
-    fetchSearchResults();
-  }, [searchQuery, filters]);
-
   function handleFilterChange(type: string, value: string | string[]) {
     setFilters((prev) => ({
       ...prev,
@@ -135,13 +96,54 @@ export default function BillsPage() {
     }));
   }
 
-  function handleSearch(e: React.FormEvent) {
+  /**
+   * handleSearch
+   * Triggers the search manually on form submission.
+   */
+  async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
+
+    // Check if the user typed anything or changed filters
+    const isDefaultFilters =
+        filters.chamber.length === 0 &&
+        filters.party.length === 0 &&
+        filters.congress.length === 0;
+
+    // If no search query & default filters → show recent bills
+    if (!searchQuery.trim() && isDefaultFilters) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    // Otherwise, actually do the search
+    try {
+      setIsSearching(true);
+
+      const queryParams = new URLSearchParams({
+        q: searchQuery,
+        chamber: filters.chamber.join(","),
+        party: filters.party.join(","),
+        congress: filters.congress.join(","),
+      });
+
+      const res = await fetch(`/api/bills?${queryParams}`, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to fetch search results");
+      }
+
+      const data: BillDTO[] = await res.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setSearchResults([]);
+    }
   }
 
-  function getMainSponsorName(
-      bill: BillDTO
-  ): { name: string; party: string; state: string } | null {
+  /**
+   * Helper function to get main sponsor.
+   */
+  function getMainSponsorName(bill: BillDTO): { name: string; party: string; state: string } | null {
     if (!bill.sponsorships || bill.sponsorships.length === 0) return null;
 
     const mainSponsor = bill.sponsorships.find(
@@ -156,9 +158,12 @@ export default function BillsPage() {
     };
   }
 
+  /**
+   * Decide what to display
+   */
   const showSearchResults = isSearching && searchResults.length > 0;
   const showNoResults = isSearching && searchResults.length === 0;
-  const showRecentBills = !isSearching;
+  const showRecentBills = !isSearching; // user hasn't triggered search yet
 
   return (
       <div className="min-h-screen bg-muted/30">
@@ -215,7 +220,7 @@ export default function BillsPage() {
             </aside>
 
             <main className="lg:col-span-3">
-              {/* Show Recent Bills */}
+              {/* Show Recent Bills if not searching */}
               {showRecentBills && recentBills.length > 0 && (
                   <section className="mb-8">
                     <h2 className="text-xl font-semibold mb-4">Recent Bills</h2>
