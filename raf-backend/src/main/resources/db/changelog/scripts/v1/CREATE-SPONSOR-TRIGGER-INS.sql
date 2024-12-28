@@ -1,0 +1,18 @@
+-- AFTER INSERT trigger
+CREATE TRIGGER update_sponsors_txt_ins
+    AFTER INSERT ON RAF_SPONS_LEGISLATION
+    FOR EACH ROW
+BEGIN
+    DECLARE vBillId VARCHAR(15);
+
+    SET vBillId = NEW.BILL_ID;
+
+    UPDATE RAF_BILL
+    SET SPONSORS_TXT = (
+        SELECT GROUP_CONCAT(p.FULL_NM SEPARATOR ', ')
+        FROM RAF_SPONS_LEGISLATION sl
+                 JOIN RAF_PERSON p ON sl.PERSON_ID = p.PERSON_ID
+        WHERE sl.BILL_ID = vBillId
+    )
+    WHERE BILL_ID = vBillId;
+END;
