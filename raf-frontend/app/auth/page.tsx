@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import capitolImg from "@/app/assets/capitol.jpg"
 import Image from "next/image";
 
 export default function AuthPage() {
@@ -33,7 +34,7 @@ export default function AuthPage() {
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1611010638643-051de75362ff?q=80&w=3465&auto=format&fit=crop"
+            src={capitolImg}
             alt="US Capitol Building"
             fill
             className="object-cover"
