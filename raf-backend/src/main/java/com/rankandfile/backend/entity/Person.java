@@ -53,6 +53,9 @@ public class Person extends RAFAudit {
     @Column(name = "STATE")
     private String state;
 
+    @Column(name = "STATE_ABBR")
+    private String stateAbbr;
+
     @Column(name = "CURRENT_DISTRICT")
     private Integer currentDistrict;
 
@@ -73,6 +76,9 @@ public class Person extends RAFAudit {
 
     @Column(name = "PARTY_MEM")
     private String partyMembership;
+
+    @Column(name = "PARTY")
+    private String party;
 
     @Column(name = "PARTY_ST_YR")
     private Integer partyStartYr;
