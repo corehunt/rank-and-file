@@ -13,6 +13,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import backupImg from "@/app/assets/backup.png"
 
 import { LeadershipSection } from "./components/leadership-section";
 
@@ -314,7 +315,7 @@ export default function PoliticiansPage() {
                                     state={politician.state || "Unknown"}
                                     party={partyName}
                                     district={districtDisplay}
-                                    imageUrl={politician.imageUrl || "/default-image.jpg"}
+                                    imageUrl={politician.imageUrl || backupImg}
                                     status={status}
                                     chamber={chamber}
                                     personId={politician.personId}

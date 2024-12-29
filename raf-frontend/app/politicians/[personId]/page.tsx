@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Mail, MapPin, Globe } from "lucide-react";
 import Link from "next/link";
+import backupImg from "@/app/assets/backup.png"
 
 import SponsoredBills from "@/components/politicians/SponsoredBills";
 import CoSponsoredBills from "@/components/politicians/CoSponsoredBills";
@@ -112,7 +113,7 @@ export default async function PoliticianProfile({
             <div className="flex flex-col md:flex-row gap-6">
               <div className="relative h-48 w-48 rounded-lg overflow-hidden flex-shrink-0 mx-auto md:mx-0">
                 <Image
-                    src={politicianData.imageUrl || "/default-image.jpg"}
+                    src={politicianData.imageUrl || backupImg}
                     alt={politicianData.name}
                     fill
                     className="object-cover"
