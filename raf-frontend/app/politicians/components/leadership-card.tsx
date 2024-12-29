@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import backupImg from "@/app/assets/backup.png"
 
 interface PersonSummaryDTO {
     personId: string;
@@ -41,7 +42,7 @@ export function LeadershipCard({
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                         <div className="relative h-24 w-24 rounded-lg overflow-hidden flex-shrink-0">
                             <Image
-                                src={person.imageUrl || "/default-image.jpg"}
+                                src={person.imageUrl || backupImg}
                                 alt={person.fullName ?? "Unknown"}
                                 fill
                                 className="object-cover"
