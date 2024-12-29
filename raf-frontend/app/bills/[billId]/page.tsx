@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Download, Calendar, Building2, Users2, Link as LinkIcon, Tag } from "lucide-react";
 import NotFound from "@/app/not-found";
 import {getNumberSuffix} from "@/utils/numberUtils";
+import backupImg from "@/app/assets/backup.png"
 
 interface BillDTO {
   billId: string;
@@ -215,6 +216,10 @@ export default async function BillPage({
       ? bill.sponsorships.find((s) => s.sponsorType === "Sponsor")
       : null;
 
+  const coSponsors = bill.sponsorships
+      ? bill.sponsorships.filter((s) => s.sponsorType === "Co-Sponsor")
+      : [];
+
   function mapPartyCodeToName(partyCode: string | null): string {
     const partyMap: { [key: string]: string } = {
       R: "Republican",
@@ -245,7 +250,7 @@ export default async function BillPage({
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList>
+            <TabsList className="flex w-auto md:w-fit overflow-x-auto justify-start">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="text">Full Text</TabsTrigger>
               <TabsTrigger value="actions">Actions</TabsTrigger>
@@ -334,7 +339,7 @@ export default async function BillPage({
                           <div className="flex items-center gap-4">
                             <div className="relative h-16 w-16 rounded-lg overflow-hidden">
                               <Image
-                                  src={mainSponsor.person.imageUrl || "/placeholder.jpg"} // Fallback if no image
+                                  src={mainSponsor.person.imageUrl || backupImg}
                                   alt={mainSponsor.person.fullName}
                                   fill
                                   className="object-cover"
@@ -342,9 +347,7 @@ export default async function BillPage({
                             </div>
                             <div>
                               <Link
-                                  href={`/politicians/${mainSponsor.person.personId
-                                      .toLowerCase()
-                                      .replace(/\s+/g, "-")}`}
+                                  href={`/politicians/${mainSponsor.person.personId}`}
                                   className="font-medium hover:text-primary"
                               >
                                 {mainSponsor.person.fullName}
@@ -369,10 +372,10 @@ export default async function BillPage({
                   <Card>
                     <CardContent className="pt-6">
                       <h2 className="text-xl font-semibold mb-4">
-                        Co-Sponsors ({bill.sponsorships.length})
+                        Co-Sponsors ({coSponsors.length})
                       </h2>
                       <div className="space-y-4">
-                        {bill.sponsorships.map((cosponsor, index) => (
+                        {coSponsors.map((cosponsor, index) => (
                             <div key={index} className="flex items-center justify-between">
                               <Link
                                   href={`/politicians/${cosponsor.person?.personId}`}
@@ -382,7 +385,7 @@ export default async function BillPage({
                               </Link>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                              {cosponsor.person?.state}-{cosponsor.person?.currentDistrict}
+                                  {cosponsor.person?.state}-{cosponsor.person?.currentDistrict}{getNumberSuffix(cosponsor.person?.currentDistrict)}
                                 </span>
                                 <Badge variant={getPartyBadgeVariant(cosponsor.person?.partyMembership)}>
                                   {cosponsor.person?.partyMembership}
@@ -402,27 +405,38 @@ export default async function BillPage({
                 <CardContent className="pt-6">
                   <h2 className="text-xl font-semibold mb-4">Bill Texts</h2>
                   <div className="space-y-4">
-                    {bill.billTexts.map((text, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0">
-                          <div>
-                            <p className="font-medium">{text.versionType}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(text.versionDate).toLocaleDateString()}
-                              {/*• {text.pages} pages*/}
-                            </p>
-                          </div>
-                          <Button variant="outline" asChild>
-                            <Link href={text.pdfUrl} target="_blank" rel="noopener noreferrer">
-                              <Download className="h-4 w-4 mr-2" />
-                              Download PDF
-                            </Link>
-                          </Button>
-                        </div>
-                    ))}
+                    {bill.billTexts
+                        // Sort newest to oldest
+                        .sort((a, b) => {
+                          const dateA = new Date(a.versionDate).getTime();
+                          const dateB = new Date(b.versionDate).getTime();
+                          // Compare in descending order (b - a)
+                          return dateB - dateA;
+                        })
+                        .map((text, index) => (
+                            <div
+                                key={index}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 last:border-0 last:pb-0"
+                            >
+                              <div>
+                                <p className="font-medium">{text.versionType}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {new Date(text.versionDate).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <Button variant="outline" asChild>
+                                <Link href={text.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Download PDF
+                                </Link>
+                              </Button>
+                            </div>
+                        ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
+
 
             <TabsContent value="actions">
               <Card>
