@@ -24,5 +24,6 @@
     <include file="db/changelog/scripts/v1/CREATE-SPONSOR-TRIGGER-UPD.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-SPONSOR-TRIGGER-DEL.sql"/>
     <include file="db/changelog/scripts/v1/ALTER_TABLE-RAF_BILL-FULLTEXT-INDEX.sql"/>
+    <include file="db/changelog/scripts/v1/ALTER-TABLE-RAF_PERSON-FULLTEXT-INDEX.sql"/>
 
 </databaseChangeLog>
