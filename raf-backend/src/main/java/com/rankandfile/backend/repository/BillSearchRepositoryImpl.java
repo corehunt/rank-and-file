@@ -24,7 +24,7 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
         String countSql = """
             SELECT COUNT(*)
             FROM RAF_BILL b
-            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.ORIGIN_CHAMBER,
+            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
                          b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
                   AGAINST (:parsed IN BOOLEAN MODE)
             """;
@@ -38,10 +38,10 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
         String sql = """
             SELECT b.*
             FROM RAF_BILL b
-            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.ORIGIN_CHAMBER,
+            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
                          b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
                   AGAINST (:parsed IN BOOLEAN MODE)
-            ORDER BY MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.ORIGIN_CHAMBER,
+            ORDER BY MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
                             b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
                      AGAINST (:parsed IN BOOLEAN MODE) DESC,
                      b.INTRODUCED_DT DESC
