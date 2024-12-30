@@ -43,7 +43,13 @@ export default function PoliticianCard({
                             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <Badge
                                     variant={
-                                        party === "Democratic" ? "default" : "destructive"
+                                        party === "Democratic"
+                                            ? "default" // Blue
+                                            : party === "Republican"
+                                                ? "destructive" // Red
+                                                : party === "Independent"
+                                                    ? "success" // Green
+                                                    : "outline" // Default or unknown
                                     }
                                 >
                                     {party}
