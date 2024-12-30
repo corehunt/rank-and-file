@@ -7,7 +7,9 @@ import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Leadership;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
+import com.rankandfile.backend.entity.domain.StateDomain;
 import com.rankandfile.backend.repository.PersonRepository;
+import com.rankandfile.backend.repository.StateRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,7 @@ public class PersonProcessor {
     private static final String FIELD_OFFICIAL_WEBSITE_URL = "officialWebsiteUrl";
     private static final String FIELD_PARTY_HISTORY = "partyHistory";
     private static final String FIELD_PARTY_ABBREVIATION = "partyAbbreviation";
+    private static final String FIELD_PARTY = "partyName";
     private static final String FIELD_START_YEAR = "startYear";
     private static final String FIELD_DEPICTION = "depiction";
     private static final String FIELD_ATTRIBUTION = "attribution";
@@ -50,12 +53,17 @@ public class PersonProcessor {
     private static final String FIELD_MEMBER_TYPE = "memberType";
     private static final String FIELD_STATE_CODE = "stateCode";
     private static final String FIELD_STATE_NAME = "stateName";
+    private static final String FIELD_LEADERSHIP = "leadership";
+    private static final String FIELD_TYPE = "type";
+    private static final String FIELD_CURRENT = "current";
 
     private final PersonRepository personRepository;
+    private final StateRepository stateRepository;
     private final IdGenerator idGenerator;
 
-    public PersonProcessor(PersonRepository personRepository, IdGenerator idGenerator) {
+    public PersonProcessor(PersonRepository personRepository, StateRepository stateRepository, IdGenerator idGenerator) {
         this.personRepository = personRepository;
+        this.stateRepository = stateRepository;
         this.idGenerator = idGenerator;
     }
 
@@ -324,13 +332,21 @@ public class PersonProcessor {
         JsonArray partyHistoryArray = memberObject.getAsJsonArray(FIELD_PARTY_HISTORY);
         if (partyHistoryArray != null && !partyHistoryArray.isEmpty()) {
             JsonObject partyInfo = partyHistoryArray.get(0).getAsJsonObject();
+
             String partyMembership = (partyInfo.has(FIELD_PARTY_ABBREVIATION) && !partyInfo.get(FIELD_PARTY_ABBREVIATION).isJsonNull())
                     ? partyInfo.get(FIELD_PARTY_ABBREVIATION).getAsString()
                     : null;
+
+            String party = (partyInfo.has(FIELD_PARTY) && !partyInfo.get(FIELD_PARTY).isJsonNull())
+                    ? partyInfo.get(FIELD_PARTY).getAsString()
+                    : null;
+
             Integer partyStart = (partyInfo.has(FIELD_START_YEAR) && !partyInfo.get(FIELD_START_YEAR).isJsonNull())
                     ? partyInfo.get(FIELD_START_YEAR).getAsInt()
                     : null;
+
             person.setPartyMembership(partyMembership);
+            person.setParty(party);
             person.setPartyStartYr(partyStart);
         }
     }
@@ -353,6 +369,13 @@ public class PersonProcessor {
         String stateName = (memberObject.has(FIELD_STATE) && !memberObject.get(FIELD_STATE).isJsonNull())
                 ? memberObject.get(FIELD_STATE).getAsString()
                 : null;
+
+            Optional<StateDomain> stateDom = stateRepository.findByStateNm(stateName);
+            if (stateDom.isPresent()) {
+                String stateAbbr = stateDom.get().getStateAbbr();
+                person.setStateAbbr(stateAbbr);
+            }
+
         person.setState(stateName);
     }
 
@@ -439,7 +462,7 @@ public class PersonProcessor {
     }
 
     private void updateLeaderships(JsonObject memberObject, Person person) {
-        JsonArray leadershipArray = memberObject.getAsJsonArray("leadership"); // Use the correct JSON field name
+        JsonArray leadershipArray = memberObject.getAsJsonArray(FIELD_LEADERSHIP);
         if (leadershipArray == null || leadershipArray.isEmpty()) {
             log.debug("No leadership entries found in JSON data for person ID: {}", person.getPersonId());
             return;
@@ -481,7 +504,7 @@ public class PersonProcessor {
                 } else {
                     // **Add New Leadership**
                     Leadership newLeadership = new Leadership();
-                    newLeadership.setLeadershipId(idGenerator.generateLeadershipId()); // Assuming a similar ID generator
+                    newLeadership.setLeadershipId(idGenerator.generateLeadershipId());
                     updateLeadershipFields(leadershipObject, newLeadership, person);
                     existingLeaderships.add(newLeadership);
                     processedLeadershipKeys.add(leadershipKey);
@@ -512,7 +535,7 @@ public class PersonProcessor {
 
                 // **Add All Leadership as New Entries**
                 Leadership newLeadership = new Leadership();
-                newLeadership.setLeadershipId(idGenerator.generateLeadershipId()); // Assuming a similar ID generator
+                newLeadership.setLeadershipId(idGenerator.generateLeadershipId());
                 updateLeadershipFields(leadershipObject, newLeadership, person);
                 existingLeaderships.add(newLeadership);
                 log.debug("Added new leadership with generated leadershipId: {}", newLeadership.getLeadershipId());
@@ -578,8 +601,8 @@ public class PersonProcessor {
      * Generates a unique key for a Leadership from a JSON object
      */
     private String generateLeadershipKey(JsonObject leadershipObject) {
-        String congress = leadershipObject.has("congress") ? leadershipObject.get("congress").getAsString() : "";
-        String leadershipType = leadershipObject.has("type") ? leadershipObject.get("type").getAsString() : "";
+        String congress = leadershipObject.has(FIELD_CONGRESS) ? leadershipObject.get(FIELD_CONGRESS).getAsString() : "";
+        String leadershipType = leadershipObject.has(FIELD_TYPE) ? leadershipObject.get(FIELD_TYPE).getAsString() : "";
         return congress + "_" + leadershipType;
     }
 
@@ -589,14 +612,14 @@ public class PersonProcessor {
      */
     private void updateLeadershipFields(JsonObject leadershipObject, Leadership leadership, Person person) {
         leadership.setPerson(person);
-        if (leadershipObject.has("congress")) {
-            leadership.setCongress(leadershipObject.get("congress").getAsString());
+        if (leadershipObject.has(FIELD_CONGRESS)) {
+            leadership.setCongress(leadershipObject.get(FIELD_CONGRESS).getAsString());
         }
-        if (leadershipObject.has("type")) {
-            leadership.setLeadershipType(leadershipObject.get("type").getAsString());
+        if (leadershipObject.has(FIELD_TYPE)) {
+            leadership.setLeadershipType(leadershipObject.get(FIELD_TYPE).getAsString());
         }
-        if (leadershipObject.has("current")) {
-            leadership.setCurrentLeader(leadershipObject.get("current").getAsString());
+        if (leadershipObject.has(FIELD_CURRENT)) {
+            leadership.setCurrentLeader(leadershipObject.get(FIELD_CURRENT).getAsString());
         }
     }
 

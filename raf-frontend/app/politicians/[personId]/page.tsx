@@ -47,6 +47,44 @@ interface PersonDTO {
   termList: TermDTO[] | null;
 }
 
+const atLargeStates = [
+  "Alaska",
+  "Wyoming",
+  "Montana",
+  "North Dakota",
+  "South Dakota",
+  "Vermont",
+  "Delaware",
+  "Virgin Islands",
+  "Puerto Rico",
+  "District of Columbia",
+  "Guam",
+  "American Samoa",
+  "Northern Mariana Islands",
+];
+
+const getMostRecentTerm = (termList: TermDTO[] | null): TermDTO | undefined => {
+  if (!termList || termList.length === 0) return undefined;
+  return termList.reduce((prev, current) =>
+      current.congress > prev.congress ? current : prev
+  );
+};
+
+/**
+ * Determines the district display string based on the most recent term.
+ * @param term The most recent TermDTO object.
+ * @returns A string representing the district or "At Large".
+ */
+const getDistrictDisplay = (term: TermDTO | undefined): string => {
+  if (!term || term.chamber === "Senate") return "";
+
+  if (atLargeStates.includes(term.stateNm)) {
+    return "At Large";
+  }
+
+  return term.district ? `District ${term.district}` : "District Unknown";
+};
+
 export default async function PoliticianProfile({
                                                   params,
                                                 }: {
@@ -64,6 +102,8 @@ export default async function PoliticianProfile({
   }
 
   const politician: PersonDTO = await res.json();
+
+  const mostRecentTerm = getMostRecentTerm(politician.termList);
 
   const politicianData = {
     personId: politician.personId,
@@ -90,10 +130,8 @@ export default async function PoliticianProfile({
     name:
         politician.fullName ||
         `${politician.firstName || ""} ${politician.lastName || ""}`.trim(),
-    district: politician.currentDistrict
-        ? `District ${politician.currentDistrict}`
-        : "",
-    chamber: getCurrentChamber(politician.termList),
+    district: getDistrictDisplay(mostRecentTerm),
+    chamber: mostRecentTerm?.chamber || getCurrentChamber(politician.termList),
     membershipStatus:
         politician.currentMember === "Yes" ? "Incumbent" : "Former Member",
     yearsActive: getYearsActive(politician.termList),
@@ -125,10 +163,25 @@ export default async function PoliticianProfile({
                   <div className="space-y-2 text-center md:text-left">
                     <h1 className="text-3xl font-bold">{politicianData.name}</h1>
                     <p className="text-lg text-muted-foreground">
-                      {politicianData.chamber == "Senate" ? `Senator ${politicianData.state}` : `${politicianData.district}, ${politicianData.state}`}
+                      {politicianData.chamber === "Senate"
+                          ? `Senator ${politicianData.state}`
+                          : politicianData.district && politicianData.state
+                              ? `${politicianData.district}, ${politicianData.state}`
+                              : "Information not available"}
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                      <Badge variant={politicianData.partyMembership === "D" ? "default" : "destructive"}>
+                      <Badge
+                          variant={
+                            politicianData.partyMembership === "D"
+                                ? "default" // Blue
+                                : politicianData.partyMembership === "R"
+                                    ? "destructive" // Red
+                                    : politicianData.partyMembership === "I"
+                                        ? "success" // Green
+                                        : "outline" // Default or unknown
+                          }
+                          aria-label={`Party: ${politicianData.partyMembership}`}
+                      >
                         {mapPartyCodeToName(politicianData.partyMembership)}
                       </Badge>
                       <Badge variant="outline">

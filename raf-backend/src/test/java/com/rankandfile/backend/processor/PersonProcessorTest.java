@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.rankandfile.backend.entity.Person;
 import com.rankandfile.backend.entity.Term;
 import com.rankandfile.backend.repository.PersonRepository;
+import com.rankandfile.backend.repository.StateRepository;
 import com.rankandfile.backend.util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class PersonProcessorTest {
 
     @Mock
     private PersonRepository personRepository;
+
+    @Mock
+    private StateRepository stateRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -71,6 +75,7 @@ class PersonProcessorTest {
     void testValidatePersonNewPerson() {
         String bioguideId = "A123";
         when(personRepository.findById(bioguideId)).thenReturn(Optional.empty());
+        when(stateRepository.findByStateNm(anyString())).thenReturn(Optional.empty());
 
         Person person = personProcessor.validatePerson(mockMemberJson.toString());
 

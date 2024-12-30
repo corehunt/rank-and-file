@@ -1,26 +1,56 @@
 package com.rankandfile.backend.service.internal;
 
+import com.rankandfile.backend.dto.PersonDTO;
 import com.rankandfile.backend.entity.Person;
-import com.rankandfile.backend.repository.PersonRepository;
+import com.rankandfile.backend.mapper.PersonMapper;
+import com.rankandfile.backend.repository.PersonSearchRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Slf4j
 @Service
 public class PersonSearchDBService {
 
-    private final PersonRepository personRepository;
+    private final PersonSearchRepository personSearchRepository;
+    private final PersonMapper personMapper;
 
-    public PersonSearchDBService(PersonRepository personRepository) {
-        this.personRepository = personRepository;
+    public PersonSearchDBService(PersonSearchRepository personSearchRepository, PersonMapper personMapper) {
+        this.personSearchRepository = personSearchRepository;
+        this.personMapper = personMapper;
+    }
+
+    public Page<PersonDTO> searchPersonsPaged(String rawQuery, int page, int size) {
+        String parsedQuery = buildBooleanQuery(rawQuery);
+        if (parsedQuery.isEmpty()) {
+            // Return an empty page if there's no valid query
+            return Page.empty();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Person> personPage = personSearchRepository.searchPeople(parsedQuery, page, size);
+
+        return personPage.map(personMapper::toPersonDTO);
     }
 
 
-    public List<Person> getPersonListByFullName(String searchTerm) {
-        return personRepository.findPersonByFullNameSearchTerm(searchTerm);
-    }
+    /**
+     * Builds a MySQL boolean-mode query for partial matching.
+     */
+    private String buildBooleanQuery(String raw) {
+        if (raw == null || raw.isBlank()) return "";
 
+        String[] tokens = raw.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String token : tokens) {
+            if (!token.isBlank()) {
+                sb.append("+").append(token).append("* ");
+            }
+        }
+        return sb.toString().trim();
+    }
 }

@@ -19,10 +19,10 @@
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_BILL_TEXT.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_RELATED_BILLS.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-TABLE-RAF_LEADERSHIP.sql"/>
-    <include file="db/changelog/scripts/v1/ALTER-TABLE-RAF_BILL-ADD_SPONSORS_TXT.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-SPONSOR-TRIGGER-INS.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-SPONSOR-TRIGGER-UPD.sql"/>
     <include file="db/changelog/scripts/v1/CREATE-SPONSOR-TRIGGER-DEL.sql"/>
     <include file="db/changelog/scripts/v1/ALTER_TABLE-RAF_BILL-FULLTEXT-INDEX.sql"/>
+    <include file="db/changelog/scripts/v1/ALTER-TABLE-RAF_PERSON-FULLTEXT-INDEX.sql"/>
 
 </databaseChangeLog>

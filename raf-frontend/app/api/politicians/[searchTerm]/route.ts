@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 0;
 
@@ -38,42 +38,66 @@ interface PersonDTO {
     termList: TermDTO[] | null;
 }
 
-export async function GET(
-    request: Request,
-    { params }: { params: { searchTerm: string } }
-) {
-    const { searchTerm } = params;
+interface PageDTO<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number; // zero-based page index
+}
 
-    if (!searchTerm) {
-        return NextResponse.json({ error: 'Invalid search term' }, { status: 400 });
-    }
-
+export async function GET(request: NextRequest) {
     try {
-        const backendUrl = `http://localhost:8080/api/internal/${encodeURIComponent(searchTerm)}`;
+        // Extract all query params from the request URL
+        const { searchParams } = new URL(request.url);
+        const searchQuery = searchParams.get("q") || "";
+        const chamber = searchParams.get("chamber") || "";
+        const party = searchParams.get("party") || "";
+        const status = searchParams.get("status") || "";
+        const page = parseInt(searchParams.get("page") || "0", 10);
+        const size = parseInt(searchParams.get("size") || "20", 10);
 
-        console.log(`Fetching data from backend API: ${backendUrl}`);
+        // Build the backend URL with query parameters
+        const backendUrl = new URL(`http://localhost:8080/api/internal/politicians/search`);
+        if (searchQuery) {
+            backendUrl.searchParams.append("q", searchQuery);
+        }
+        if (chamber) {
+            backendUrl.searchParams.append("chamber", chamber);
+        }
+        if (party) {
+            backendUrl.searchParams.append("party", party);
+        }
+        if (status) {
+            backendUrl.searchParams.append("status", status);
+        }
+        backendUrl.searchParams.append("page", String(page));
+        backendUrl.searchParams.append("size", String(size));
 
-        const response = await fetch(backendUrl);
+        console.log(`Fetching politicians (search) from: ${backendUrl.toString()}`);
+
+        const response = await fetch(backendUrl.toString(), {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
         if (!response.ok) {
-            console.error(`Backend API responded with status ${response.status}`);
             const errorText = await response.text();
-            console.error(`Backend API error response: ${errorText}`);
+            console.error("Error from backend search:", errorText);
             return NextResponse.json(
-                { error: 'Failed to fetch politicians from backend API' },
+                { error: "Failed to fetch search results" },
                 { status: response.status }
             );
         }
 
-        const politicians: PersonDTO[] = await response.json();
-
-        console.log('Received data from backend API:', politicians);
-
-        return NextResponse.json(politicians);
+        const data: PageDTO<PersonDTO> = await response.json();
+        return NextResponse.json(data);
     } catch (error) {
-        console.error('Error fetching politicians:', error);
+        console.error("Error fetching search results:", error);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: "Internal server error" },
             { status: 500 }
         );
     }
