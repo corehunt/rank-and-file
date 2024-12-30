@@ -82,6 +82,67 @@ interface PageDTO<T> {
   number: number;
 }
 
+const atLargeStates = [
+  "Alaska",
+  "Wyoming",
+  "Montana",
+  "North Dakota",
+  "South Dakota",
+  "Vermont",
+  "Delaware",
+  "Virgin Islands",
+  "Puerto Rico",
+  "District of Columbia",
+  "Guam",
+  "American Samoa",
+  "Northern Mariana Islands",
+];
+
+/**
+ * Determines the district display string based on the most recent term.
+ * @param term The most recent TermDTO object.
+ * @returns A string representing the district or "At Large".
+ */
+const getDistrictDisplay = (term: TermDTO | undefined): string => {
+  if (!term || term.chamber === "Senate") return "";
+
+  if (atLargeStates.includes(term.stateNm)) {
+    return "At Large";
+  }
+
+  return term.district ? `District ${term.district}` : "District Unknown";
+};
+
+/**
+ * Function to get the most recent term based on the highest congress number
+ */
+const getMostRecentTerm = (termList: TermDTO[] | null): TermDTO | undefined => {
+  if (!termList || termList.length === 0) return undefined;
+  return termList.reduce((prev, current) =>
+      current.congress > prev.congress ? current : prev
+  );
+};
+
+/**
+ * Function to get the current chamber if the most recent term is undefined
+ */
+function getCurrentChamber(termList: TermDTO[] | null): string {
+  if (!termList || termList.length === 0) return "Unknown";
+  const sortedTerms = [...termList].sort((a, b) => b.startYr - a.startYr);
+  return sortedTerms[0].chamber || "Unknown";
+}
+
+/**
+ * Function to get years active
+ */
+function getYearsActive(termList: TermDTO[] | null): string {
+  if (!termList || termList.length === 0) return "N/A";
+  const sortedTerms = [...termList].sort((a, b) => b.startYr - a.startYr);
+  const firstYear = sortedTerms[sortedTerms.length - 1].startYr;
+  const lastYear = sortedTerms[0].endYr || new Date().getFullYear();
+  return `${firstYear} - ${lastYear}`;
+}
+
 export default function PoliticiansPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -248,10 +309,8 @@ export default function PoliticiansPage() {
    * Helper to get chamber information
    */
   function getChamber(politician: PersonDTO): string {
-    if (!politician.termList || politician.termList.length === 0) return "Unknown";
-    const sortedTerms = [...politician.termList].sort((a, b) => b.startYr - a.startYr);
-    const recentTerm = sortedTerms[0];
-    return recentTerm.chamber || "Unknown";
+    const mostRecentTerm = getMostRecentTerm(politician.termList);
+    return mostRecentTerm?.chamber || "Unknown";
   }
 
   /**
@@ -398,16 +457,10 @@ export default function PoliticiansPage() {
                         <>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                             {pagedResults.content.map((politician) => {
-                              const chamber = getChamber(politician);
+                              const mostRecentTerm = getMostRecentTerm(politician.termList);
+                              const chamber = mostRecentTerm?.chamber || "Unknown";
                               const isSenator = chamber === "Senate";
-                              let districtDisplay = "";
-                              if (!isSenator) {
-                                if (politician.currentDistrict !== null) {
-                                  districtDisplay = `District ${politician.currentDistrict}`;
-                                } else {
-                                  districtDisplay = "District Unknown";
-                                }
-                              }
+                              const districtDisplay = getDistrictDisplay(mostRecentTerm);
 
                               const partyName =
                                   partyMap[politician.partyMembership || ""] || "Unknown";
@@ -421,7 +474,7 @@ export default function PoliticiansPage() {
                                   <PoliticianCard
                                       key={politician.personId}
                                       name={politician.fullName || "Unknown"}
-                                      state={politician.state || "Unknown"}
+                                      state={mostRecentTerm?.stateNm || politician.state || "Unknown"}
                                       party={partyName}
                                       district={districtDisplay}
                                       imageUrl={politician.imageUrl || backupImg}
@@ -433,7 +486,7 @@ export default function PoliticiansPage() {
                             })}
                           </div>
 
-                          {/* Pagination */}
+                          {/* Pagination Controls */}
                           {pagedResults.totalPages > 1 && (
                               <div className="flex justify-center gap-2 pt-4">
                                 {renderPaginationButtons()}
