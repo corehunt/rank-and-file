@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/rankandfile
+    url: ${url}
     username: ${db_user}
     password: ${db_pass}
 
