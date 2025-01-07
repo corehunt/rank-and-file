@@ -11,7 +11,7 @@ export async function GET(
 
     try {
         const response = await fetch(
-            `http://localhost:8080/api/internal/politician/${personId}/cosponsored?page=${page}&size=${size}`,
+            `${process.env.BACKEND_BASE_URL}/api/internal/politician/${personId}/cosponsored?page=${page}&size=${size}`,
             {
                 method: 'GET',
                 headers: {

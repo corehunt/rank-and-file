@@ -91,7 +91,7 @@ export default async function PoliticianProfile({
   params: { personId: string };
 }) {
   const res = await fetch(
-      `http://localhost:8080/api/internal/politician/${params.personId}`,
+      `${process.env.BACKEND_BASE_URL}/api/internal/politician/${params.personId}`,
       {
         cache: "no-store",
       }

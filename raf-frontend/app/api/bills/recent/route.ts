@@ -83,7 +83,7 @@ interface BillDTO {
 export async function GET() {
     try {
         // Adjust this to your actual endpoint:
-        const backendUrl = "http://localhost:8080/api/internal/bill/recent";
+        const backendUrl = `${process.env.BACKEND_BASE_URL}/api/internal/bill/recent`;
         console.log(`Fetching recent bills data from backend API: ${backendUrl}`);
 
         const response = await fetch(backendUrl);

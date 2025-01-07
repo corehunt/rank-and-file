@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         const size = parseInt(searchParams.get("size") || "20", 10);
 
         // Build the backend URL with query parameters
-        const backendUrl = new URL(`http://localhost:8080/api/internal/politicians/search`);
+        const backendUrl = new URL(`${process.env.BACKEND_BASE_URL}/api/internal/politicians/search`);
         if (searchQuery) {
             backendUrl.searchParams.append("q", searchQuery);
         }

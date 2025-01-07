@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         const queryString = searchParams.toString();
 
         // Build the backend URL
-        const backendUrl = `http://localhost:8080/api/internal/bill/search?${queryString}`;
+        const backendUrl = `${process.env.BACKEND_BASE_URL}/api/internal/bill/search?${queryString}`;
         console.log(`Fetching bills (search) from: ${backendUrl}`);
 
         const response = await fetch(backendUrl);
