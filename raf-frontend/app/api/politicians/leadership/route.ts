@@ -23,7 +23,7 @@ interface LeadershipDTO {
 
 export async function GET() {
     try {
-        const backendUrl = 'http://localhost:8080/api/internal/politician/leadership';
+        const backendUrl = `${process.env.BACKEND_BASE_URL}/api/internal/politician/leadership`;
         console.log(`Fetching leadership data from backend API: ${backendUrl}`);
 
         const response = await fetch(backendUrl);

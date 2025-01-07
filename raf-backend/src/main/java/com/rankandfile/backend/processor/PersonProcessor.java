@@ -462,7 +462,7 @@ public class PersonProcessor {
     }
 
     private void updateLeaderships(JsonObject memberObject, Person person) {
-        JsonArray leadershipArray = memberObject.getAsJsonArray(FIELD_LEADERSHIP);
+        JsonArray leadershipArray = memberObject.getAsJsonArray("leadership");
         if (leadershipArray == null || leadershipArray.isEmpty()) {
             log.debug("No leadership entries found in JSON data for person ID: {}", person.getPersonId());
             return;
@@ -474,71 +474,65 @@ public class PersonProcessor {
             person.setLeadershipList(existingLeaderships);
         }
 
-        if (!existingLeaderships.isEmpty()) {
-            // **Scenario 1: Existing Person with Existing Leadership Entries**
+        // Create a map of existing leaderships for quick lookup using a unique key
+        Map<String, Leadership> existingLeadershipMap = existingLeaderships.stream()
+                .collect(Collectors.toMap(this::generateLeadershipKey, l -> l));
 
-            // Create a map of existing leaderships for quick lookup using a unique key
-            Map<String, Leadership> existingLeadershipMap = existingLeaderships.stream()
-                    .collect(Collectors.toMap(this::generateLeadershipKey, l -> l));
+        // Set to keep track of processed leadership keys
+        Set<String> processedLeadershipKeys = new HashSet<>();
 
-            // Set to keep track of processed leadership keys
-            Set<String> processedLeadershipKeys = new HashSet<>();
-
-            for (JsonElement leadershipElement : leadershipArray) {
-                if (!leadershipElement.isJsonObject()) {
-                    log.warn("Invalid leadership format, expected JsonObject but found: {}", leadershipElement);
-                    continue;
-                }
-
-                JsonObject leadershipObject = leadershipElement.getAsJsonObject();
-
-                // Generate a unique key for the leadership based on fields like congress and leadershipType
-                String leadershipKey = generateLeadershipKey(leadershipObject);
-
-                if (existingLeadershipMap.containsKey(leadershipKey)) {
-                    // **Update Existing Leadership**
-                    Leadership existingLeadership = existingLeadershipMap.get(leadershipKey);
-                    updateLeadershipFields(leadershipObject, existingLeadership, person);
-                    processedLeadershipKeys.add(leadershipKey);
-                    log.debug("Updated existing leadership with key: {}", leadershipKey);
-                } else {
-                    // **Add New Leadership**
-                    Leadership newLeadership = new Leadership();
-                    newLeadership.setLeadershipId(idGenerator.generateLeadershipId());
-                    updateLeadershipFields(leadershipObject, newLeadership, person);
-                    existingLeaderships.add(newLeadership);
-                    processedLeadershipKeys.add(leadershipKey);
-                    log.debug("Added new leadership with key: {}", leadershipKey);
-                }
+        for (JsonElement leadershipElement : leadershipArray) {
+            if (!leadershipElement.isJsonObject()) {
+                log.warn("Invalid leadership format, expected JsonObject but found: {}", leadershipElement);
+                continue;
             }
 
-            // **Remove Orphaned Leaderships**
-            existingLeaderships.removeIf(leadership -> {
-                String key = generateLeadershipKey(leadership);
-                if (!processedLeadershipKeys.contains(key)) {
-                    log.debug("Removing leadership with key: {}", key);
-                    return true;
-                }
-                return false;
-            });
+            JsonObject leadershipObject = leadershipElement.getAsJsonObject();
 
-        } else {
-            // **Scenario 2: New Person with No Existing Leadership Entries**
+            // Generate a unique key for the leadership based on 'congress' and 'type'
+            String leadershipKey = generateLeadershipKey(leadershipObject);
 
-            for (JsonElement leadershipElement : leadershipArray) {
-                if (!leadershipElement.isJsonObject()) {
-                    log.warn("Invalid leadership format, expected JsonObject but found: {}", leadershipElement);
-                    continue;
-                }
+            // Extract congress number from the leadership object
+            String congressNumber = leadershipObject.has("congress") ? leadershipObject.get("congress").getAsString() : null;
+            if (congressNumber == null) {
+                log.warn("Leadership entry missing 'congress' field: {}", leadershipObject);
+                continue;
+            }
 
-                JsonObject leadershipObject = leadershipElement.getAsJsonObject();
+            // Determine if this leadership is current
+            boolean isCurrent = leadershipObject.has("current") && leadershipObject.get("current").getAsBoolean();
 
-                // **Add All Leadership as New Entries**
+            if (existingLeadershipMap.containsKey(leadershipKey)) {
+                // **Update Existing Leadership**
+                Leadership existingLeadership = existingLeadershipMap.get(leadershipKey);
+                updateLeadershipFields(leadershipObject, existingLeadership, person);
+                existingLeadership.setCurrentLeader(isCurrent ? "true" : "false");
+                processedLeadershipKeys.add(leadershipKey);
+                log.debug("Updated existing leadership with key: {}, current: {}", leadershipKey, isCurrent);
+            } else {
+                // **Add New Leadership**
                 Leadership newLeadership = new Leadership();
                 newLeadership.setLeadershipId(idGenerator.generateLeadershipId());
+                newLeadership.setPerson(person);
                 updateLeadershipFields(leadershipObject, newLeadership, person);
+                newLeadership.setCongress(congressNumber);
+                newLeadership.setCurrentLeader(isCurrent ? "true" : "false");
                 existingLeaderships.add(newLeadership);
-                log.debug("Added new leadership with generated leadershipId: {}", newLeadership.getLeadershipId());
+                processedLeadershipKeys.add(leadershipKey);
+                log.debug("Added new leadership with key: {}, current: {}", leadershipKey, isCurrent);
+            }
+        }
+
+        // **Update 'currentLeader' flags for existing leaderships not present in the latest data**
+        for (Leadership existingLeadership : existingLeaderships) {
+            String key = generateLeadershipKey(existingLeadership);
+            if (!processedLeadershipKeys.contains(key)) {
+                // If the existing leadership was previously marked as current, mark it as not current
+                if ("true".equals(existingLeadership.getCurrentLeader())) {
+                    existingLeadership.setCurrentLeader("false");
+                    log.debug("Marked leadership as not current with key: {}", key);
+                }
+                // Historical leaderships remain unchanged if they were already not current
             }
         }
     }

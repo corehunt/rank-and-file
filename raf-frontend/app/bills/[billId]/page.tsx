@@ -90,7 +90,7 @@ export default async function BillPage({
   params: { billId: string };
 }) {
   const res = await fetch(
-      `http://localhost:8080/api/internal/bill/${params.billId}`,
+      `${process.env.BACKEND_BASE_URL}/api/internal/bill/${params.billId}`,
       {
         cache: "no-store",
       }
