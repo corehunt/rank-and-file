@@ -476,7 +476,17 @@ public class PersonProcessor {
 
         // Create a map of existing leaderships for quick lookup using a unique key
         Map<String, Leadership> existingLeadershipMap = existingLeaderships.stream()
-                .collect(Collectors.toMap(this::generateLeadershipKey, l -> l));
+                .collect(Collectors.toMap(
+                        this::generateLeadershipKey,
+                        l -> l,
+                        (existing, duplicate) -> {
+                            // Log a warning about the duplicate
+                            log.warn("Duplicate leadership found for key: {}. Keeping leadershipId: {} and ignoring leadershipId: {}",
+                                    this.generateLeadershipKey(existing), existing.getLeadershipId(), duplicate.getLeadershipId());
+                            // Decide which Leadership to keep. Here, we keep the existing one.
+                            return existing;
+                        }
+                ));
 
         // Set to keep track of processed leadership keys
         Set<String> processedLeadershipKeys = new HashSet<>();
