@@ -57,6 +57,7 @@ interface LeadershipDTO {
   leadershipId: string;
   leadershipType: string;
   person: PersonSummaryDTO;
+  currentLeader?: string;
 }
 
 interface PersonSummaryDTO {
@@ -98,77 +99,47 @@ const atLargeStates = [
   "Northern Mariana Islands",
 ];
 
-/**
- * Determines the district display string based on the most recent term.
- * @param term The most recent TermDTO object.
- * @returns A string representing the district or "At Large".
- */
-const getDistrictDisplay = (term: TermDTO | undefined): string => {
+function getDistrictDisplay(term: TermDTO | undefined): string {
   if (!term || term.chamber === "Senate") return "";
-
-  if (atLargeStates.includes(term.stateNm)) {
-    return "At Large";
-  }
-
+  if (atLargeStates.includes(term.stateNm || "")) return "At Large";
   return term.district ? `District ${term.district}` : "District Unknown";
-};
+}
 
-/**
- * Function to get the most recent term based on the highest congress number
- */
-const getMostRecentTerm = (termList: TermDTO[] | null): TermDTO | undefined => {
+function getMostRecentTerm(termList: TermDTO[] | null): TermDTO | undefined {
   if (!termList || termList.length === 0) return undefined;
   return termList.reduce((prev, current) =>
       current.congress > prev.congress ? current : prev
   );
-};
-
-/**
- * Function to get the current chamber if the most recent term is undefined
- */
-function getCurrentChamber(termList: TermDTO[] | null): string {
-  if (!termList || termList.length === 0) return "Unknown";
-  const sortedTerms = [...termList].sort((a, b) => b.startYr - a.startYr);
-  return sortedTerms[0].chamber || "Unknown";
-}
-
-/**
- * Function to get years active
- */
-function getYearsActive(termList: TermDTO[] | null): string {
-  if (!termList || termList.length === 0) return "N/A";
-  const sortedTerms = [...termList].sort((a, b) => b.startYr - a.startYr);
-  const firstYear = sortedTerms[sortedTerms.length - 1].startYr;
-  const lastYear = sortedTerms[0].endYr || new Date().getFullYear();
-  return `${firstYear} - ${lastYear}`;
 }
 
 export default function PoliticiansPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    chamber: [] as string[],
-    parties: [] as string[],
-    status: [] as string[],
+  const [filters, setFilters] = useState<{
+    chamber: string;
+    parties: string[];
+    status: string[];
+  }>({
+    chamber: "all",
+    parties: [],
+    status: [],
   });
 
-  // Paged results from the backend
+  // This holds whatever the backend returned, unfiltered.
   const [pagedResults, setPagedResults] = useState<PageDTO<PersonDTO> | null>(null);
 
-  // State for controlling whether user is searching or viewing default
+  // If isSearching = false => leadership mode, else => show search results
   const [isSearching, setIsSearching] = useState(false);
 
-  // Pagination: 1-based
+  // Pagination tracking from the server’s response
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Loading flag
   const [loading, setLoading] = useState(false);
 
-  // State for fetched leadership
+  // Leadership data from /api/politicians/leadership
   const [leadership, setLeadership] = useState<LeadershipDTO[]>([]);
   const [loadingLeadership, setLoadingLeadership] = useState(true);
   const [leadershipError, setLeadershipError] = useState<string | null>(null);
 
-  /** Fetch leadership on mount **/
+  // Fetch leadership on mount
   useEffect(() => {
     fetch("/api/politicians/leadership")
         .then((res) => {
@@ -188,26 +159,27 @@ export default function PoliticiansPage() {
         });
   }, []);
 
-  const handleFilterChange = (type: string, value: string | string[]) => {
+  // Called when the user changes a filter in PoliticianFilters
+  const handleFilterChange = (
+      type: "chamber" | "parties" | "status",
+      value: string | string[]
+  ) => {
     setFilters((prev) => ({
       ...prev,
       [type]: value,
     }));
   };
 
-  /**
-   * handleSearch: triggers search on user submit (Enter / Search button).
-   */
+  // Called when user submits the search form
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
 
-    // Determine if filters are default
+    // If empty search + default filters => leadership mode
     const isDefaultFilters =
-        filters.chamber.length === 0 &&
+        filters.chamber === "all" &&
         filters.parties.length === 0 &&
         filters.status.length === 0;
 
-    // If user typed nothing & filters are default -> show leadership
     if (!searchQuery.trim() && isDefaultFilters) {
       setIsSearching(false);
       setPagedResults(null);
@@ -215,15 +187,12 @@ export default function PoliticiansPage() {
       return;
     }
 
-    // Otherwise, do an actual search on page 1
+    // Otherwise, do a one-time fetch from the backend
     setCurrentPage(1);
-    await doSearch(1); // fetch page 1
+    await doSearch(1);
   }
 
-  /**
-   * doSearch: fetches from the backend with pagination
-   * - page is 1-based
-   */
+  // Actually fetch data from /api/politicians/[searchTerm]?...
   async function doSearch(page: number) {
     try {
       setIsSearching(true);
@@ -231,20 +200,10 @@ export default function PoliticiansPage() {
 
       const queryParams = new URLSearchParams({
         q: searchQuery.trim(),
-        page: String(page - 1), // backend expects zero-based
+        page: String(page - 1), // zero-based
         size: "20",
       });
 
-      // Add filters to query parameters
-      if (filters.chamber.length > 0) {
-        queryParams.append("chamber", filters.chamber.join(","));
-      }
-      if (filters.parties.length > 0) {
-        queryParams.append("party", filters.parties.join(","));
-      }
-      if (filters.status.length > 0) {
-        queryParams.append("status", filters.status.join(","));
-      }
 
       const res = await fetch(`/api/politicians/[searchTerm]?${queryParams.toString()}`, {
         cache: "no-store",
@@ -263,6 +222,7 @@ export default function PoliticiansPage() {
     }
   }
 
+  // Re-fetch if user changes pages, but do not add filters as params
   useEffect(() => {
     if (isSearching) {
       doSearch(currentPage);
@@ -270,61 +230,86 @@ export default function PoliticiansPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  /**
-   * Show leadership if no search has been done OR
-   * if searched but no results & not currently loading
-   */
+  // Whether to show leadership sections
   const showLeadership =
       !isSearching ||
       (isSearching && pagedResults && pagedResults.content.length === 0 && !loading);
 
-  /**
-   * Group leadership by House vs. Senate:
-   * - If person.currentDistrict !== null => House
-   * - If person.currentDistrict === null => Senate
-   */
-  const houseLeadership = leadership.filter(
-      (item) => item.person.currentDistrict !== null
-  );
-  const senateLeadership = leadership.filter(
-      (item) => item.person.currentDistrict === null
-  );
-
-  // Group by party
-  const houseRepublican = houseLeadership.filter(
-      (l) => l.person.partyMembership === "R"
-  );
-  const houseDemocratic = houseLeadership.filter(
-      (l) => l.person.partyMembership === "D"
-  );
-
-  const senateRepublican = senateLeadership.filter(
-      (l) => l.person.partyMembership === "R"
-  );
-  const senateDemocratic = senateLeadership.filter(
-      (l) => l.person.partyMembership === "D"
-  );
-
-  /**
-   * Helper to get chamber information
-   */
-  function getChamber(politician: PersonDTO): string {
-    const mostRecentTerm = getMostRecentTerm(politician.termList);
-    return mostRecentTerm?.chamber || "Unknown";
+  // A local function to get the "chamber" for a politician
+  function localChamber(p: PersonDTO): string {
+    const term = getMostRecentTerm(p.termList);
+    if (!term) return "Unknown";
+    return term.chamber || "Unknown";
   }
 
-  /**
-   * Helper to map party codes to full names
-   */
+  // Map short codes to full party names
   const partyMap: { [key: string]: string } = {
     R: "Republican",
     D: "Democratic",
     I: "Independent",
   };
 
-  /**
-   * Render Pagination Buttons
-   */
+  // Locally filter leadership
+  function filterLeadership(data: LeadershipDTO[]) {
+    return data.filter((item) => {
+      // House or Senate
+      const c =
+          item.person.currentDistrict !== null
+              ? "House of Representatives"
+              : "Senate";
+
+      if (filters.chamber !== "all" && filters.chamber !== c) {
+        return false;
+      }
+
+      // Party
+      const leaderParty = partyMap[item.person.partyMembership || ""] || "Unknown";
+      if (filters.parties.length > 0 && !filters.parties.includes(leaderParty)) {
+        return false;
+      }
+
+      // Status
+      // If item.currentLeader === "true" => "Incumbent", else "Former Member"
+      const st = item.currentLeader === "true" ? "Incumbent" : "Former Member";
+      if (filters.status.length > 0 && !filters.status.includes(st)) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  // Locally filter the already-fetched search results
+  function filterSearchResults(data: PersonDTO[]) {
+    return data.filter((p) => {
+      // Chamber
+      const c = localChamber(p);
+      // Match "House of Representatives", "Senate", or "Unknown"
+      if (filters.chamber !== "all" && filters.chamber !== c) {
+        return false;
+      }
+
+      // Party
+      const fullParty = partyMap[p.partyMembership || ""] || "Unknown";
+      if (filters.parties.length > 0 && !filters.parties.includes(fullParty)) {
+        return false;
+      }
+
+      // Status
+      const st = p.currentMember === "Yes" ? "Incumbent" : "Former Member";
+      if (filters.status.length > 0 && !filters.status.includes(st)) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  // The final array we will render in the "search results" section
+  const localFilteredSearch = pagedResults
+      ? filterSearchResults(pagedResults.content)
+      : [];
+
   function renderPaginationButtons() {
     if (!pagedResults) return null;
 
@@ -444,38 +429,33 @@ export default function PoliticiansPage() {
             </aside>
 
             <main className="lg:col-span-3 space-y-8">
-              {/* Politicians Results */}
+              {/* If searching, show local-filtered search results */}
               {isSearching && (
                   <>
                     {loading ? (
                         <div className="text-center text-muted-foreground py-8">Loading...</div>
-                    ) : pagedResults && pagedResults.content.length === 0 ? (
+                    ) : pagedResults && localFilteredSearch.length === 0 ? (
                         <div className="text-center text-muted-foreground py-8">
                           No politicians found matching your criteria
                         </div>
-                    ) : pagedResults && pagedResults.content.length > 0 ? (
+                    ) : pagedResults && localFilteredSearch.length > 0 ? (
                         <>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                            {pagedResults.content.map((politician) => {
-                              const mostRecentTerm = getMostRecentTerm(politician.termList);
-                              const chamber = mostRecentTerm?.chamber || "Unknown";
-                              const isSenator = chamber === "Senate";
-                              const districtDisplay = getDistrictDisplay(mostRecentTerm);
-
-                              const partyName =
+                            {localFilteredSearch.map((politician) => {
+                              const term = getMostRecentTerm(politician.termList);
+                              const chamber = term?.chamber || "Unknown";
+                              const districtDisplay = getDistrictDisplay(term);
+                              const partyFull =
                                   partyMap[politician.partyMembership || ""] || "Unknown";
-
                               const status =
-                                  politician.currentMember === "Yes"
-                                      ? "Incumbent"
-                                      : "Former Member";
+                                  politician.currentMember === "Yes" ? "Incumbent" : "Former Member";
 
                               return (
                                   <PoliticianCard
                                       key={politician.personId}
                                       name={politician.fullName || "Unknown"}
-                                      state={mostRecentTerm?.stateNm || politician.state || "Unknown"}
-                                      party={partyName}
+                                      state={term?.stateNm || politician.state || "Unknown"}
+                                      party={partyFull}
                                       district={districtDisplay}
                                       imageUrl={politician.imageUrl || backupImg}
                                       status={status}
@@ -502,10 +482,9 @@ export default function PoliticiansPage() {
                   </>
               )}
 
-              {/* Leadership Sections - Only show if no search has been done OR no results */}
+              {/* If not searching, or no search results, show leadership */}
               {showLeadership && (
                   <>
-                    {/* If leadership is still loading, show a loader or error */}
                     {loadingLeadership && (
                         <div className="text-center text-muted-foreground py-8">
                           Loading leadership...
@@ -518,43 +497,70 @@ export default function PoliticiansPage() {
                     )}
 
                     {!loadingLeadership && !leadershipError && leadership.length > 0 && (
-                        <>
-                          <div className="bg-card rounded-lg border p-6">
-                            <h2 className="text-2xl font-bold mb-6">House Leadership</h2>
-                            <div className="grid gap-8">
-                              <div className="bg-muted/50 rounded-lg p-6">
-                                <LeadershipSection
-                                    title="Republican Leadership"
-                                    leaders={houseRepublican}
-                                />
-                              </div>
-                              <div className="bg-muted/50 rounded-lg p-6">
-                                <LeadershipSection
-                                    title="Democratic Leadership"
-                                    leaders={houseDemocratic}
-                                />
-                              </div>
-                            </div>
-                          </div>
+                        (() => {
+                          const filteredLead = filterLeadership(leadership);
 
-                          <div className="bg-card rounded-lg border p-6">
-                            <h2 className="text-2xl font-bold mb-6">Senate Leadership</h2>
-                            <div className="grid gap-8">
-                              <div className="bg-muted/50 rounded-lg p-6">
-                                <LeadershipSection
-                                    title="Republican Leadership"
-                                    leaders={senateRepublican}
-                                />
-                              </div>
-                              <div className="bg-muted/50 rounded-lg p-6">
-                                <LeadershipSection
-                                    title="Democratic Leadership"
-                                    leaders={senateDemocratic}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </>
+                          const houseLeaders = filteredLead.filter(
+                              (l) => l.person.currentDistrict !== null
+                          );
+                          const senateLeaders = filteredLead.filter(
+                              (l) => l.person.currentDistrict === null
+                          );
+
+                          const houseRepublican = houseLeaders.filter(
+                              (l) => l.person.partyMembership === "R"
+                          );
+                          const houseDemocratic = houseLeaders.filter(
+                              (l) => l.person.partyMembership === "D"
+                          );
+
+                          const senateRepublican = senateLeaders.filter(
+                              (l) => l.person.partyMembership === "R"
+                          );
+                          const senateDemocratic = senateLeaders.filter(
+                              (l) => l.person.partyMembership === "D"
+                          );
+
+                          return (
+                              <>
+                                <div className="bg-card rounded-lg border p-6">
+                                  <h2 className="text-2xl font-bold mb-6">House Leadership</h2>
+                                  <div className="grid gap-8">
+                                    <div className="bg-muted/50 rounded-lg p-6">
+                                      <LeadershipSection
+                                          title="Republican Leadership"
+                                          leaders={houseRepublican}
+                                      />
+                                    </div>
+                                    <div className="bg-muted/50 rounded-lg p-6">
+                                      <LeadershipSection
+                                          title="Democratic Leadership"
+                                          leaders={houseDemocratic}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="bg-card rounded-lg border p-6">
+                                  <h2 className="text-2xl font-bold mb-6">Senate Leadership</h2>
+                                  <div className="grid gap-8">
+                                    <div className="bg-muted/50 rounded-lg p-6">
+                                      <LeadershipSection
+                                          title="Republican Leadership"
+                                          leaders={senateRepublican}
+                                      />
+                                    </div>
+                                    <div className="bg-muted/50 rounded-lg p-6">
+                                      <LeadershipSection
+                                          title="Democratic Leadership"
+                                          leaders={senateDemocratic}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </>
+                          );
+                        })()
                     )}
                   </>
               )}
