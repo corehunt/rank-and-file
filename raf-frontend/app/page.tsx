@@ -24,7 +24,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                 <Button size="lg" className="text-base sm:text-lg w-full sm:w-auto" asChild>
-                  <Link href="/search">
+                  <Link href="/explore">
                     Start Exploring <ChevronRight className="ml-2 h-5 w-5"/>
                   </Link>
                 </Button>
