@@ -1,3 +1,4 @@
+// politician-filters.tsx
 "use client";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -12,7 +13,7 @@ interface PoliticianFiltersProps {
     parties: string[];
     status: string[];
   };
-  onFilterChange: (type: string, value: string | string[]) => void;
+  onFilterChange: (type: "chamber" | "parties" | "status", value: string | string[]) => void;
 }
 
 export default function PoliticianFilters({
