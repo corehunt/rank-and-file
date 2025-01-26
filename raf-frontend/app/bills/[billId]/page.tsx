@@ -266,7 +266,11 @@ export default async function BillPage({
                   <Card>
                     <CardContent className="pt-6">
                       <h2 className="text-xl font-semibold mb-4">Summary</h2>
-                      <p className="text-muted-foreground">{bill.summaryTxt}</p>
+                      <p className="text-muted-foreground">
+                        {bill.summaryTxt && bill.summaryTxt.trim() !== ''
+                            ? bill.summaryTxt
+                            : 'No summary currently available.'}
+                      </p>
                     </CardContent>
                   </Card>
 
@@ -283,7 +287,7 @@ export default async function BillPage({
                                 </Badge>
                             ))
                         ) : (
-                            <p className="text-gray-500">No subjects available.</p>
+                            <p className="text-gray-500">No subjects currently available.</p>
                         )}
                       </div>
                     </CardContent>
