@@ -5,15 +5,17 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @MappedSuperclass
 @Data
 @EntityListeners(AuditEntityListener.class)
 public class RAFAudit {
 
     @Column(name = "CREATE_TS", nullable = false, updatable = false)
-    private String createTimestamp;
+    private LocalDateTime createTimestamp;
 
     @Column(name = "UPDATE_TS", nullable = false)
-    private String updateTimestamp;
+    private LocalDateTime updateTimestamp;
 
 }
