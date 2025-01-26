@@ -179,8 +179,11 @@ export default function SponsoredBills({ personId }: SponsoredBillsProps) {
                                                     <FileText
                                                         className="h-4 w-4 text-muted-foreground shrink-0"
                                                     />
+                                                    <p className="font-semibold whitespace-nowrap">
+                                                        {item.bill.billType} {item.bill.billNo}
+                                                    </p>
                                                     <Link
-                                                        className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis"
+                                                        className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis hover:text-primary"
                                                         title={item.bill.billTitle}
                                                         href={`/bills/${item.bill.billId}`}
                                                     >
@@ -188,13 +191,16 @@ export default function SponsoredBills({ personId }: SponsoredBillsProps) {
                                                     </Link>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 mt-1">
-                                                    <Badge variant="outline">
-                                                        {item.bill.billType} {item.bill.billNo}
-                                                    </Badge>
+
                                                     <Badge variant="outline">
                                                         {item.bill.congress}
                                                         {getNumberSuffix(item.bill.congress)} Congress
                                                     </Badge>
+                                                    {item.bill.policyArea && (
+                                                        <Badge variant="secondary">
+                                                            {item.bill.policyArea}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="text-sm text-muted-foreground shrink-0">
@@ -205,10 +211,7 @@ export default function SponsoredBills({ personId }: SponsoredBillsProps) {
                                         <div className="space-y-2">
                                             <p className="text-sm font-medium">Latest Action</p>
                                             <p className="text-sm text-muted-foreground">
-                                                {item.bill.latestActionTxt}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {formatDate(item.bill.latestActionDt)}
+                                                {formatDate(item.bill.latestActionDt)} - {item.bill.latestActionTxt}
                                             </p>
                                         </div>
                                     </div>
