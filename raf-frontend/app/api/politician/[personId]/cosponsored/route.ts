@@ -6,7 +6,7 @@ export async function GET(
 ) {
     const { personId } = params;
     const { searchParams } = new URL(req.url);
-    const page = searchParams.get('page') || '0';
+    const page = searchParams.get('page') || '0'; // Backend expects 0-based indexing
     const size = searchParams.get('size') || '10';
 
     try {
@@ -17,6 +17,7 @@ export async function GET(
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                cache: 'no-store', // Disable caching
             }
         );
 

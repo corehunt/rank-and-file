@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {getNumberSuffix} from "@/utils/numberUtils";
+import { getNumberSuffix } from "@/utils/numberUtils";
 import Link from "next/link";
 
 interface BillDTO {
@@ -18,7 +18,7 @@ interface BillDTO {
     policyArea: string | null;
     congress: number;
     billType: string;
-    originChamber: string;
+    originChamber: string | null;
     summaryTxt: string | null;
 }
 
@@ -41,23 +41,34 @@ interface CoSponsoredBillsProps {
 }
 
 export default function CoSponsoredBills({ personId }: CoSponsoredBillsProps) {
-    const [currentPage, setCurrentPage] = useState(1);
-    const [data, setData] = useState<PageDTO<SponsoredLegislationDTO> | null>(
-        null
-    );
+    const [currentPage, setCurrentPage] = useState(1); // 1-based for UI
+    const [data, setData] = useState<PageDTO<SponsoredLegislationDTO> | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             setLoading(true);
-            const fetchUrl = `/api/politician/${personId}/cosponsored?page=${currentPage}&size=10`;
+            // Adjust page number by subtracting 1 for 0-based backend indexing
+            const backendPage = currentPage - 1;
+            const fetchUrl = `/api/politician/${personId}/cosponsored?page=${backendPage}&size=10`;
             console.log("Fetching data from:", fetchUrl);
             try {
                 const res = await fetch(fetchUrl, {
-                    cache: "no-store",
+                    cache: "no-store", // Ensure no caching on client-side
                 });
                 if (res.ok) {
-                    const jsonData: PageDTO<SponsoredLegislationDTO> = await res.json();
+                    let jsonData: PageDTO<SponsoredLegislationDTO> = await res.json();
+                    console.log("Fetched Data (Unsorted):", jsonData.content);
+
+                    // Client-side sorting by introducedDt descending
+                    jsonData.content.sort((a, b) => {
+                        const dateA = new Date(a.bill.introducedDt).getTime();
+                        const dateB = new Date(b.bill.introducedDt).getTime();
+                        return dateB - dateA; // Descending order
+                    });
+
+                    console.log("Fetched Data (Sorted):", jsonData.content);
+
                     setData(jsonData);
                 } else {
                     console.error("HTTP Error:", res.status);
@@ -121,7 +132,12 @@ export default function CoSponsoredBills({ personId }: CoSponsoredBillsProps) {
                 );
             } else if (i === currentPage - 2 || i === currentPage + 2) {
                 buttons.push(
-                    <Button key={`dots-${i}`} variant="outline" disabled className="hidden sm:inline-flex">
+                    <Button
+                        key={`dots-${i}`}
+                        variant="outline"
+                        disabled
+                        className="hidden sm:inline-flex"
+                    >
                         ...
                     </Button>
                 );
@@ -166,9 +182,13 @@ export default function CoSponsoredBills({ personId }: CoSponsoredBillsProps) {
                                             <div className="flex flex-col flex-grow min-w-0">
                                                 <div className="flex items-center gap-2">
                                                     <FileText
-                                                        className="h-4 w-4 text-muted-foreground shrink-0"/> {/* Consistent size */}
+                                                        className="h-4 w-4 text-muted-foreground shrink-0"
+                                                    />
+                                                    <p className="font-semibold whitespace-nowrap">
+                                                        {item.bill.billType} {item.bill.billNo}
+                                                    </p>
                                                     <Link
-                                                        className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis"
+                                                        className="font-semibold text-base whitespace-nowrap overflow-hidden text-ellipsis hover:text-primary"
                                                         title={item.bill.billTitle}
                                                         href={`/bills/${item.bill.billId}`}
                                                     >
@@ -176,12 +196,16 @@ export default function CoSponsoredBills({ personId }: CoSponsoredBillsProps) {
                                                     </Link>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 mt-1">
+
                                                     <Badge variant="outline">
-                                                        {item.bill.billType} {item.bill.billNo}
+                                                        {item.bill.congress}
+                                                        {getNumberSuffix(item.bill.congress)} Congress
                                                     </Badge>
-                                                    <Badge variant="outline">
-                                                        {item.bill.congress}{getNumberSuffix(item.bill.congress)} Congress
-                                                    </Badge>
+                                                    {item.bill.policyArea && (
+                                                        <Badge variant="secondary">
+                                                            {item.bill.policyArea}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="text-sm text-muted-foreground shrink-0">
@@ -192,10 +216,7 @@ export default function CoSponsoredBills({ personId }: CoSponsoredBillsProps) {
                                         <div className="space-y-2">
                                             <p className="text-sm font-medium">Latest Action</p>
                                             <p className="text-sm text-muted-foreground">
-                                                {item.bill.latestActionTxt}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {formatDate(item.bill.latestActionDt)}
+                                                {formatDate(item.bill.latestActionDt)} - {item.bill.latestActionTxt}
                                             </p>
                                         </div>
                                     </div>

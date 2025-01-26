@@ -17,4 +17,6 @@ public interface SponsoredLegislationRepository extends JpaRepository<SponsoredL
     @Query("SELECT sl FROM SponsoredLegislation sl JOIN FETCH sl.bill WHERE sl.person.personId = :personId AND sl.sponsorType = :sponsorType")
     Page<SponsoredLegislation> findByPerson_PersonIdAndSponsorType(String personId, String sponsorType, Pageable pageable);
 
+    boolean existsByPerson_PersonIdAndBill_BillIdAndSponsorType(String personId, String billId, String sponsorType);
+
 }

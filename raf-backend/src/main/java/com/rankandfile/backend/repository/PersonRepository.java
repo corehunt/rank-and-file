@@ -24,4 +24,7 @@ public interface PersonRepository extends JpaRepository<Person, String> {
     """, nativeQuery = true)
     List<Object[]> findChamberPartyCount(@Param("congress") Integer congress);
 
+    @Query("SELECT p.personId FROM Person p WHERE p.currentMember = 'Yes'")
+    List<String> findAllCurrentMemberIds();
+
 }
