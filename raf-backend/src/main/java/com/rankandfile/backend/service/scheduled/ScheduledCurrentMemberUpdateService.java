@@ -44,7 +44,7 @@ public class ScheduledCurrentMemberUpdateService {
         log.info("Scheduled job started: updateMembers(). Fetching current member IDs...");
 
         List<String> personIds = getPersonIdsToUpdate();
-        log.info("Found {} personId to update.", personIds.size());
+        log.info("Found {} personIds to update.", personIds.size());
 
         for (String personId : personIds) {
             log.debug("Updating member with personId={}", personId);
