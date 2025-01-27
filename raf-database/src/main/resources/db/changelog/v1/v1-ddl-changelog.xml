@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1.1-create-raf_person-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_PERSON.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.2-create-raf_state-domn-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_STATE_DOMN.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.3-create-raf_congress-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_CONGRESS.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.4-create-raf_session-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_SESSION.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.5-create-raf_person_congress-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_PERSON_CONGRESS.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.6-create-raf_term-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_TERM.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.7-create-raf_bill-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_BILL.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.8-create-raf_bill_action-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_BILL_ACTION.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.9-create-raf_mem_spons_legislation-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_MEM_SPONS_LEGISLATION.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.10-create-raf_committee-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_COMMITTEE.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.11-create-raf_bill_committee-join-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-RAF_BILL_COMMITTEE-JOIN-TABLE.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.12-create-raf_bill_text-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_BILL_TEXT.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.13-create-raf_related_bills-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_RELATED_BILLS.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+    <changeSet id="v1.14-create-raf_leadership-table" author="coreyroach">
+        <sqlFile
+                path="ddl/CREATE-TABLE-RAF_LEADERSHIP.sql"
+                relativeToChangelogFile="true"
+        />
+    </changeSet>
+
+</databaseChangeLog>
