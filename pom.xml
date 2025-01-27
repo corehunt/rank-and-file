@@ -7,31 +7,25 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent Coordinates -->
     <groupId>com.rankandfile</groupId>
     <artifactId>rank-and-file</artifactId>
-    <version>0.0.15-SNAPSHOT</version>
+    <version>0.0.38-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Rank and File Application</name>
     <description>Parent POM for Rank and File project modules</description>
 
-    <!-- Modules Declaration -->
     <modules>
         <module>raf-backend</module>
         <module>raf-database</module>
-        <!-- Exclude raf-frontend as it's deployed separately on Vercel -->
     </modules>
 
-    <!-- Common Properties -->
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>3.3.0</spring.boot.version>
         <liquibase.version>4.23.0</liquibase.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
-        <!-- Add other shared properties as needed -->
     </properties>
 
-    <!-- Dependency Management -->
     <dependencyManagement>
         <dependencies>
             <!-- Spring Boot Dependencies -->
@@ -56,12 +50,9 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.version}</version>
             </dependency>
-
-            <!-- Add other shared dependencies here -->
         </dependencies>
     </dependencyManagement>
 
-    <!-- Plugin Management -->
     <build>
         <pluginManagement>
             <plugins>
@@ -82,8 +73,6 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
                 </plugin>
-
-                <!-- Add other shared plugins here -->
             </plugins>
         </pluginManagement>
     </build>
