@@ -1,0 +1,214 @@
+package com.rankandfile.dataloader.processor;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.rankandfile.dataloader.entity.Bill;
+import com.rankandfile.dataloader.entity.Person;
+import com.rankandfile.dataloader.entity.SponsoredLegislation;
+import com.rankandfile.dataloader.repository.BillRepository;
+import com.rankandfile.dataloader.repository.PersonRepository;
+import com.rankandfile.dataloader.repository.SponsoredLegislationRepository;
+import com.rankandfile.dataloader.util.IdGenerator;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Component
+public class SponsoredLegislationProcessor {
+
+    private static final String FIELD_SPONSORED_LEGISLATION = "sponsoredLegislation";
+    private static final String FIELD_COSPONSORED_LEGISLATION = "cosponsoredLegislation";
+    private static final String FIELD_CONGRESS = "congress";
+    private static final String FIELD_NUMBER = "number";
+    private static final String FIELD_TYPE = "type";
+    private static final String FIELD_URL = "url";
+
+    private final SponsoredLegislationRepository sponsoredLegislationRepository;
+    private final PersonRepository personRepository;
+    private final BillRepository billRepository;
+    private final BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor;
+    private final IdGenerator idGenerator;
+
+    public SponsoredLegislationProcessor(
+            SponsoredLegislationRepository sponsoredLegislationRepository,
+            PersonRepository personRepository,
+            BillRepository billRepository,
+            BillByCongressTypeNumberProcessor billByCongressTypeNumberProcessor,
+            IdGenerator idGenerator) {
+        this.sponsoredLegislationRepository = sponsoredLegislationRepository;
+        this.personRepository = personRepository;
+        this.billRepository = billRepository;
+        this.billByCongressTypeNumberProcessor = billByCongressTypeNumberProcessor;
+        this.idGenerator = idGenerator;
+    }
+
+    /**
+     * Processes sponsored or cosponsored legislation JSON data and associates it with a person.
+     *
+     * @param json     The JSON string containing sponsored or cosponsored legislation data.
+     * @param personId The ID of the person sponsoring or cosponsoring the legislation.
+     * @return A list of SponsoredLegislation entities.
+     */
+    public List<SponsoredLegislation> process(String json, String personId) {
+        log.info("Starting processing of legislation for personId: {}", personId);
+
+        JsonObject rootObject;
+        try {
+            rootObject = JsonParser.parseString(json).getAsJsonObject();
+        } catch (Exception e) {
+            log.error("Failed to parse JSON: {}", json, e);
+            return Collections.emptyList();
+        }
+
+        String sponsorType;
+        JsonArray legislationArray;
+
+        if (rootObject.has(FIELD_SPONSORED_LEGISLATION)) {
+            sponsorType = "Sponsor";
+            legislationArray = rootObject.getAsJsonArray(FIELD_SPONSORED_LEGISLATION);
+        } else if (rootObject.has(FIELD_COSPONSORED_LEGISLATION)) {
+            sponsorType = "Co-Sponsor";
+            legislationArray = rootObject.getAsJsonArray(FIELD_COSPONSORED_LEGISLATION);
+            log.info("Processing Co-Sponsored Legislation for PersonId: {}", personId);
+        } else {
+            log.warn("No sponsored or cosponsored legislation found in the input JSON.");
+            return Collections.emptyList();
+        }
+
+        if (legislationArray == null || legislationArray.isEmpty()) {
+            log.warn("{} array is empty.", sponsorType);
+            return Collections.emptyList();
+        }
+
+        List<SponsoredLegislation> sponsoredLegislations = new ArrayList<>();
+
+        Person existingMember = personRepository.findPersonByPersonId(personId);
+        if (existingMember == null) {
+            log.error("Person with ID {} not found.", personId);
+            throw new EntityNotFoundException("Person with ID " + personId + " not found.");
+        }
+
+        // Collect all existing SponsoredLegislation for the person and sponsorType
+        List<SponsoredLegislation> existingLegislations = sponsoredLegislationRepository.findByPersonPersonIdAndSponsorType(personId, sponsorType);
+        log.info("Found {} legislations for personId: {}", existingLegislations.size(), personId);
+
+        // Create a map for quick lookup of existing SponsoredLegislation
+        Map<String, SponsoredLegislation> existingLegislationMap = existingLegislations.stream()
+                .collect(Collectors.toMap(
+                        leg -> generateKey(
+                                leg.getBill().getCongress(),
+                                leg.getBill().getBillNo(),
+                                leg.getBill().getBillType(),
+                                leg.getSponsorType(),
+                                leg.getPerson().getPersonId()),
+                        leg -> leg,
+                        (existing, replacement) -> existing)); // Handle duplicate keys by keeping existing
+
+        // Process the legislation array
+        for (JsonElement element : legislationArray) {
+            JsonObject legislationObject = element.getAsJsonObject();
+
+            // Filtering out amendments
+            String urlSrc = getAsString(legislationObject, FIELD_URL);
+            if (urlSrc != null && urlSrc.contains("/amendment/")) {
+                log.info("Skipping amendment with URL: {}", urlSrc);
+                continue;
+            }
+
+            String congressNo = getAsString(legislationObject, FIELD_CONGRESS);
+            String billNo = getAsString(legislationObject, FIELD_NUMBER);
+            String billType = getAsString(legislationObject, FIELD_TYPE);
+
+
+            if (billNo == null || congressNo == null) {
+                log.warn("Invalid bill number or congress number. Skipping legislation.");
+                continue;
+            }
+
+            String key = generateKey(congressNo, billNo, billType, sponsorType, personId);
+
+            // Fetch or create the Bill entity
+            Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
+            if (bill == null) {
+                log.info("Creating new Bill for Congress No: {}, Bill No: {}, Bill Type: {}", congressNo, billNo, billType);
+                bill = new Bill();
+                bill.setBillId(idGenerator.generateBillId(congressNo, billType, billNo));
+                bill.setCongress(congressNo);
+                bill.setBillNo(billNo);
+                bill.setBillType(billType);
+
+                log.info("Creating new Bill with ID: {}", bill.getBillId());
+                billByCongressTypeNumberProcessor.updateBillFromJson(legislationObject, bill);
+                billRepository.save(bill);
+            } else {
+                log.info("Found existing Bill with ID: {}", bill.getBillId());
+            }
+
+            // Fetch or create the SponsoredLegislation entity
+            SponsoredLegislation legislationToProcess = existingLegislationMap.get(key);
+
+            if (legislationToProcess == null) {
+                log.info("Creating new SponsoredLegislation for Bill ID: {} and Person ID: {}", bill.getBillId(), existingMember.getPersonId());
+                legislationToProcess = new SponsoredLegislation();
+                legislationToProcess.setSponLegId(idGenerator.generateSponsLegId());
+                legislationToProcess.setPerson(existingMember);
+                legislationToProcess.setBill(bill);
+                legislationToProcess.setSponsorType(sponsorType);
+                sponsoredLegislations.add(legislationToProcess);
+
+                // Add the new legislation to the map to prevent duplicates in the same processing session
+                existingLegislationMap.put(key, legislationToProcess);
+            } else {
+                log.info("SponsoredLegislation already exists with ID: {}", legislationToProcess.getSponLegId());
+                // Update sponsorType if it has changed (unlikely in this context)
+                if (!legislationToProcess.getSponsorType().equals(sponsorType)) {
+                    legislationToProcess.setSponsorType(sponsorType);
+                }
+                sponsoredLegislations.add(legislationToProcess);
+            }
+        }
+
+        log.info("Completed processing of legislation for personId: {}", personId);
+
+        return sponsoredLegislations;
+    }
+
+    private String getAsString(JsonObject obj, String field) {
+        return obj.has(field) && !obj.get(field).isJsonNull() ? obj.get(field).getAsString() : null;
+    }
+
+    private Integer getAsInteger(JsonObject obj, String field) {
+        String value = getAsString(obj, field);
+        return parseInteger(value);
+    }
+
+    private Integer parseInteger(String value) {
+        try {
+            return value != null ? Integer.parseInt(value) : null;
+        } catch (NumberFormatException e) {
+            log.error("Invalid number format: {}", value, e);
+            return null;
+        }
+    }
+
+    private Integer parseBillNumber(String billNoStr) {
+        if (billNoStr == null) return null;
+        // Remove any non-digit characters
+        String digitsOnly = billNoStr.replaceAll("\\D+", "");
+        return parseInteger(digitsOnly);
+    }
+
+    private String generateKey(String congressNo, String billNo, String billType, String sponsorType, String personId) {
+        String billNoStr = (billNo != null) ? billNo.toString() : "unknownBillNo";
+        String billTypeStr = (billType != null) ? billType : "unknownBillType";
+        String sponsorTypeStr = (sponsorType != null) ? sponsorType : "unknownSponsorType";
+        String personIdStr = (personId != null) ? personId : "unknownPersonId";
+        return congressNo + "-" + billNoStr + "-" + billTypeStr + "-" + sponsorTypeStr + "-" + personIdStr;
+    }
+}
