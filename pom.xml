@@ -16,7 +16,6 @@
 
     <modules>
         <module>raf-backend</module>
-        <module>raf-database</module>
     </modules>
 
     <properties>

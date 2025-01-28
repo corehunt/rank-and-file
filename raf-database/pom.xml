@@ -7,19 +7,19 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Inherit from Parent POM -->
     <parent>
         <groupId>com.rankandfile</groupId>
         <artifactId>rank-and-file</artifactId>
-        <version>0.0.15-SNAPSHOT</version>
+        <version>0.0.38-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>raf-database</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>raf-database</name>
-    <description>Liquibase migration module for rankandfile.com</description>
+    <description>Liquibase migration module for rankandfile.us</description>
 
-    <!-- Dependencies (Inherit versions from dependencyManagement) -->
     <dependencies>
         <!-- Liquibase Core -->
         <dependency>
@@ -33,7 +33,6 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <!-- Add other database-specific dependencies if needed -->
     </dependencies>
 
     <!-- Build Configuration -->
@@ -52,7 +51,6 @@
                     <driver>com.mysql.cj.jdbc.Driver</driver>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
