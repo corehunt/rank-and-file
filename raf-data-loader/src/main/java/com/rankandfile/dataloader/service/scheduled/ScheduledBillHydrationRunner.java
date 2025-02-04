@@ -7,11 +7,12 @@ import com.rankandfile.dataloader.service.external.bill.*;
 import com.rankandfile.dataloader.exception.TooManyRequestsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -34,17 +35,17 @@ public class ScheduledBillHydrationRunner {
     private final RateLimiter rateLimiter = RateLimiter.create(1.388);
 
     /**
-     * Scheduled task to hydrate recently created bills.
-     * Runs once a day at ??? time.
+     * Hydrates all 7 bill endpoints where the update timestamp is within the last hour
+     * Time to calculate against is passed from initial service
+     * Called every day at the top of every hour
      */
-//    @Scheduled(cron = "0 0/5 * * * ?")
-    public void runBillHydration() {
+    public void runBillHydration(Instant now) {
         log.info("Starting scheduled bill hydration process");
 
-        LocalDateTime since = LocalDateTime.now().minusHours(25); //25 hours to ensure enough overlap
+        LocalDateTime since = LocalDateTime.ofInstant(now, ZoneId.systemDefault()).minusHours(1);
 
-        List<Bill> recentBills = billRepository.findByCreateTimestampAfter(since);
-        log.info("Found {} bills created in the last 25 hours to hydrate.", recentBills.size());
+        List<Bill> recentBills = billRepository.findByUpdateTimestampAfter(since);
+        log.info("Found {} bills updated in the last hour to hydrate.", recentBills.size());
 
         if (recentBills.isEmpty()) {
             log.info("No bills to hydrate at this time.");
