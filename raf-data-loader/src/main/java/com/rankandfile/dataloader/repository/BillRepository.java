@@ -15,5 +15,5 @@ public interface BillRepository extends JpaRepository<Bill, String> {
 
     List<Bill> findTop10ByOrderByIntroducedDtDesc();
 
-    List<Bill> findByCreateTimestampAfter(LocalDateTime since);
+    List<Bill> findByUpdateTimestampAfter(LocalDateTime since);
 }
