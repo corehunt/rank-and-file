@@ -39,7 +39,7 @@ public class ScheduledCurrentMemberUpdateService {
      * Runs every Sunday & Thursday at midnight.
      */
     @Transactional
-    @Scheduled(cron = "0 0 0 ? * SUN,THU")
+//    @Scheduled(cron = "0 0 0 ? * SUN,THU")
     public void updateMembers() {
         log.info("Scheduled job started: updateMembers(). Fetching current member IDs...");
 
