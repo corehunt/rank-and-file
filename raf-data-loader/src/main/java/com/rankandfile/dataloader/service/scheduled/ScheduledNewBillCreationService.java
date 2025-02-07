@@ -39,7 +39,7 @@ public class ScheduledNewBillCreationService {
      * Scheduled job to load and hydrate bills with a last action date captured within 1 hour previous
      * Runs every day at the top of every hour
      */
-    @Scheduled(cron = "0 0 * * * ?")
+//    @Scheduled(cron = "0 0 * * * ?")
     public void loadRecentBills() {
         List<Bill> recentBills = new ArrayList<>();
         int offset = 0;
