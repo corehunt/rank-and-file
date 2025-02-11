@@ -1,4 +1,4 @@
-export function getNumberSuffix(num: number){
+export function getNumberSuffix(num: number | null | undefined){
     const lastDigit = num % 10;
     const lastTwoDigits = num % 100;
 

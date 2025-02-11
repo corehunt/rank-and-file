@@ -245,14 +245,16 @@ export default async function PoliticianProfile({
                           <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
                           <div className="text-sm">
                             <p className="font-medium">Website</p>
-                            <Link
-                                href={politician.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {politician.website.replace("https://", "")}
-                            </Link>
+                            {politician?.website ? (
+                                <Link
+                                    href={politician.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  {politician.website.replace("https://", "")}
+                                </Link>
+                            ) : null}
                           </div>
                         </div>
                     )}
