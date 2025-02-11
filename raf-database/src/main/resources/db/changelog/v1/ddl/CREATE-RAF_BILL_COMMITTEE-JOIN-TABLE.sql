@@ -1,4 +1,4 @@
-CREATE TABLE RAF_BILL_COMMITTEE (
-    BILL_ID VARCHAR(15) REFERENCES RAF_BILL(BILL_ID),
-    COMMITTEE_ID VARCHAR(20) REFERENCES RAF_COMMITTEE(COMMITTEE_ID)
+create table raf_bill_committee (
+    bill_id varchar(15) references raf_bill(bill_id),
+    committee_id varchar(20) references raf_committee(committee_id)
 );

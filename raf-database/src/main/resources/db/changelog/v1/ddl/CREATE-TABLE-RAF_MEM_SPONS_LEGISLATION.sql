@@ -1,8 +1,8 @@
-CREATE TABLE RAF_SPONS_LEGISLATION (
-    SPON_LEG_ID VARCHAR(12) PRIMARY KEY,
-    PERSON_ID VARCHAR(12) REFERENCES RAF_PERSON(PERSON_ID),
-    BILL_ID VARCHAR(15) REFERENCES RAF_BILL(BILL_ID),
-    SPONSOR_TYPE VARCHAR(20) NOT NULL,
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP
+create table raf_spons_legislation (
+    spon_leg_id varchar(12) primary key,
+    person_id varchar(12) references raf_person(person_id),
+    bill_id varchar(15) references raf_bill(bill_id),
+    sponsor_type varchar(20) not null,
+    create_ts timestamp,
+    update_ts timestamp
 );

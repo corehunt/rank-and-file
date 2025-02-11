@@ -1,12 +1,12 @@
-CREATE TABLE RAF_COMMITTEE (
-    COMMITTEE_ID VARCHAR(20) PRIMARY KEY,
-    CHAMBER VARCHAR(50),
-    COMM_TYPE_CD VARCHAR(50),
-    COMM_NAME VARCHAR(255),
-    SYS_CODE VARCHAR(50),
-    URL_SRC VARCHAR(255),
-    PARENT_ID VARCHAR(12),
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP,
-    FOREIGN KEY (PARENT_ID) REFERENCES RAF_COMMITTEE(COMMITTEE_ID)
+create table raf_committee (
+    committee_id varchar(20) primary key,
+    chamber varchar(50),
+    comm_type_cd varchar(50),
+    comm_name varchar(255),
+    sys_code varchar(50),
+    url_src varchar(255),
+    parent_id varchar(12),
+    create_ts timestamp,
+    update_ts timestamp,
+    foreign key (parent_id) references raf_committee(committee_id)
 );

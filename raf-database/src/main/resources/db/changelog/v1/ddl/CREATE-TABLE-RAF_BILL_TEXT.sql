@@ -1,11 +1,11 @@
-CREATE TABLE RAF_BILL_TEXT (
-    TEXT_ID VARCHAR(12) NOT NULL PRIMARY KEY,
-    BILL_ID VARCHAR(15) REFERENCES RAF_BILL(BILL_ID),
-    VERSION_DATE DATE,
-    VERSION_TYPE VARCHAR(255),
-    FORMATTED_TEXT_URL TEXT,
-    PDF_URL TEXT,
-    XML_URL TEXT,
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP
+create table raf_bill_text (
+    text_id varchar(12) not null primary key,
+    bill_id varchar(15) references raf_bill(bill_id),
+    version_date date,
+    version_type varchar(255),
+    formatted_text_url text,
+    pdf_url text,
+    xml_url text,
+    create_ts timestamp,
+    update_ts timestamp
 );

@@ -1,9 +1,9 @@
-CREATE TABLE RAF_CONGRESS (
-    CONGRESS_ID INT PRIMARY KEY,
-    CONGRESS_NAME VARCHAR(255),
-    CONGRESS_NUMBER INT NOT NULL,
-    START_YEAR VARCHAR(255),
-    END_YEAR VARCHAR(255),
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP
+create table raf_congress (
+    congress_id int primary key,
+    congress_name varchar(255),
+    congress_number int not null,
+    start_year varchar(255),
+    end_year varchar(255),
+    create_ts timestamp,
+    update_ts timestamp
 );

@@ -1,12 +1,12 @@
-CREATE TABLE RAF_SESSION (
-    SESSION_ID BIGINT AUTO_INCREMENT PRIMARY KEY,
-    CHAMBER VARCHAR(255) NOT NULL,
-    NUMBER INT NOT NULL,
-    TYPE VARCHAR(255),
-    START_DATE DATE,
-    END_DATE DATE,
-    CONGRESS_ID INT NOT NULL,
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP,
-    FOREIGN KEY (CONGRESS_ID) REFERENCES RAF_CONGRESS(CONGRESS_ID)
+create table raf_session (
+    session_id bigint auto_increment primary key,
+    chamber varchar(255) not null,
+    number int not null,
+    type varchar(255),
+    start_date date,
+    end_date date,
+    congress_id int not null,
+    create_ts timestamp,
+    update_ts timestamp,
+    foreign key (congress_id) references raf_congress(congress_id)
 );

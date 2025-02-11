@@ -1,7 +1,7 @@
-CREATE TABLE RAF_PERSON_CONGRESS (
-    PERSON_ID VARCHAR(12) NOT NULL,
-    CONGRESS_ID INT NOT NULL,
-    PRIMARY KEY (PERSON_ID, CONGRESS_ID),
-    FOREIGN KEY (PERSON_ID) REFERENCES RAF_PERSON(PERSON_ID),
-    FOREIGN KEY (CONGRESS_ID) REFERENCES RAF_CONGRESS(CONGRESS_ID)
+create table raf_person_congress (
+    person_id varchar(12) not null,
+    congress_id int not null,
+    primary key (person_id, congress_id),
+    foreign key (person_id) references raf_person(person_id),
+    foreign key (congress_id) references raf_congress(congress_id)
 );

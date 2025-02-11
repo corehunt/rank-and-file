@@ -1,10 +1,10 @@
-ALTER TABLE RAF_BILL ADD FULLTEXT INDEX idx_raf_bill_fulltext (
-    BILL_TITLE,
-    SUMMARY_TXT,
-    BILL_NO,
-    BILL_TYPE,
-    ORIGIN_CHAMBER,
-    POLICY_AREA,
-    LEGISLATIVE_SUBJECTS,
-    SPONSORS_TXT
+alter table raf_bill add fulltext index idx_raf_bill_fulltext (
+    bill_title,
+    summary_txt,
+    bill_no,
+    bill_type,
+    origin_chamber,
+    policy_area,
+    legislative_subjects,
+    sponsors_txt
 );
