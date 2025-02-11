@@ -15,12 +15,12 @@ public interface PersonRepository extends JpaRepository<Person, String> {
     @Query(value = """
         SELECT
             COUNT(1)      AS count,
-            t.CHAMBER     AS chamber,
-            p.PARTY       AS party
-        FROM RAF_PERSON p
-        JOIN RAF_TERM t ON p.PERSON_ID = t.PERSON_ID
-        WHERE t.CONGRESS = :congress
-        GROUP BY t.CHAMBER, p.PARTY
+            t.chamber     AS chamber,
+            p.party       AS party
+        FROM raf_person p
+        JOIN raf_term t ON p.person_id = t.person_id
+        WHERE t.congress = :congress
+        GROUP BY t.chamber, p.party
     """, nativeQuery = true)
     List<Object[]> findChamberPartyCount(@Param("congress") Integer congress);
 
