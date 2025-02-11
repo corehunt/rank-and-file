@@ -97,6 +97,10 @@ export default async function PoliticianProfile({
       }
   );
 
+  const backendUrl = `${process.env.BACKEND_BASE_URL}/api/internal/politician/${params.personId}`;
+  console.log(`getting person with personId: ${backendUrl}`);
+
+
   if (!res.ok) {
     return notFound();
   }
