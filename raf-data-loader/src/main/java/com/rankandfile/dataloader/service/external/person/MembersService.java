@@ -38,24 +38,28 @@ public class MembersService {
         try {
             while (hasMoreRecords) {
                 int currentOffset = offset;
-                log.debug("Fetching members from offset {}", currentOffset);
+                log.info("Fetching members from offset {}", currentOffset);
 
                 String response = fetchMembers(limit, offset);
 
                 if (response == null || response.isEmpty()) {
-                    log.warn("Received empty response for loading all members");
+                    log.info("Received empty response for loading all members");
                     hasMoreRecords = false;
                     continue;
                 }
 
                 List<Person> persons = congressMemberProcessor.processMembers(response);
+                log.info("Fetched {} members", persons.size());
 
                 allMembers.addAll(persons);
+                log.info("saved members {}", allMembers.size());
 
-                if (persons.size() < limit) {
+                int fetchedCount = persons.size();
+                offset += fetchedCount;
+
+                // Stop if no records were returned
+                if (fetchedCount == 0) {
                     hasMoreRecords = false;
-                } else {
-                    offset += limit;
                 }
             }
 

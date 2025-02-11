@@ -18,7 +18,6 @@ public class MembersController {
     private final MembersService membersService;
 
     @Autowired
-
     public MembersController(MembersService membersService) {
         this.membersService = membersService;
     }
