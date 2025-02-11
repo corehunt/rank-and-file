@@ -11,83 +11,83 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.*;
 
-@Table(name = "RAF_PERSON")
+@Table(name = "raf_person")
 @Entity
 @Data
 public class Person extends RAFAudit {
 
     @Id
-    @Column(name = "PERSON_ID", nullable = false, updatable = false)
+    @Column(name = "person_id", nullable = false, updatable = false)
     private String personId;
 
-    @Column(name = "FIRST_NM", nullable = false)
+    @Column(name = "first_nm", nullable = false)
     private String firstName;
 
-    @Column(name = "MID_NM")
+    @Column(name = "mid_nm")
     private String midName;
 
-    @Column(name = "LAST_NM", nullable = false)
+    @Column(name = "last_nm", nullable = false)
     private String lastName;
 
-    @Column(name = "FULL_NM")
+    @Column(name = "full_nm")
     private String fullName;
 
-    @Column(name = "BIRTH_DT")
+    @Column(name = "birth_dt")
     private LocalDate birthDate;
 
-    @Column(name = "DTH_DT")
+    @Column(name = "dth_dt")
     private LocalDate deathDate;
 
-    @Column(name = "WEBSITE")
+    @Column(name = "website")
     private String website;
 
-    @Column(name = "OFFICE_LOC_LN1")
+    @Column(name = "office_loc_ln1")
     private String officeLocLine1;
 
-    @Column(name = "OFFICE_LOC_LN2")
+    @Column(name = "office_loc_ln2")
     private String officeLocLine2;
 
-    @Column(name = "PHONE")
+    @Column(name = "phone")
     private String phoneNo;
 
-    @Column(name = "STATE")
+    @Column(name = "state")
     private String state;
 
-    @Column(name = "STATE_ABBR")
+    @Column(name = "state_abbr")
     private String stateAbbr;
 
-    @Column(name = "CURRENT_DISTRICT")
+    @Column(name = "current_district")
     private Integer currentDistrict;
 
-    @Column(name = "CURRENT_MEM")
+    @Column(name = "current_mem")
     private String currentMember;
 
-    @Column(name = "BIO")
+    @Column(name = "bio")
     private String biography;
 
-    @Column(name = "EMAIL")
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "IMG_URL")
+    @Column(name = "img_url")
     private String imageUrl;
 
-    @Column(name = "IMG_ATTRIBUTION")
+    @Column(name = "img_attribution")
     private String imgAttribution;
 
-    @Column(name = "PARTY_MEM")
+    @Column(name = "party_mem")
     private String partyMembership;
 
-    @Column(name = "PARTY")
+    @Column(name = "party")
     private String party;
 
-    @Column(name = "PARTY_ST_YR")
+    @Column(name = "party_st_yr")
     private Integer partyStartYr;
 
     @ManyToMany
     @JoinTable(
-            name = "RAF_PERSON_CONGRESS",
-            joinColumns = @JoinColumn(name = "PERSON_ID"),
-            inverseJoinColumns = @JoinColumn(name = "CONGRESS_ID")
+            name = "raf_person_congress",
+            joinColumns = @JoinColumn(name = "person_id"),
+            inverseJoinColumns = @JoinColumn(name = "congress_id")
     )
     @JsonIgnore
     private Set<Congress> congresses = new HashSet<>();

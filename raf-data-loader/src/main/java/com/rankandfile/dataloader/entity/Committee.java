@@ -10,31 +10,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "RAF_COMMITTEE", uniqueConstraints = @UniqueConstraint(columnNames = "SYS_CODE"))
+@Table(name = "raf_committee", uniqueConstraints = @UniqueConstraint(columnNames = "sys_code"))
 @Data
 public class Committee extends RAFAudit {
 
     @Id
-    @Column(name = "COMMITTEE_ID", nullable = false, updatable = false)
+    @Column(name = "committee_id", nullable = false, updatable = false)
     private String committeeId;
 
-    @Column(name = "CHAMBER")
+    @Column(name = "chamber")
     private String chamber;
 
-    @Column(name = "COMM_TYPE_CD")
+    @Column(name = "comm_type_cd")
     private String commTypeCd;
 
-    @Column(name = "COMM_NAME")
+    @Column(name = "comm_name")
     private String commName;
 
-    @Column(name = "SYS_CODE", unique = true)
+    @Column(name = "sys_code", unique = true)
     private String sysCode;
 
-    @Column(name = "URL_SRC")
+    @Column(name = "url_src")
     private String urlSrc;
 
     @ManyToOne
-    @JoinColumn(name = "PARENT_ID")
+    @JoinColumn(name = "parent_id")
     private Committee parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)

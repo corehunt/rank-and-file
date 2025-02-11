@@ -10,31 +10,31 @@ import lombok.ToString;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "RAF_SESSION")
+@Table(name = "raf_session")
 @Data
 public class Session extends RAFAudit {
 
     @Id
-    @Column(name = "SESSION_ID")
+    @Column(name = "session_id")
     private Integer sessionId;
 
-    @Column(name = "CHAMBER", nullable = false)
+    @Column(name = "chamber", nullable = false)
     private String chamber;
 
-    @Column(name = "NUMBER", nullable = false)
+    @Column(name = "number", nullable = false)
     private Integer number;
 
-    @Column(name = "TYPE")
+    @Column(name = "type")
     private String type;
 
-    @Column(name = "START_DATE")
+    @Column(name = "start_date")
     private LocalDate startDate;
 
-    @Column(name = "END_DATE")
+    @Column(name = "end_date")
     private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CONGRESS_ID")
+    @JoinColumn(name = "congress_id")
     @EqualsAndHashCode.Exclude // Exclude from hashCode and equals
     @ToString.Exclude // Exclude from toString
     @JsonBackReference

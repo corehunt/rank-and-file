@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditEntityListener.class)
 public class RAFAudit {
 
-    @Column(name = "CREATE_TS", nullable = false, updatable = false)
+    @Column(name = "create_ts", nullable = false, updatable = false)
     private LocalDateTime createTimestamp;
 
-    @Column(name = "UPDATE_TS", nullable = false)
+    @Column(name = "update_ts", nullable = false)
     private LocalDateTime updateTimestamp;
 
 }
