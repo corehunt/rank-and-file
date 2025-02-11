@@ -1,9 +1,9 @@
 import { LeadershipCard } from "./leadership-card";
 
-interface LeadershipDTO {
+export interface LeadershipDTO {
     leadershipId: string;
     leadershipType: string;
-    currentLeader: string | boolean;
+    currentLeader?: string | boolean;
     person: {
         personId: string;
         fullName: string | null;
@@ -13,6 +13,7 @@ interface LeadershipDTO {
         imageUrl: string | null;
     };
 }
+
 
 interface LeadershipSectionProps {
     title: string;
@@ -29,7 +30,7 @@ export function LeadershipSection({ title, leaders }: LeadershipSectionProps) {
                         key={dto.leadershipId}
                         leadershipId={dto.leadershipId}
                         leadershipType={dto.leadershipType}
-                        currentLeader={dto.currentLeader}
+                        currentLeader={dto.currentLeader !== undefined ? dto.currentLeader : false}
                         person={dto.person}
                     />
                 ))}

@@ -1,16 +1,16 @@
-import Image from "next/image";
+import Image, {StaticImageData} from "next/image";
 import Link from "next/link";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import backupImg from "@/app/assets/backup.png"
 
 interface PoliticianCardProps {
-    personId : string;
+    personId: string;
     name: string;
     state: string;
     party: string;
     district?: string;
-    imageUrl: string;
+    imageUrl: string | StaticImageData;
     status: string;
     chamber: string;
 }
@@ -32,7 +32,7 @@ export default function PoliticianCard({
                     <div className="flex flex-col sm:flex-row items-center gap-4">
                         <div className="relative h-32 w-32 rounded-lg overflow-hidden flex-shrink-0">
                             <Image
-                                src={imageUrl || backupImg}
+                                src={typeof imageUrl === "string" ? imageUrl : imageUrl.src}
                                 alt={name}
                                 fill
                                 className="object-cover"
