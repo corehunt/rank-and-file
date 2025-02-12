@@ -5,42 +5,42 @@ import com.rankandfile.dataloader.entity.audit.RAFAudit;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Table(name = "RAF_TERM")
+@Table(name = "raf_term")
 @Entity
 @Data
 public class Term extends RAFAudit {
 
     @Id
-    @Column(name = "TERM_ID", nullable = false, updatable = false)
+    @Column(name = "term_id", nullable = false, updatable = false)
     private Integer termId;
 
     @ManyToOne
-    @JoinColumn(name = "PERSON_ID")
+    @JoinColumn(name = "person_id")
     @JsonBackReference
     private Person person;
 
-    @Column(name = "CHAMBER")
+    @Column(name = "chamber")
     private String chamber;
 
-    @Column(name = "CONGRESS")
+    @Column(name = "congress")
     private Integer congress;
 
-    @Column(name = "DISTRICT")
+    @Column(name = "district")
     private Integer district;
 
-    @Column(name = "END_YEAR")
+    @Column(name = "end_year")
     private Integer endYr;
 
-    @Column(name = "MEMBER_TYPE")
+    @Column(name = "member_type")
     private String memberType;
 
-    @Column(name = "START_YEAR")
+    @Column(name = "start_year")
     private Integer startYr;
 
-    @Column(name = "STATE_CODE")
+    @Column(name = "state_code")
     private String stateCd;
 
-    @Column(name = "STATE_NAME")
+    @Column(name = "state_name")
     private String stateNm;
 
     @Override

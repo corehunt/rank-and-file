@@ -14,69 +14,69 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Table(name = "RAF_BILL")
+@Table(name = "raf_bill")
 @Entity
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Bill extends RAFAudit {
 
     @Id
-    @Column(name = "BILL_ID", nullable = false, updatable = false)
+    @Column(name = "bill_id", nullable = false, updatable = false)
     @EqualsAndHashCode.Include
     private String billId;
 
-    @Column(name = "BILL_NO")
+    @Column(name = "bill_no")
     private String billNo;
 
-    @Column(name = "BILL_TITLE")
+    @Column(name = "bill_title")
     private String billTitle;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "INTRODUCED_DT")
+    @Column(name = "introduced_dt")
     private LocalDate introducedDt;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "LATEST_ACTION_DT")
+    @Column(name = "latest_action_dt")
     private LocalDate latestActionDt;
 
-    @Column(name = "LATEST_ACTION_TXT")
+    @Column(name = "latest_action_txt")
     private String latestActionTxt;
 
-    @Column(name = "POLICY_AREA")
+    @Column(name = "policy_area")
     private String policyArea;
 
-    @Column(name = "CONGRESS")
+    @Column(name = "congress")
     private String congress;
 
-    @Column(name = "BILL_TYPE")
+    @Column(name = "bill_type")
     private String billType;
 
-    @Column(name = "ORIGIN_CHAMBER")
+    @Column(name = "origin_chamber")
     private String originChamber;
 
-    @Column(name = "ORIGIN_CHAMBER_CD")
+    @Column(name = "origin_chamber_cd")
     private String originChamberCd;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @Column(name = "SUMMARY_ACTION_DT")
+    @Column(name = "summary_action_dt")
     private LocalDate summaryActionDt;
 
-    @Column(name = "SUMMARY_ACTION_DESC")
+    @Column(name = "summary_action_desc")
     private String summaryActionDesc;
 
-    @Column(name = "SUMMARY_TXT", columnDefinition = "TEXT")
+    @Column(name = "summary_txt", columnDefinition = "TEXT")
     private String summaryTxt;
 
-    @Column(name = "LAW_NO")
+    @Column(name = "law_no")
     private String lawNo;
 
-    @Column(name = "LAW_TYPE")
+    @Column(name = "law_type")
     private String lawType;
 
-    @Column(name = "IS_LAW_FL")
+    @Column(name = "is_law_fl")
     private String isLawFl;
 
-    @Column(name = "LEGISLATIVE_SUBJECTS", columnDefinition = "TEXT")
+    @Column(name = "legislative_subjects", columnDefinition = "TEXT")
     private String legislativeSubjects;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -87,9 +87,9 @@ public class Bill extends RAFAudit {
 
     @ManyToMany
     @JoinTable(
-            name = "RAF_BILL_COMMITTEE",
-            joinColumns = @JoinColumn(name = "BILL_ID"),
-            inverseJoinColumns = @JoinColumn(name = "COMMITTEE_ID")
+            name = "raf_bill_committee",
+            joinColumns = @JoinColumn(name = "bill_id"),
+            inverseJoinColumns = @JoinColumn(name = "committee_id")
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -107,9 +107,9 @@ public class Bill extends RAFAudit {
 
     @ManyToMany
     @JoinTable(
-            name = "RAF_BILL_RELATED_BILLS",
-            joinColumns = @JoinColumn(name = "BILL_ID"),
-            inverseJoinColumns = @JoinColumn(name = "RELATED_BILL_ID")
+            name = "raf_bill_related_bills",
+            joinColumns = @JoinColumn(name = "bill_id"),
+            inverseJoinColumns = @JoinColumn(name = "related_bill_id")
     )
     @ToString.Exclude
     private Set<Bill> relatedBills = new HashSet<>();

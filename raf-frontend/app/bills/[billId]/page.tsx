@@ -201,7 +201,7 @@ export default async function BillPage({
       })[0]
       : null;
 
-  const getPartyBadgeVariant = (party: string) => {
+  const getPartyBadgeVariant = (party: string | null | undefined) => {
     switch (party) {
       case "D":
         return "default";
@@ -448,13 +448,16 @@ export default async function BillPage({
                   <h2 className="text-xl font-semibold mb-4">Legislative Actions</h2>
                   <div className="space-y-4">
                     {bill.actions.map((action, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row justify-between gap-2 border-b pb-4 last:border-0 last:pb-0">
+                        <div key={index}
+                             className="flex flex-col sm:flex-row justify-between gap-2 border-b pb-4 last:border-0 last:pb-0">
                           <div className="space-y-1">
                             <p className="text-muted-foreground">{action.actionText}</p>
                             <Badge variant="outline">{action.actionType}</Badge>
                           </div>
                           <p className="text-sm text-muted-foreground shrink-0">
-                            {new Date(action.actionDate).toLocaleDateString()}
+                            {action?.actionDate
+                                ? new Date(action.actionDate).toLocaleDateString()
+                                : 'No date available'}
                           </p>
                         </div>
                     ))}

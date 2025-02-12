@@ -11,30 +11,30 @@ import lombok.ToString;
 
 
 @Entity
-@Table(name = "RAF_SPONS_LEGISLATION")
+@Table(name = "raf_spons_legislation")
 @Data
 public class SponsoredLegislation extends RAFAudit {
 
     @Id
-    @Column(name = "SPON_LEG_ID")
+    @Column(name = "spon_leg_id")
     private String sponLegId;
 
     @ManyToOne
-    @JoinColumn(name = "PERSON_ID", nullable = false)
+    @JoinColumn(name = "person_id", nullable = false)
     @JsonBackReference("person-sponsorship")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Person person;
 
     @ManyToOne
-    @JoinColumn(name = "BILL_ID", nullable = false)
+    @JoinColumn(name = "bill_id", nullable = false)
     @JsonManagedReference("sponsorship-bill")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnoreProperties({"sponsorships"})
     private Bill bill;
 
-    @Column(name = "SPONSOR_TYPE")
+    @Column(name = "sponsor_type")
     private String sponsorType; // Values: "Sponsor" or "Co-Sponsor"
 
     // Override equals and hashCode based on person and bill

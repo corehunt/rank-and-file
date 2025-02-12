@@ -1,4 +1,8 @@
-export function getNumberSuffix(num: number){
+export function getNumberSuffix(num: number | null | undefined): string {
+    if (num == null) {
+        return ""; // or some default suffix
+    }
+
     const lastDigit = num % 10;
     const lastTwoDigits = num % 100;
 

@@ -1,22 +1,22 @@
--- AFTER UPDATE trigger
-CREATE TRIGGER update_sponsors_txt_upd
-    AFTER UPDATE ON RAF_SPONS_LEGISLATION
-    FOR EACH ROW
-BEGIN
-    DECLARE vBillId VARCHAR(15);
+-- after update trigger
+create trigger update_sponsors_txt_upd
+    after update on raf_spons_legislation
+    for each row
+begin
+    declare vbillid varchar(15);
 
-    IF (NEW.BILL_ID IS NOT NULL) THEN
-        SET vBillId = NEW.BILL_ID;
-    ELSE
-        SET vBillId = OLD.BILL_ID;
-    END IF;
+    if (new.bill_id is not null) then
+        set vbillid = new.bill_id;
+    else
+        set vbillid = old.bill_id;
+    end if;
 
-    UPDATE RAF_BILL
-    SET SPONSORS_TXT = (
-        SELECT GROUP_CONCAT(p.FULL_NM SEPARATOR ', ')
-        FROM RAF_SPONS_LEGISLATION sl
-                 JOIN RAF_PERSON p ON sl.PERSON_ID = p.PERSON_ID
-        WHERE sl.BILL_ID = vBillId
+    update raf_bill
+    set sponsors_txt = (
+        select group_concat(p.full_nm separator ', ')
+        from raf_spons_legislation sl
+                 join raf_person p on sl.person_id = p.person_id
+        where sl.bill_id = vbillid
     )
-    WHERE BILL_ID = vBillId;
-END;
+    where bill_id = vbillid;
+end;

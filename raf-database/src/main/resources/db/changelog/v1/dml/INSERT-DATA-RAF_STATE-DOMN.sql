@@ -1,4 +1,4 @@
-INSERT INTO RAF_STATE_DOMN (STATE_ID, STATE_ABBR, STATE_NM, CAPITAL) VALUES
+insert into raf_state_domn (state_id, state_abbr, state_nm, capital) values
 ('101', 'AL', 'Alabama', 'Montgomery'),
 ('102', 'AK', 'Alaska', 'Juneau'),
 ('103', 'AZ', 'Arizona', 'Phoenix'),

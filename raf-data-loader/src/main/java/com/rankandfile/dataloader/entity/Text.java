@@ -8,31 +8,31 @@ import lombok.ToString;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "RAF_BILL_TEXT")
+@Table(name = "raf_bill_text")
 @Data
 public class Text extends RAFAudit {
 
     @Id
-    @Column(name = "TEXT_ID", nullable = false, updatable = false)
+    @Column(name = "text_id", nullable = false, updatable = false)
     private String textId;
 
-    @Column(name = "VERSION_DATE")
+    @Column(name = "version_date")
     private LocalDate versionDate;
 
-    @Column(name = "VERSION_TYPE")
+    @Column(name = "version_type")
     private String versionType;
 
-    @Column(name = "FORMATTED_TEXT_URL")
+    @Column(name = "formatted_text_url")
     private String formattedTextUrl;
 
-    @Column(name = "PDF_URL")
+    @Column(name = "pdf_url")
     private String pdfUrl;
 
-    @Column(name = "XML_URL")
+    @Column(name = "xml_url")
     private String xmlUrl;
 
     @ManyToOne
-    @JoinColumn(name = "BILL_ID", nullable = false)
+    @JoinColumn(name = "bill_id", nullable = false)
     @ToString.Exclude
     private Bill bill;
 }

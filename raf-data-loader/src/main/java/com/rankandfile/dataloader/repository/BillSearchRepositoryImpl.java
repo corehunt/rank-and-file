@@ -23,9 +23,9 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
         // 1) Count query
         String countSql = """
             SELECT COUNT(*)
-            FROM RAF_BILL b
-            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
-                         b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
+            FROM raf_bill b
+            WHERE MATCH (b.bill_title, b.summary_txt, b.bill_no, b.bill_type, b.origin_chamber,
+                         b.policy_area, b.legislative_subjects, b.sponsors_txt)
                   AGAINST (:parsed IN BOOLEAN MODE)
             """;
 
@@ -37,14 +37,14 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
         // 2) Main query for content
         String sql = """
             SELECT b.*
-            FROM RAF_BILL b
-            WHERE MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
-                         b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
+            FROM raf_bill b
+            WHERE MATCH (b.bill_title, b.summary_txt, b.bill_no, b.bill_type, b.origin_chamber,
+                         b.policy_area, b.legislative_subjects, b.sponsors_txt)
                   AGAINST (:parsed IN BOOLEAN MODE)
-            ORDER BY MATCH (b.BILL_TITLE, b.SUMMARY_TXT, b.BILL_NO, b.BILL_TYPE, b.ORIGIN_CHAMBER,
-                            b.POLICY_AREA, b.LEGISLATIVE_SUBJECTS, b.SPONSORS_TXT)
+            ORDER BY MATCH (b.bill_title, b.summary_txt, b.bill_no, b.bill_type, b.origin_chamber,
+                            b.policy_area, b.legislative_subjects, b.sponsors_txt)
                      AGAINST (:parsed IN BOOLEAN MODE) DESC,
-                     b.INTRODUCED_DT DESC
+                     b.introduced_dt DESC
             LIMIT :limit OFFSET :offset
             """;
 

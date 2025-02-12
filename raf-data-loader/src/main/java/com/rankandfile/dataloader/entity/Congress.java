@@ -11,24 +11,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "RAF_CONGRESS")
+@Table(name = "raf_congress")
 @Data
 public class Congress extends RAFAudit {
 
     @Id
-    @Column(name = "CONGRESS_ID")
+    @Column(name = "congress_id")
     private Integer congressId;
 
-    @Column(name = "CONGRESS_NAME")
+    @Column(name = "congress_name")
     private String congressName;
 
-    @Column(name = "CONGRESS_NUMBER", nullable = false)
+    @Column(name = "congress_number", nullable = false)
     private Integer congressNumber;
 
-    @Column(name = "START_YEAR")
+    @Column(name = "start_year")
     private String startYear;
 
-    @Column(name = "END_YEAR")
+    @Column(name = "end_year")
     private String endYear;
 
     @OneToMany(mappedBy = "congress", cascade = CascadeType.ALL, orphanRemoval = true)

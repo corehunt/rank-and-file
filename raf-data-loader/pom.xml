@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.rankandfile</groupId>
 		<artifactId>rank-and-file</artifactId>
-		<version>0.0.40-SNAPSHOT</version>
+		<version>1.0.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -126,6 +126,8 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<mainClass>com.rankandfile.dataloader.RankAndFileDataLoaderApplication</mainClass>
+					<executable>true</executable>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>

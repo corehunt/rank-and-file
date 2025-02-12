@@ -10,12 +10,12 @@
     <parent>
         <groupId>com.rankandfile</groupId>
         <artifactId>rank-and-file</artifactId>
-        <version>0.0.38-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>raf-database</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>raf-database</name>
     <description>Liquibase migration module for rankandfile.us</description>

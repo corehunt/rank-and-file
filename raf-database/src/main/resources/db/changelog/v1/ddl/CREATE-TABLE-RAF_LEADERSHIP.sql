@@ -1,9 +1,9 @@
-CREATE TABLE RAF_LEADERSHIP (
-    LEADERSHIP_ID SERIAL PRIMARY KEY,
-    PERSON_ID VARCHAR(12) REFERENCES RAF_PERSON(PERSON_ID),
-    CONGRESS VARCHAR(3),
-    LEADERSHIP_TYPE VARCHAR(100),
-    CURRENT_LEADER VARCHAR(6),
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP
-)
+create table raf_leadership (
+    leadership_id serial primary key,
+    person_id varchar(12) references raf_person(person_id),
+    congress varchar(3),
+    leadership_type varchar(100),
+    current_leader varchar(6),
+    create_ts timestamp,
+    update_ts timestamp
+);

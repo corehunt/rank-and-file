@@ -5,11 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Mail, MapPin, Globe } from "lucide-react";
 import Link from "next/link";
-import backupImg from "@/app/assets/backup.png"
+import backupImg from "@/app/assets/backup.png";
 
 import SponsoredBills from "@/components/politicians/SponsoredBills";
 import CoSponsoredBills from "@/components/politicians/CoSponsoredBills";
-import {getNumberSuffix} from "@/utils/numberUtils";
+import { getNumberSuffix } from "@/utils/numberUtils";
 
 interface TermDTO {
   termId: number;
@@ -77,11 +77,9 @@ const getMostRecentTerm = (termList: TermDTO[] | null): TermDTO | undefined => {
  */
 const getDistrictDisplay = (term: TermDTO | undefined): string => {
   if (!term || term.chamber === "Senate") return "";
-
   if (atLargeStates.includes(term.stateNm)) {
     return "At Large";
   }
-
   return term.district ? `District ${term.district}` : "District Unknown";
 };
 
@@ -90,18 +88,22 @@ export default async function PoliticianProfile({
                                                 }: {
   params: { personId: string };
 }) {
-  const res = await fetch(
-      `${process.env.BACKEND_BASE_URL}/api/internal/politician/${params.personId}`,
-      {
-        cache: "no-store",
-      }
-  );
+  const backendUrl = `${process.env.BACKEND_BASE_URL}/api/internal/politician/${params.personId}`;
+  console.log(`[PoliticianProfile] Fetching data from: ${backendUrl}`);
+
+  // Hit the initial endpoint (this will use the bioguideId/ personId)
+  const res = await fetch(backendUrl, { cache: "no-store" });
+
+  // Log the status code for debugging purposes
+  console.log(`[PoliticianProfile] Received response with status: ${res.status}`);
 
   if (!res.ok) {
+    console.error(`[PoliticianProfile] Error: Response not OK. Status: ${res.status}`);
     return notFound();
   }
 
   const politician: PersonDTO = await res.json();
+  console.log(`[PoliticianProfile] Successfully fetched politician data for personId: ${params.personId}`);
 
   const mostRecentTerm = getMostRecentTerm(politician.termList);
 
@@ -143,6 +145,8 @@ export default async function PoliticianProfile({
       dc: politician.phoneNo || "N/A",
     },
   };
+
+  console.log("[PoliticianProfile] Constructed politicianData:", politicianData);
 
   return (
       <div className="min-h-screen bg-muted/30">
@@ -245,14 +249,16 @@ export default async function PoliticianProfile({
                           <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
                           <div className="text-sm">
                             <p className="font-medium">Website</p>
-                            <Link
-                                href={politician.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {politician.website.replace("https://", "")}
-                            </Link>
+                            {politician?.website ? (
+                                <Link
+                                    href={politician.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                  {politician.website.replace("https://", "")}
+                                </Link>
+                            ) : null}
                           </div>
                         </div>
                     )}

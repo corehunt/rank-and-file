@@ -1,14 +1,14 @@
-CREATE TABLE RAF_TERM (
-    TERM_ID SERIAL PRIMARY KEY,
-    PERSON_ID VARCHAR(12) REFERENCES RAF_PERSON(PERSON_ID),
-    CHAMBER VARCHAR(100),
-    CONGRESS INTEGER,
-    DISTRICT INTEGER,
-    END_YEAR INTEGER,
-    MEMBER_TYPE VARCHAR(100),
-    START_YEAR INTEGER,
-    STATE_CODE VARCHAR(10),
-    STATE_NAME VARCHAR(100),
-    CREATE_TS TIMESTAMP,
-    UPDATE_TS TIMESTAMP
+create table raf_term (
+    term_id serial primary key,
+    person_id varchar(12) references raf_person(person_id),
+    chamber varchar(100),
+    congress integer,
+    district integer,
+    end_year integer,
+    member_type varchar(100),
+    start_year integer,
+    state_code varchar(10),
+    state_name varchar(100),
+    create_ts timestamp,
+    update_ts timestamp
 );

@@ -1,7 +1,7 @@
-CREATE TABLE RAF_BILL_RELATED_BILLS (
-    BILL_ID VARCHAR(50),
-    RELATED_BILL_ID VARCHAR(50),
-    PRIMARY KEY (BILL_ID, RELATED_BILL_ID),
-    FOREIGN KEY (BILL_ID) REFERENCES RAF_BILL(BILL_ID) ON DELETE CASCADE,
-    FOREIGN KEY (RELATED_BILL_ID) REFERENCES RAF_BILL(BILL_ID) ON DELETE CASCADE
+create table raf_bill_related_bills (
+    bill_id varchar(50),
+    related_bill_id varchar(50),
+    primary key (bill_id, related_bill_id),
+    foreign key (bill_id) references raf_bill(bill_id) on delete cascade,
+    foreign key (related_bill_id) references raf_bill(bill_id) on delete cascade
 );

@@ -23,8 +23,8 @@ public class PersonSearchRepositoryImpl implements PersonSearchRepository {
         // 1) Count query
         String countSql = """
             SELECT COUNT(*)
-            FROM RAF_PERSON p
-            WHERE MATCH (p.FIRST_NM, p.LAST_NM, p.FULL_NM, p.STATE, p.STATE_ABBR, p.PARTY_MEM, p.PARTY)
+            FROM raf_person p
+            WHERE MATCH (p.first_nm, p.last_nm, p.full_nm, p.state, p.state_abbr, p.party_mem, p.party)
                   AGAINST (:parsed IN BOOLEAN MODE)
             """;
 
@@ -36,12 +36,12 @@ public class PersonSearchRepositoryImpl implements PersonSearchRepository {
         // 2) Main query for content
         String sql = """
             SELECT p.*
-            FROM RAF_PERSON p
-            WHERE MATCH (p.FIRST_NM, p.LAST_NM, p.FULL_NM, p.STATE, p.STATE_ABBR, p.PARTY_MEM, p.PARTY)
+            FROM raf_person p
+            WHERE MATCH (p.first_nm, p.last_nm, p.full_nm, p.state, p.state_abbr, p.party_mem, p.party)
                   AGAINST (:parsed IN BOOLEAN MODE)
             ORDER BY 
-                  p.CURRENT_MEM DESC,
-                  MATCH (p.FIRST_NM, p.LAST_NM, p.FULL_NM, p.STATE, p.STATE_ABBR, p.PARTY_MEM, p.PARTY)
+                  p.current_mem DESC,
+                  MATCH (p.first_nm, p.last_nm, p.full_nm, p.state, p.state_abbr, p.party_mem, p.party)
                         AGAINST (:parsed IN BOOLEAN MODE) DESC
             LIMIT :limit OFFSET :offset
             """;

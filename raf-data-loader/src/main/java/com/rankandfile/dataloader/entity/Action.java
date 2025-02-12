@@ -10,38 +10,38 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "RAF_BILL_ACTION")
+@Table(name = "raf_bill_action")
 @Data
 public class Action extends RAFAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ACTION_ID", nullable = false, updatable = false)
+    @Column(name = "action_id", nullable = false, updatable = false)
     private Long actionId;
 
-    @Column(name = "ACTION_CD")
+    @Column(name = "action_cd")
     private String actionCode;
 
-    @Column(name = "ACTION_DT")
+    @Column(name = "action_dt")
     private LocalDate actionDate;
 
-    @Column(name = "SRC_SYS_CD")
+    @Column(name = "src_sys_cd")
     private Integer sourceSystemCode;
 
-    @Column(name = "SRC_NM")
+    @Column(name = "src_nm")
     private String sourceSystemName;
 
-    @Column(name = "ACTION_TXT", length = 1000)
+    @Column(name = "action_txt", length = 1000)
     private String actionText;
 
-    @Column(name = "ACTION_TYPE", length = 40)
+    @Column(name = "action_type", length = 40)
     private String actionType;
 
     @ManyToOne
-    @JoinColumn(name = "BILL_ID", nullable = false)
+    @JoinColumn(name = "bill_id", nullable = false)
     private Bill bill;
 
-    @Column(name = "COMMITTEE_REF", length = 2000)
+    @Column(name = "committee_ref", length = 2000)
     private String committeeRef;
 
     @Transient

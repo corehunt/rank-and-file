@@ -57,6 +57,16 @@ export async function GET(request: NextRequest) {
         const page = parseInt(searchParams.get("page") || "0", 10);
         const size = parseInt(searchParams.get("size") || "20", 10);
 
+        // Log the extracted query parameters
+        console.log("Received query parameters:", {
+            searchQuery,
+            chamber,
+            party,
+            status,
+            page,
+            size,
+        });
+
         // Build the backend URL with query parameters
         const backendUrl = new URL(`${process.env.BACKEND_BASE_URL}/api/internal/politicians/search`);
         if (searchQuery) {
@@ -74,6 +84,7 @@ export async function GET(request: NextRequest) {
         backendUrl.searchParams.append("page", String(page));
         backendUrl.searchParams.append("size", String(size));
 
+        // Log the backend URL before making the request
         console.log(`Fetching politicians (search) from: ${backendUrl.toString()}`);
 
         const response = await fetch(backendUrl.toString(), {
@@ -83,6 +94,7 @@ export async function GET(request: NextRequest) {
             },
         });
 
+        // Check if the response was successful
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Error from backend search:", errorText);
@@ -93,9 +105,15 @@ export async function GET(request: NextRequest) {
         }
 
         const data: PageDTO<PersonDTO> = await response.json();
+
+        // Log the successful response data
+        console.log("Received search results:", data);
+
         return NextResponse.json(data);
     } catch (error) {
+        // Log any errors that occur
         console.error("Error fetching search results:", error);
+
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

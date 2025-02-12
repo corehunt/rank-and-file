@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${url}
-    username: ${db_user}
-    password: ${db_pass}
+    url: ${URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
 
   jpa:
     hibernate:
@@ -11,5 +11,5 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
-congress.api.key: ${api_key}
+congress.api.key: ${API_KEY}
 congress.api.url: "https://api.congress.gov/v3/"
