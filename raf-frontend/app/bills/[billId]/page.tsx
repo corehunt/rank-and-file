@@ -254,7 +254,7 @@ export default async function BillPage({
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="text">Full Text</TabsTrigger>
               <TabsTrigger value="actions">Actions</TabsTrigger>
-              <TabsTrigger value="amendments">Amendments</TabsTrigger>
+              {/*<TabsTrigger value="amendments">Amendments</TabsTrigger>*/}
               <TabsTrigger value="committees">Committees</TabsTrigger>
               <TabsTrigger value="related">Related Bills</TabsTrigger>
             </TabsList>

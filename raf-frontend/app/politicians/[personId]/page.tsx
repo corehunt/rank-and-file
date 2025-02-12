@@ -285,7 +285,7 @@ export default async function PoliticianProfile({
               <TabsTrigger value="record">Congressional Record</TabsTrigger>
               <TabsTrigger value="sponsored">Sponsored Bills</TabsTrigger>
               <TabsTrigger value="cosponsored">Co-Sponsored Bills</TabsTrigger>
-              <TabsTrigger value="finances">Financial Activity</TabsTrigger>
+              {/*<TabsTrigger value="finances">Financial Activity</TabsTrigger>*/}
             </TabsList>
 
             {/* Congressional Record Tab */}
