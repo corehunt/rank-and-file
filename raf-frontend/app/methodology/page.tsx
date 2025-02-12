@@ -6,11 +6,8 @@ export default function MethodologyPage() {
       title: "Data Collection",
       content: "Our data is collected from various official sources, including:",
       items: [
-        "Congressional Records and Databases",
-        "Federal Election Commission (FEC) Reports",
-        "Securities and Exchange Commission (SEC) Filings",
-        "Office of Government Ethics (OGE) Disclosures",
-        "State Electoral Databases"
+        "Congress.gov public api",
+        "Representatives public social media accounts"
       ]
     },
     {
@@ -18,37 +15,26 @@ export default function MethodologyPage() {
       content: "Our multi-step verification process ensures data accuracy:",
       items: [
         "Automated data validation and cross-referencing",
-        "Manual review by our team of political researchers",
+        "Manual review to ensure completeness",
         "Regular audits and updates",
         "Correction and feedback mechanisms"
-      ]
-    },
-    {
-      title: "Analysis Methods",
-      content: "We employ various analytical techniques to provide insights:",
-      items: [
-        "Pattern recognition in voting behavior",
-        "Network analysis of donor relationships",
-        "Statistical analysis of financial transactions",
-        "Temporal analysis of legislative activities"
       ]
     },
     {
       title: "Data Updates",
       content: "Our commitment to timely information:",
       items: [
-        "Real-time updates for congressional votes",
-        "Daily updates for campaign finance data",
-        "Weekly updates for stock trading information",
-        "Monthly comprehensive data audits"
+        "Hourly updates on bill information",
+        "Daily updates on representatives and current leadership",
+        "Weekly updates on committee information and historical data"
       ]
     },
     {
       title: "Quality Assurance",
       content: "We maintain high standards through:",
       items: [
-        "Peer review of methodologies",
-        "Regular consultation with political science experts",
+        "No human data interference",
+        "Information is only updated for clarity",
         "Transparent error correction procedures",
         "Open feedback channels with users"
       ]
