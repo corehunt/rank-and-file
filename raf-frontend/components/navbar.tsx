@@ -55,16 +55,19 @@ export default function Navbar() {
               <Link href="/trading" className="text-foreground/60 hover:text-foreground">
                 Trading
               </Link>
+              <Link href="/about" className="text-foreground/60 hover:text-foreground">
+                About Us
+              </Link>
               <ThemeToggle />
-              {isLoggedIn ? (
-                  <Button variant="outline" onClick={() => router.push("/dashboard")}>
-                    Dashboard
-                  </Button>
-              ) : (
-                  <Button asChild>
-                    <Link href="/auth">Sign In</Link>
-                  </Button>
-              )}
+              {/*{isLoggedIn ? (*/}
+              {/*    <Button variant="outline" onClick={() => router.push("/dashboard")}>*/}
+              {/*      Dashboard*/}
+              {/*    </Button>*/}
+              {/*) : (*/}
+              {/*    <Button asChild>*/}
+              {/*      <Link href="/auth">Sign In</Link>*/}
+              {/*    </Button>*/}
+              {/*)}*/}
             </div>
 
             {/* Mobile Menu */}
@@ -126,25 +129,25 @@ export default function Navbar() {
                         className="justify-start text-lg font-medium hover:text-primary px-0"
                         onClick={() => handleNavClick("/about")}
                     >
-                      About
+                      About Us
                     </Button>
-                    {isLoggedIn ? (
-                        <Button
-                            className="w-full"
-                            variant="outline"
-                            onClick={() => handleNavClick("/dashboard")}
-                        >
-                          Dashboard
-                        </Button>
-                    ) : (
-                        <Button
-                            className="w-full"
-                            variant="outline"
-                            onClick={() => handleNavClick("/auth")}
-                        >
-                          Sign In
-                        </Button>
-                    )}
+                    {/*{isLoggedIn ? (*/}
+                    {/*    <Button*/}
+                    {/*        className="w-full"*/}
+                    {/*        variant="outline"*/}
+                    {/*        onClick={() => handleNavClick("/dashboard")}*/}
+                    {/*    >*/}
+                    {/*      Dashboard*/}
+                    {/*    </Button>*/}
+                    {/*) : (*/}
+                    {/*    <Button*/}
+                    {/*        className="w-full"*/}
+                    {/*        variant="outline"*/}
+                    {/*        onClick={() => handleNavClick("/auth")}*/}
+                    {/*    >*/}
+                    {/*      Sign In*/}
+                    {/*    </Button>*/}
+                    {/*)}*/}
                   </nav>
                 </SheetContent>
               </Sheet>

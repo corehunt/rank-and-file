@@ -10,7 +10,7 @@ export default function AboutPage() {
             <Scale className="h-16 w-16 mx-auto text-primary mb-6" />
             <h1 className="text-4xl font-bold mb-4">About Rank and File</h1>
             <p className="text-xl text-muted-foreground">
-              Empowering citizens with transparent insights into U.S. politics through comprehensive data analysis and accessible information.
+              Offering transparent insights into U.S. politics through comprehensive data analysis and accessible information.
             </p>
           </div>
         </div>
@@ -22,7 +22,7 @@ export default function AboutPage() {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
               <p className="text-muted-foreground">
-                Rank and File is dedicated to empowering everyday citizens by providing them with a reliable platform to conduct their own research on U.S. politicians. We believe in delivering transparent, accurate, and unbiased data to inform more knowledgeable voters and foster a more engaged electorate.
+                Rank and File is dedicated to empowering users by providing them with a reliable platform to conduct their own research on U.S. politicians. We believe in delivering transparent, accurate, and unbiased data to inform more knowledgeable voters and foster a more engaged electorate.
               </p>
             </CardContent>
           </Card>
@@ -30,7 +30,7 @@ export default function AboutPage() {
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold mb-4">Our Vision</h2>
               <p className="text-muted-foreground">
-                We envision a democracy where every citizen has easy access to comprehensive, unbiased information about their representatives. By making political data more accessible and understandable, we aim to strengthen democratic participation and accountability.
+                We envision a democracy where everybody has easy access to comprehensive, unbiased information about their representatives. By making political data more accessible and understandable, we aim to strengthen democratic participation and accountability.
               </p>
             </CardContent>
           </Card>
@@ -58,7 +58,7 @@ export default function AboutPage() {
                 <Users className="h-12 w-12 mx-auto text-primary" />
                 <h3 className="text-xl font-semibold">Community Empowerment</h3>
                 <p className="text-muted-foreground">
-                  We believe in empowering citizens with the tools and information they need to actively participate in democracy.
+                  We believe in empowering users with the tools and information they need to actively participate in what matters to them.
                 </p>
               </div>
             </div>
@@ -72,15 +72,9 @@ export default function AboutPage() {
                   Rank and File aggregates data from various official sources, including:
                 </p>
                 <ul className="list-disc list-inside mt-4 space-y-2 text-muted-foreground">
-                  <li>Congressional voting records and bill sponsorships</li>
-                  <li>Federal Election Commission (FEC) campaign finance data</li>
-                  <li>Financial disclosure reports</li>
-                  <li>Public statements and press releases</li>
-                  <li>Committee assignments and attendance records</li>
+                  <li>Congress.gov official website</li>
+                  <li>Representatives public social media accounts</li>
                 </ul>
-                <p className="mt-4 text-muted-foreground">
-                  Our team of data analysts and political researchers carefully verifies and cross-references all information to ensure accuracy and completeness.
-                </p>
               </CardContent>
             </Card>
           </div>

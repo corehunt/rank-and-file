@@ -7,15 +7,15 @@ export default function FAQPage() {
       questions: [
         {
           q: "What is Rank and File?",
-          a: "Rank and File is a comprehensive platform that aggregates and simplifies data on U.S. politicians, providing transparent insights into their legislative activities, sponsorships, corporate donors, and financial disclosures."
+          a: "Rank and File is a comprehensive platform that aggregates and simplifies data on U.S. politicians, providing transparent insights into their legislative activities and sponsorships."
         },
         {
           q: "Is Rank and File politically affiliated?",
-          a: "No, we are strictly non-partisan and committed to providing objective, unbiased data to help citizens make informed decisions."
+          a: "No, we are strictly non-partisan and committed to providing objective, unbiased data to help users make informed decisions."
         },
         {
           q: "How can I get started?",
-          a: "You can start exploring our platform immediately without an account. However, creating a free account allows you to save searches, set up alerts, and access additional features."
+          a: "You can start exploring our platform immediately without an account."
         }
       ]
     },
@@ -24,15 +24,15 @@ export default function FAQPage() {
       questions: [
         {
           q: "How often is the data updated?",
-          a: "We update our data in real-time for congressional votes, daily for campaign finance data, and weekly for stock trading information. All data undergoes thorough verification processes."
+          a: "We provide hourly updates for bill data, daily for representative info, and weekly for historical & committee information. All data undergoes thorough verification processes."
         },
         {
           q: "Where does your data come from?",
-          a: "Our data comes from official government sources including Congressional Records, FEC reports, SEC filings, and Office of Government Ethics disclosures."
+          a: "Our data currently comes exclusively through the official congress.gov website."
         },
         {
           q: "How far back does your historical data go?",
-          a: "Our database includes comprehensive records dating back to 2000, with selected historical data available for significant legislative events before that date."
+          a: "Our database includes comprehensive records dating back to 1993."
         }
       ]
     },
@@ -41,15 +41,15 @@ export default function FAQPage() {
       questions: [
         {
           q: "Do I need to create an account?",
-          a: "While basic browsing is available to all users, creating an account gives you access to features like saved searches, custom alerts, and personalized dashboards."
+          a: "While basic browsing is available to all users, we plan to give account creation access to features like saved searches, custom alerts, and personalized dashboards in the future."
         },
         {
           q: "Is there a mobile app?",
-          a: "Currently, we offer a mobile-responsive website. A dedicated mobile app is in development and will be released soon."
+          a: "Currently, we offer a mobile-responsive website. A dedicated mobile app is not planned at this time but please let us know if its something you're interested in."
         },
         {
           q: "Can I export data from the platform?",
-          a: "Yes, registered users can export data in various formats (CSV, JSON, PDF) for personal use. For bulk data access, please see our API documentation."
+          a: "Only full text versions of bills are available for download."
         }
       ]
     },
@@ -62,11 +62,11 @@ export default function FAQPage() {
         },
         {
           q: "How can I report an issue?",
-          a: "You can report technical issues through our contact form or by emailing support@rankandfile.com. We aim to respond within 24 hours."
+          a: "You can report technical issues by emailing contact@rankandfile.us. We aim to respond within 24 hours."
         },
         {
           q: "Is there an API available?",
-          a: "Yes, we offer a comprehensive API for developers. Visit our API documentation page for more information about access and integration."
+          a: "Not yet, but we plan to offer access in the future once we have a more feature rich environment."
         }
       ]
     }

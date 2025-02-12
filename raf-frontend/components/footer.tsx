@@ -1,4 +1,4 @@
-import { Scale, Github, Twitter, Linkedin } from "lucide-react";
+import {Scale, Github, Twitter, Linkedin, Mail} from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -14,17 +14,17 @@ export default function Footer() {
               <span className="font-bold text-lg">Rank and File</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Empowering citizens with transparent insights into U.S. politics
+              Unlocking transparent insights into U.S. politics to empower your decisions.
             </p>
             <div className="flex justify-center space-x-4">
-              <Link href="https://twitter.com/rankandfile" className="text-muted-foreground hover:text-foreground">
+              <Link href="https://x.com/rankandfileus" className="text-muted-foreground hover:text-foreground">
                 <Twitter className="h-5 w-5" />
               </Link>
-              <Link href="https://github.com/rankandfile" className="text-muted-foreground hover:text-foreground">
-                <Github className="h-5 w-5" />
-              </Link>
-              <Link href="https://linkedin.com/company/rankandfile" className="text-muted-foreground hover:text-foreground">
-                <Linkedin className="h-5 w-5" />
+              {/*<Link href="https://github.com/rankandfile" className="text-muted-foreground hover:text-foreground">*/}
+              {/*  <Github className="h-5 w-5" />*/}
+              {/*</Link>*/}
+              <Link href="mailto:contact@rankandfile.us" className="text-muted-foreground hover:text-foreground">
+                <Mail className="h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -75,11 +75,11 @@ export default function Footer() {
                     Methodology
                   </Link>
                 </li>
-                <li>
-                  <Link href="/api" className="text-sm text-muted-foreground hover:text-foreground">
-                    API Access
-                  </Link>
-                </li>
+                {/*<li>*/}
+                {/*  <Link href="/api" className="text-sm text-muted-foreground hover:text-foreground">*/}
+                {/*    API Access*/}
+                {/*  </Link>*/}
+                {/*</li>*/}
                 <li>
                   <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
                     Contact
@@ -119,17 +119,17 @@ export default function Footer() {
               <span className="font-bold text-lg">Rank and File</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Empowering citizens with transparent insights into U.S. politics
+              Unlocking transparent insights into U.S. politics to empower your decisions.
             </p>
             <div className="flex space-x-4">
-              <Link href="https://twitter.com/rankandfile" className="text-muted-foreground hover:text-foreground">
+              <Link href="https://x.com/rankandfileus" className="text-muted-foreground hover:text-foreground">
                 <Twitter className="h-5 w-5" />
               </Link>
-              <Link href="https://github.com/rankandfile" className="text-muted-foreground hover:text-foreground">
-                <Github className="h-5 w-5" />
-              </Link>
-              <Link href="https://linkedin.com/company/rankandfile" className="text-muted-foreground hover:text-foreground">
-                <Linkedin className="h-5 w-5" />
+              {/*<Link href="https://github.com/rankandfile" className="text-muted-foreground hover:text-foreground">*/}
+              {/*  <Github className="h-5 w-5" />*/}
+              {/*</Link>*/}
+              <Link href="mailto:contact@rankandfile.us" className="text-muted-foreground hover:text-foreground">
+                <Mail className="h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -178,11 +178,11 @@ export default function Footer() {
                   Methodology
                 </Link>
               </li>
-              <li>
-                <Link href="/api" className="text-sm text-muted-foreground hover:text-foreground">
-                  API Access
-                </Link>
-              </li>
+              {/*<li>*/}
+              {/*  <Link href="/api" className="text-sm text-muted-foreground hover:text-foreground">*/}
+              {/*    API Access*/}
+              {/*  </Link>*/}
+              {/*</li>*/}
               <li>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
                   Contact
@@ -213,11 +213,11 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="mt-8 pt-8 border-t text-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Rank and File. All rights reserved.
-          </p>
-        </div>
+        {/*<div className="mt-8 pt-8 border-t text-center">*/}
+        {/*  <p className="text-sm text-muted-foreground">*/}
+        {/*    © {new Date().getFullYear()} Rank and File. All rights reserved.*/}
+        {/*  </p>*/}
+        {/*</div>*/}
       </div>
     </footer>
   );

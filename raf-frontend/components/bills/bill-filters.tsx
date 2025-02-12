@@ -29,28 +29,28 @@ export default function BillFilters({ filters, onFilterChange }: BillFiltersProp
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Congress Filter */}
-          <div className="space-y-4">
-            <h3 className="font-medium">Congress</h3>
-            <div className="space-y-2">
-              {congresses.map((congress) => (
-                  <div key={congress} className="flex items-center space-x-2">
-                    <Checkbox
-                        id={congress}
-                        checked={filters.congress.includes(congress)}
-                        onCheckedChange={(checked) => {
-                          const newList = checked
-                              ? [...filters.congress, congress]
-                              : filters.congress.filter((c) => c !== congress);
-                          onFilterChange("congress", newList);
-                        }}
-                    />
-                    <Label htmlFor={congress}>{congress}</Label>
-                  </div>
-              ))}
-            </div>
-          </div>
+          {/*<div className="space-y-4">*/}
+          {/*  <h3 className="font-medium">Congress</h3>*/}
+          {/*  <div className="space-y-2">*/}
+          {/*    {congresses.map((congress) => (*/}
+          {/*        <div key={congress} className="flex items-center space-x-2">*/}
+          {/*          <Checkbox*/}
+          {/*              id={congress}*/}
+          {/*              checked={filters.congress.includes(congress)}*/}
+          {/*              onCheckedChange={(checked) => {*/}
+          {/*                const newList = checked*/}
+          {/*                    ? [...filters.congress, congress]*/}
+          {/*                    : filters.congress.filter((c) => c !== congress);*/}
+          {/*                onFilterChange("congress", newList);*/}
+          {/*              }}*/}
+          {/*          />*/}
+          {/*          <Label htmlFor={congress}>{congress}</Label>*/}
+          {/*        </div>*/}
+          {/*    ))}*/}
+          {/*  </div>*/}
+          {/*</div>*/}
 
-          <Separator />
+          {/*<Separator />*/}
 
           {/* Chamber Filter (House / Senate) */}
           <div className="space-y-4">

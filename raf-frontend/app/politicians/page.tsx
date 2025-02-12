@@ -383,7 +383,7 @@ export default function PoliticiansPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4">U.S. Politicians</h1>
             <p className="text-base sm:text-lg text-muted-foreground mb-6">
-              Track voting records, sponsored bills, and financial connections of current and past Congress members.
+              Track congressional records, sponsored bills, legislative impact of current and past Congress members.
             </p>
 
             {/* Search Form */}
@@ -392,7 +392,7 @@ export default function PoliticiansPage() {
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                     type="search"
-                    placeholder="Search by name, state, or party ..."
+                    placeholder="Search by name, state, or party..."
                     className="pl-10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
