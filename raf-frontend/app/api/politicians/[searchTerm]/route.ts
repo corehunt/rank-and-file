@@ -72,15 +72,15 @@ export async function GET(request: NextRequest) {
         if (searchQuery) {
             backendUrl.searchParams.append("q", searchQuery);
         }
-        if (chamber) {
-            backendUrl.searchParams.append("chamber", chamber);
-        }
-        if (party) {
-            backendUrl.searchParams.append("party", party);
-        }
-        if (status) {
-            backendUrl.searchParams.append("status", status);
-        }
+        // if (chamber) {
+        //     backendUrl.searchParams.append("chamber", chamber);
+        // }
+        // if (party) {
+        //     backendUrl.searchParams.append("party", party);
+        // }
+        // if (status) {
+        //     backendUrl.searchParams.append("status", status);
+        // }
         backendUrl.searchParams.append("page", String(page));
         backendUrl.searchParams.append("size", String(size));
 
