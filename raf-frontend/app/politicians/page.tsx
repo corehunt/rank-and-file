@@ -204,10 +204,14 @@ export default function PoliticiansPage() {
         size: "20",
       });
 
+      const dynamicPart = searchQuery.trim() || "all";
 
-      const res = await fetch(`/api/politicians/[searchTerm]?${queryParams.toString()}`, {
+      const endpoint = `/api/politicians/${encodeURIComponent(dynamicPart)}?${queryParams.toString()}`;
+
+      const res = await fetch(endpoint, {
         cache: "no-store",
       });
+
       if (!res.ok) {
         throw new Error("Failed to fetch search results");
       }
