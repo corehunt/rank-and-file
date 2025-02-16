@@ -39,7 +39,7 @@ public class ScheduledNewBillCreationService {
      * Scheduled job to load and hydrate bills with a last action date captured within 1 hour previous
      * Runs every day at the top of every hour
      */
-//    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     public void loadRecentBills() {
         List<Bill> recentBills = new ArrayList<>();
         int offset = 0;
@@ -47,14 +47,14 @@ public class ScheduledNewBillCreationService {
         boolean hasMoreRecords = true;
 
         Instant now = Instant.now();
-        Instant twoHoursAgo = now.minus(1, ChronoUnit.HOURS);
-        log.info("starting to fetch bills for last timestamp between: {} and {}", now, twoHoursAgo);
+        Instant hourOffset = now.minus(1, ChronoUnit.HOURS);
+        log.info("starting to fetch bills for last timestamp between: {} and {}", now, hourOffset);
 
         // Format the timestamps in the format: YYYY-MM-DDTHH:mm:ssZ
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
                 .withZone(ZoneOffset.UTC);
         String toDateTime = formatter.format(now);
-        String fromDateTime = formatter.format(twoHoursAgo);
+        String fromDateTime = formatter.format(hourOffset);
 
         try {
             while(hasMoreRecords){
