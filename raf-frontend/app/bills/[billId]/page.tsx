@@ -501,23 +501,23 @@ export default async function BillPage({
                   <h2 className="text-xl font-semibold mb-4">Committee Assignments</h2>
                   <div className="space-y-6">
                     {bill.committees.map((committee, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">
+                        <div key={index}
+                             className="flex flex-col sm:flex-row justify-between gap-4 border-b pb-6 last:border-0 last:pb-0">
                           <div className="space-y-2">
-                            <Link
-                                href={`/committees/${committee.committeeId}`}
-                                className="font-medium hover:text-primary"
-                            >
-                              {committee.commName}
-                            </Link>
+                            <div className="font-medium">{committee.commName}</div>
                             <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline">{committee.chamber} Committee</Badge>
-                              <Badge variant="secondary">{committee.commTypeCd}</Badge>
+                              {committee.chamber && (
+                                  <Badge variant="outline">{committee.chamber} Committee</Badge>
+                              )}
+                              {committee.commTypeCd && (
+                                  <Badge variant="secondary">{committee.commTypeCd}</Badge>
+                              )}
                             </div>
                           </div>
-                          <p className="text-sm text-muted-foreground shrink-0">
-                            Referred on
-                            {/*{new Date(committee.referralDate).toLocaleDateString()}*/}
-                          </p>
+                          {/*<p className="text-sm text-muted-foreground shrink-0">*/}
+                          {/*  Referred on*/}
+                          {/*  /!*{new Date(committee.referralDate).toLocaleDateString()}*!/*/}
+                          {/*</p>*/}
                         </div>
                     ))}
                   </div>
