@@ -28,6 +28,7 @@ public class ScheduledBillHydrationRunner {
     private final BillTextService billTextService;
     private final BillSubjectService billSubjectService;
     private final RelatedBillService relatedBillService;
+    private final BillCoSponsorService billCoSponsorService;
 
     private final int limit = 250;
 
@@ -35,7 +36,7 @@ public class ScheduledBillHydrationRunner {
     private final RateLimiter rateLimiter = RateLimiter.create(1.388);
 
     /**
-     * Hydrates all 7 bill endpoints where the update timestamp is within the last hour
+     * Hydrates all 8 bill endpoints where the update timestamp is within the last hour
      * Time to calculate against is passed from initial service
      * Called every day at the top of every hour
      */
@@ -52,7 +53,7 @@ public class ScheduledBillHydrationRunner {
             return;
         }
 
-        int maxBillsPerHour = 650; // Safety margin (650 bills * 7 calls = 4550 calls) to stay under 5k rate limit
+        int maxBillsPerHour = 600; // Safety margin (600 bills * 8 calls = 4800 calls) to stay under 5k rate limit
         int totalBills = recentBills.size();
         int totalBatches = (int) Math.ceil((double) totalBills / maxBillsPerHour);
 
@@ -121,6 +122,7 @@ public class ScheduledBillHydrationRunner {
         callServiceWithRateLimit(() -> billTextService.fetchBillTexts(congressNo, billType, billNo));
         callServiceWithRateLimit(() -> billSubjectService.fetchBillSubjects(congressNo, billType, billNo));
         callServiceWithRateLimit(() -> relatedBillService.getRelatedBills(congressNo, billType, billNo));
+        callServiceWithRateLimit(() -> billCoSponsorService.getCoSponsorsByBillNumber(congressNo, billType, billNo));
     }
 
     /**
