@@ -24,8 +24,8 @@ public class BillCoSponsorController {
     }
 
     /**
-     * Loads the committees associated with a specific bill from the external API and saves them to the database.
-     * api.congress.gov endpoint: /bill/{congress}/{billType}/{billNumber}/committees
+     * Loads the cosponsors associated with a specific bill from the external API and saves them to the database.
+     * api.congress.gov endpoint: /bill/{congress}/{billType}/{billNumber}/cosponsors
      *
      * @param congressNo The Congress number.
      * @param billType   The bill type.
