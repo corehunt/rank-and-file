@@ -37,10 +37,10 @@ public class BillCoSponsorController {
             @PathVariable String congressNo,
             @PathVariable String billType,
             @PathVariable String billNumber) {
-        log.info("Loading committee data for bill number: {}, congress: {}", billNumber, congressNo);
+        log.info("Loading co-sponsor data for bill number: {}, congress: {}", billNumber, congressNo);
         try {
             billCoSponsorService.getCoSponsorsByBillNumber(congressNo, billType, billNumber);
-            return ResponseEntity.ok("Successfully loaded committees for bill number: " + billNumber);
+            return ResponseEntity.ok("Successfully loaded co-sponsors for bill number: " + billNumber);
         } catch (EntityNotFoundException e) {
             log.error("Bill not found: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Bill not found: " + e.getMessage());
