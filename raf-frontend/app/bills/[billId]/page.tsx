@@ -360,9 +360,10 @@ export default async function BillPage({
                                 <Badge variant={getPartyBadgeVariant(mainSponsor.person.partyMembership)}>
                                   {mapPartyCodeToName(mainSponsor.person.partyMembership)}
                                 </Badge>
-                                <span className="text-sm text-muted-foreground">
-                                    {mainSponsor.person.state}-{mainSponsor.person.currentDistrict}{getNumberSuffix(mainSponsor.person.currentDistrict)}
-                                </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {mainSponsor.person.state === "District of Columbia" ? "D.C." : mainSponsor.person.state}
+                                    {mainSponsor.person.currentDistrict ? `-${mainSponsor.person.currentDistrict}${getNumberSuffix(mainSponsor.person.currentDistrict)}` : ""}
+                                  </span>
                               </div>
                             </div>
                           </div>
@@ -388,11 +389,10 @@ export default async function BillPage({
                                 {cosponsor.person?.fullName}
                               </Link>
                               <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">
-                                  {cosponsor.person?.state === "District of Columbia"
-                                      ? "D.C."
-                                      : `${cosponsor.person?.state}-${cosponsor.person?.currentDistrict}${getNumberSuffix(cosponsor.person?.currentDistrict)}`}
-                                </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {cosponsor.person?.state === "District of Columbia" ? "D.C." : cosponsor.person?.state}
+                                    {cosponsor.person?.currentDistrict ? `-${cosponsor.person.currentDistrict}${getNumberSuffix(cosponsor.person.currentDistrict)}` : ""}
+                                  </span>
                                 <Badge variant={getPartyBadgeVariant(cosponsor.person?.partyMembership)}>
                                   {cosponsor.person?.partyMembership}
                                 </Badge>
