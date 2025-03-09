@@ -2,7 +2,7 @@ package com.rankandfile.dataloader.service.external.bill;
 
 import com.rankandfile.dataloader.entity.Bill;
 import com.rankandfile.dataloader.entity.SponsoredLegislation;
-import com.rankandfile.dataloader.processor.SponsoredLegislationProcessor;
+import com.rankandfile.dataloader.processor.CoSponsoredLegislationProcessor;
 import com.rankandfile.dataloader.repository.BillRepository;
 import com.rankandfile.dataloader.repository.SponsoredLegislationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,16 +19,16 @@ public class BillCoSponsorService {
     private final WebClient webClient;
     private final BillRepository billRepository;
     private final SponsoredLegislationRepository sponsoredLegislationRepository;
-    private final SponsoredLegislationProcessor sponsoredLegislationProcessor;
+    private final CoSponsoredLegislationProcessor coSponsoredLegislationProcessor;
 
     public BillCoSponsorService(
             @Qualifier("congressGovApiWebClient") WebClient webClient,
             BillRepository billRepository, SponsoredLegislationRepository sponsoredLegislationRepository,
-            SponsoredLegislationProcessor sponsoredLegislationProcessor){
+            CoSponsoredLegislationProcessor coSponsoredLegislationProcessor){
         this.webClient = webClient;
         this.billRepository = billRepository;
         this.sponsoredLegislationRepository = sponsoredLegislationRepository;
-        this.sponsoredLegislationProcessor = sponsoredLegislationProcessor;
+        this.coSponsoredLegislationProcessor = coSponsoredLegislationProcessor;
     }
 
     /**
@@ -55,7 +55,7 @@ public class BillCoSponsorService {
                 return;
             }
 
-            List<SponsoredLegislation> sponsoredLegislationList = sponsoredLegislationProcessor.process(response, bill);
+            List<SponsoredLegislation> sponsoredLegislationList = coSponsoredLegislationProcessor.process(response, bill);
 
             log.info("CoSponsors successfully updated for Bill ID: {}", bill.getBillId());
             billRepository.save(bill);
