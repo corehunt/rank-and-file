@@ -74,7 +74,8 @@ class MembersServiceTest {
     void testFetchAndSaveMembersSuccessfulRetrieval() throws Exception {
         int limit = 2;
         String responsePage1 = "{\"members\": [{}, {}]}"; // Simulated JSON response
-        String responsePage2 = "{\"members\": [{}]}";     // Less than limit to stop pagination
+        String responsePage2 = "{\"members\": [{}]}"; // Less than limit to stop pagination
+        String responsePage3 = "";
 
         // Enqueue mock responses
         mockWebServer.enqueue(new MockResponse()
@@ -82,6 +83,9 @@ class MembersServiceTest {
                 .addHeader("Content-Type", "application/json"));
         mockWebServer.enqueue(new MockResponse()
                 .setBody(responsePage2)
+                .addHeader("Content-Type", "application/json"));
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responsePage3)
                 .addHeader("Content-Type", "application/json"));
 
         // Mocking CongressMemberProcessor behavior

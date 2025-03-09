@@ -1,17 +1,23 @@
 package com.rankandfile.dataloader.processor;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rankandfile.dataloader.entity.Bill;
+import com.rankandfile.dataloader.entity.Person;
+import com.rankandfile.dataloader.entity.SponsoredLegislation;
 import com.rankandfile.dataloader.repository.BillRepository;
+import com.rankandfile.dataloader.repository.PersonRepository;
 import com.rankandfile.dataloader.util.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -33,12 +39,17 @@ public class BillByCongressTypeNumberProcessor {
     private static final String FIELD_LAWS = "laws";
     private static final String FIELD_LAW_NUMBER = "number";
     private static final String FIELD_LAW_TYPE = "type";
+    private static final String FIELD_SPONSORS = "sponsors";
+    private static final String FIELD_SPONSOR_TYPE = "Sponsor";
+    private static final String FIELD_BIOGUIDE_ID = "bioguideId";
 
     private final BillRepository billRepository;
+    private final PersonRepository personRepository;
     private final IdGenerator idGenerator;
 
-    public BillByCongressTypeNumberProcessor(BillRepository billRepository, IdGenerator idGenerator) {
+    public BillByCongressTypeNumberProcessor(BillRepository billRepository, PersonRepository personRepository, IdGenerator idGenerator) {
         this.billRepository = billRepository;
+        this.personRepository = personRepository;
         this.idGenerator = idGenerator;
     }
 
@@ -190,6 +201,61 @@ public class BillByCongressTypeNumberProcessor {
             // Laws array is not present
             clearLawFields(bill);
         }
+
+        //Process sponsors array
+        if (billObject.has(FIELD_SPONSORS) && billObject.get(FIELD_SPONSORS).isJsonArray()) {
+            JsonArray sponsorsArray = billObject.getAsJsonArray(FIELD_SPONSORS);
+            if (!sponsorsArray.isEmpty()) {
+                Map<String, SponsoredLegislation> existingLegislationMap =
+                        bill.getSponsorships()
+                                .stream()
+                                .collect(Collectors.toMap(
+                                        leg -> generateKey(bill.getCongress(), bill.getBillNo(), bill.getBillType(), FIELD_SPONSOR_TYPE, leg.getPerson().getPersonId()),
+                                        leg -> leg
+                                ));
+
+                for (JsonElement element : sponsorsArray) {
+                    JsonObject sponsorObj = element.getAsJsonObject();
+                    String personId = getAsString(sponsorObj, FIELD_BIOGUIDE_ID);
+                    if (personId == null) {
+                        log.warn("Cosponsor element missing bioguideId; skipping element: {}", sponsorObj);
+                        continue;
+                    }
+
+                    // Look up the Person for the cosponsor.
+                    Person sponsor = personRepository.findPersonByPersonId(personId);
+                    if (sponsor == null) {
+                        log.warn("Cosponsor with bioguideId {} not found; skipping.", personId);
+                        continue;
+                    }
+
+                    String key = generateKey(bill.getCongress(), bill.getBillNo(), bill.getBillType(), FIELD_SPONSOR_TYPE, personId);
+                    SponsoredLegislation existing = existingLegislationMap.get(key);
+                    if (existing == null) {
+                        log.info("Creating new SponsoredLegislation for Bill ID: {} and Cosponsor ID: {}", bill.getBillId(), personId);
+                        SponsoredLegislation sponsoredLegislation = new SponsoredLegislation();
+                        sponsoredLegislation.setSponLegId(idGenerator.generateSponsLegId());
+                        sponsoredLegislation.setPerson(sponsor);
+                        sponsoredLegislation.setBill(bill);
+                        sponsoredLegislation.setSponsorType(FIELD_SPONSOR_TYPE);
+                        bill.getSponsorships().add(sponsoredLegislation);
+                        // Update map to prevent duplicates within this processing run.
+                        existingLegislationMap.put(key, sponsoredLegislation);
+                    } else {
+                        log.info("SponsoredLegislation relationship already exists for Cosponsor ID: {}", personId);
+                    }
+                }
+            }
+
+        }
+    }
+
+    private String generateKey(String congress, String billNo, String billType, String sponsorType, String personId) {
+        String billNoStr = (billNo != null) ? billNo : "unknownBillNo";
+        String billTypeStr = (billType != null) ? billType : "unknownBillType";
+        String sponsorTypeStr = (sponsorType != null) ? sponsorType : "unknownSponsorType";
+        String personIdStr = (personId != null) ? personId : "unknownPersonId";
+        return congress + "-" + billNoStr + "-" + billTypeStr + "-" + sponsorTypeStr + "-" + personIdStr;
     }
 
     private void clearLawFields(Bill bill) {

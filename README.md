@@ -51,6 +51,7 @@ Bill:
 - PUT - /api/bill/{congressNo}/{billType}/{billNumber}/text
 - PUT - /api/bill/{congressNo}/{billType}/{billNumber}/subjects
 - PUT - /api/bill/{congressNo}/{billType}/{billNumber}/relatedBills
+- PUT - /api/bill/{congressNo}/{billType}/{billNumber}/cosponsors
 
 Committee:
 - PUT - /api/committee/all

@@ -389,7 +389,9 @@ export default async function BillPage({
                               </Link>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
-                                  {cosponsor.person?.state}-{cosponsor.person?.currentDistrict}{getNumberSuffix(cosponsor.person?.currentDistrict)}
+                                  {cosponsor.person?.state === "District of Columbia"
+                                      ? "D.C."
+                                      : `${cosponsor.person?.state}-${cosponsor.person?.currentDistrict}${getNumberSuffix(cosponsor.person?.currentDistrict)}`}
                                 </span>
                                 <Badge variant={getPartyBadgeVariant(cosponsor.person?.partyMembership)}>
                                   {cosponsor.person?.partyMembership}

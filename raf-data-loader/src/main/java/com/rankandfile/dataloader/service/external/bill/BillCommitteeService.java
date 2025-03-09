@@ -32,6 +32,7 @@ public class BillCommitteeService {
      * @param billType   The type of the bill (e.g., "hr", "s").
      * @param billNo     The bill number.
      */
+    //TODO: refactor service to pass bill object to processor to avoid another excessive db call
     public void getCommitteesByBillNumber(String congressNo, String billType, String billNo) {
         // Find the bill in the repository
         Bill bill = billRepository.findByCongressAndBillNoAndBillType(congressNo, billNo, billType);
